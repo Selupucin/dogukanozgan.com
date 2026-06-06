@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "cd ../.. && pnpm db:generate && pnpm --filter @do/admin build",
-  "installCommand": "cd ../.. && pnpm install"
+  "buildCommand": "pnpm --filter @do/db exec prisma generate && next build",
+  "installCommand": "pnpm install"
 }
