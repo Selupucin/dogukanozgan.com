@@ -35,12 +35,12 @@ const telefon: ProductField = {
   placeholder: { tr: "05xx xxx xx xx", en: "05xx xxx xx xx" },
 };
 
-// docs/03 "🔧 netleşecek": e-posta zorunlu mu opsiyonel mi → şimdilik opsiyonel.
-// TODO(doc): E-posta zorunluluğu netleşince `required` güncellenir.
+// E-posta ZORUNLU (K30/docs/12): her teklifte onay maili + durum-takip kodu müşterinin
+// e-postasına gönderilir; bu yüzden e-posta tüm ürünlerde bulunur ve zorunludur.
 const eposta: ProductField = {
   name: "eposta",
   type: "email",
-  required: false,
+  required: true,
   label: { tr: "E-posta", en: "Email" },
   placeholder: { tr: "ornek@eposta.com", en: "you@example.com" },
 };
@@ -218,6 +218,7 @@ const saglik: ProductDefinition = {
       validation: { min: 1, max: 12 },
       showIf: { field: "kapsam", equals: "aile" },
     },
+    eposta,
   ],
 };
 
@@ -259,6 +260,7 @@ const bireyselEmeklilik: ProductDefinition = {
         { value: "birikim", label: { tr: "Birikim", en: "Savings" } },
       ],
     },
+    eposta,
   ],
 };
 
@@ -329,6 +331,7 @@ const hayat: ProductDefinition = {
       sensitive: true,
       label: { tr: "Sigara kullanıyorum", en: "I am a smoker" },
     },
+    eposta,
   ],
 };
 
@@ -400,6 +403,7 @@ const konut: ProductDefinition = {
       label: { tr: "Eşya bedeli (TL)", en: "Contents value (TRY)" },
       validation: { min: 0 },
     },
+    eposta,
   ],
 };
 
@@ -648,7 +652,7 @@ const kurumsal: ProductDefinition = {
       validation: { minLength: 2, maxLength: 120 },
     },
     telefon,
-    { ...eposta, required: false },
+    eposta,
     {
       name: "mesaj",
       type: "text",
