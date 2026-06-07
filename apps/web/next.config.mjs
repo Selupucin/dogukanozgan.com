@@ -1,4 +1,8 @@
 import createNextIntlPlugin from "next-intl/plugin";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // next-intl request config konumu (bkz. src/i18n/request.ts).
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
@@ -53,6 +57,10 @@ const nextConfig = {
   reactStrictMode: true,
   // Monorepo paketleri (workspace) Next derlemesine dahil edilir.
   transpilePackages: ["@do/ui", "@do/products", "@do/db"],
+  // pnpm monorepo'da Prisma query engine'i serverless fonksiyona kopyalanabilsin diye
+  // dosya-izleme kökü monorepo köküne; @prisma/client harici (node_modules'tan yüklenir).
+  outputFileTracingRoot: path.join(__dirname, "../../"),
+  serverExternalPackages: ["@prisma/client", ".prisma/client"],
   async redirects() {
     return legacyRedirects;
   },
