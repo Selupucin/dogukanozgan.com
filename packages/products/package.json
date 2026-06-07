@@ -10,7 +10,9 @@
     ".": "./src/index.ts",
     "./definitions": "./src/definitions.ts",
     "./types": "./src/types.ts",
-    "./calculators": "./src/calculators/index.ts"
+    "./calculators": "./src/calculators/index.ts",
+    "./locations": "./src/locations.ts",
+    "./locations/neighborhoods": "./src/locations-neighborhoods.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

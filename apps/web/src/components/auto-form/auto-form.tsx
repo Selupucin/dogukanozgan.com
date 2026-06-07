@@ -15,7 +15,7 @@ import { useTranslations } from "next-intl";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
 import { cn } from "@do/ui";
 import type { ProductDefinition, Locale } from "./types-bridge";
-import { buildFormSchema } from "./schema";
+import { buildFormSchema, isFieldVisible } from "./schema";
 import { Field } from "./field";
 import { ConsentField } from "./consent-field";
 import { KvkkBody, SensitiveConsentBody } from "@/components/legal/kvkk-content";
@@ -46,6 +46,10 @@ export function AutoForm({ product, locale, defaultValues }: AutoFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<SubmitQuoteResult["error"] | null>(null);
 
+  // docs/03 koşullu görünürlük: tüm değerleri izle → showIf'e göre alanları göster/gizle
+  // ve gizli alanları gönderimden çıkar (Zod superRefine zaten gizliyken atlar).
+  const watched = form.watch();
+
   async function onSubmit(values: Record<string, unknown>) {
     setServerError(null);
 
@@ -54,6 +58,8 @@ export function AutoForm({ product, locale, defaultValues }: AutoFormProps) {
     fd.set("__slug", product.slug);
     fd.set("__locale", locale);
     for (const field of product.fields) {
+      // Gizli (showIf koşulu sağlanmayan) alanları gönderme.
+      if (!isFieldVisible(field, values)) continue;
       const value = values[field.name];
       if (value === undefined || value === null) continue;
       if (value instanceof File) {
@@ -115,18 +121,22 @@ export function AutoForm({ product, locale, defaultValues }: AutoFormProps) {
       className="relative flex flex-col gap-5 rounded-[var(--radius)] border border-border bg-card p-6 shadow-sm sm:p-8"
     >
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        {product.fields.map((field) => (
-          <div
-            key={field.name}
-            className={
-              field.type === "checkbox" || field.type === "radio" || field.type === "file"
-                ? "sm:col-span-2"
-                : undefined
-            }
-          >
-            <Field field={field} locale={locale} form={form} />
-          </div>
-        ))}
+        {product.fields.map((field) => {
+          // docs/03: koşullu (showIf) alan, koşul sağlanmazsa render edilmez.
+          if (!isFieldVisible(field, watched)) return null;
+          return (
+            <div
+              key={field.name}
+              className={
+                field.type === "checkbox" || field.type === "radio" || field.type === "file"
+                  ? "sm:col-span-2"
+                  : undefined
+              }
+            >
+              <Field field={field} locale={locale} form={form} />
+            </div>
+          );
+        })}
       </div>
 
       {/* Honeypot — botlar için görünmez tuzak alan (gerçek kullanıcı doldurmaz). */}

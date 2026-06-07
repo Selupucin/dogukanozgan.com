@@ -45,19 +45,37 @@ const eposta: ProductField = {
   placeholder: { tr: "ornek@eposta.com", en: "you@example.com" },
 };
 
-/** İl seçimi (docs'ta tam liste yok → yer tutucu kısa liste). */
-// TODO(doc): Tam il listesi (81 il) veya gerçek hizmet bölgeleri eklenecek.
+/**
+ * İl seçimi — `province` tipi (81 il @do/products/locations'tan otomatik gelir).
+ * docs/03 "Zincirleme adres". Değer olarak il ID'si (string) saklanır.
+ */
 const il: ProductField = {
   name: "il",
-  type: "select",
+  type: "province",
   required: true,
   label: { tr: "İl", en: "Province" },
-  options: [
-    { value: "istanbul", label: { tr: "İstanbul", en: "İstanbul" } },
-    { value: "ankara", label: { tr: "Ankara", en: "Ankara" } },
-    { value: "izmir", label: { tr: "İzmir", en: "İzmir" } },
-    { value: "diger", label: { tr: "Diğer", en: "Other" } },
-  ],
+};
+
+/**
+ * Zincirleme adres alanları (docs/03): İl → İlçe → Mahalle.
+ * İlçe ile (il'e bağlı) ve mahalle (ilçe'ye bağlı) seçildiği üst alan değişince sıfırlanır.
+ * İl/ilçe verisi pakette gömülü; mahalle sunucu API route'undan talebe göre gelir.
+ * DASK/Konut formlarında kullanılır.
+ */
+const ilceCascade: ProductField = {
+  name: "ilce",
+  type: "district",
+  required: true,
+  label: { tr: "İlçe", en: "District" },
+  cascade: { parent: "il" },
+};
+
+const mahalleCascade: ProductField = {
+  name: "mahalle",
+  type: "neighborhood",
+  required: false,
+  label: { tr: "Mahalle", en: "Neighborhood" },
+  cascade: { parent: "ilce" },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -156,8 +174,10 @@ const saglik: ProductDefinition = {
     {
       name: "sgk",
       type: "checkbox",
-      required: true,
-      label: { tr: "SGK'lı mıyım? (TSS/Özel ayrımı)", en: "Do I have SGK coverage? (TSS/Private)" },
+      // docs/03: SGK'lı olmak zorunlu DEĞİL — kişi sigortalı olmayabilir. Bu yüzden
+      // OPSİYONEL: işaretlenmese de form geçerlidir (TSS/Özel ayrımı bilgilendiricidir).
+      required: false,
+      label: { tr: "SGK'lıyım (TSS/Özel ayrımı)", en: "I have SGK coverage (TSS/Private)" },
     },
     {
       name: "sigara",
@@ -191,9 +211,12 @@ const saglik: ProductDefinition = {
     {
       name: "kisiSayisi",
       type: "number",
-      required: false,
-      label: { tr: "Aile ise kişi sayısı", en: "If family, number of people" },
+      // docs/03 "Koşullu alan görünürlüğü": yalnızca kapsam = "aile" iken görünür.
+      // Görünür olduğunda zorunludur; gizliyken doğrulamaya dahil edilmez.
+      required: true,
+      label: { tr: "Aile kişi sayısı", en: "Number of family members" },
       validation: { min: 1, max: 12 },
+      showIf: { field: "kapsam", equals: "aile" },
     },
   ],
 };
@@ -325,7 +348,10 @@ const konut: ProductDefinition = {
   fields: [
     adSoyad,
     telefon,
+    // docs/03: Zincirleme adres — İl → İlçe → Mahalle (il/ilçe zorunlu, mahalle ops.).
     il,
+    ilceCascade,
+    mahalleCascade,
     {
       name: "brutM2",
       type: "number",
@@ -399,14 +425,10 @@ const dask: ProductDefinition = {
   fields: [
     adSoyad,
     telefon,
+    // docs/03: Zincirleme adres — İl → İlçe → Mahalle (il/ilçe zorunlu, mahalle ops.).
     il,
-    {
-      name: "ilce",
-      type: "text",
-      required: true,
-      label: { tr: "İlçe", en: "District" },
-      placeholder: { tr: "İlçe", en: "District" },
-    },
+    ilceCascade,
+    mahalleCascade,
     {
       name: "binaYapiTarzi",
       type: "select",
@@ -509,6 +531,30 @@ const kasko: ProductDefinition = {
       required: true,
       label: { tr: "Doğum Tarihi", en: "Date of Birth" },
     },
+    // docs/03: Trafik'teki gibi ruhsat + araç fotoğrafı (opsiyonel; teklifi hızlandırır).
+    // Yükleme Aşama 2 altyapısıyla (Vercel Blob) çalışır. // TODO(doc): zorunluluk netleşecek.
+    {
+      name: "ruhsatFoto",
+      type: "file",
+      required: false,
+      label: { tr: "Ruhsat Fotoğrafı", en: "Registration Photo" },
+      help: {
+        tr: "Ruhsatınızın fotoğrafını yüklerseniz teklif süreci hızlanır.",
+        en: "Uploading your registration photo speeds up the quote process.",
+      },
+      validation: { accept: "image/*", maxSizeMb: 10 },
+    },
+    {
+      name: "aracFoto",
+      type: "file",
+      required: false,
+      label: { tr: "Araç Fotoğrafı", en: "Vehicle Photo" },
+      help: {
+        tr: "Aracınızın fotoğrafı, doğru teklif için yardımcı olur.",
+        en: "A photo of your vehicle helps us prepare an accurate quote.",
+      },
+      validation: { accept: "image/*", maxSizeMb: 10 },
+    },
     eposta,
   ],
 };
@@ -575,6 +621,48 @@ const seyahat: ProductDefinition = {
   ],
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Kurumsal Anlaşma (docs/00 K16, docs/03 §9) — KATALOĞUN EN SONUNDA.
+// Firmasındaki kişileri/araçları topluca sigortalatmak için iletişime geçmek
+// isteyenlere yönelik bir LEAD ürünü. Hesaplayıcı YOK; yalnızca temel iletişim
+// alanları + opsiyonel not. Bireysel ürünlerden ayrı, kurumsal bir lead kanalı.
+// ─────────────────────────────────────────────────────────────────────────────
+const kurumsal: ProductDefinition = {
+  slug: "kurumsal", // kanonik (= slugs.tr)
+  slugs: { tr: "kurumsal", en: "corporate" },
+  name: { tr: "Kurumsal Anlaşma", en: "Corporate Agreement" },
+  description: {
+    tr: "Çalışanlarınız, araç filonuz ve iş yeriniz için kurumsal sigorta anlaşması; toplu çözüm için iletişime geçin.",
+    en: "Corporate insurance agreement for your employees, vehicle fleet and workplace; get in touch for a tailored bulk solution.",
+  },
+  icon: "Building",
+  hasCalculator: false,
+  fields: [
+    adSoyad,
+    {
+      name: "firmaAdi",
+      type: "text",
+      required: true,
+      label: { tr: "Firma Adı", en: "Company Name" },
+      placeholder: { tr: "Şirketinizin adı", en: "Your company's name" },
+      validation: { minLength: 2, maxLength: 120 },
+    },
+    telefon,
+    { ...eposta, required: false },
+    {
+      name: "mesaj",
+      type: "text",
+      required: false,
+      label: { tr: "Kısa not (opsiyonel)", en: "Short note (optional)" },
+      placeholder: {
+        tr: "İhtiyacınızı kısaca yazabilirsiniz (örn. 25 çalışan + 4 araç).",
+        en: "Briefly describe your need (e.g. 25 employees + 4 vehicles).",
+      },
+      validation: { maxLength: 500 },
+    },
+  ],
+};
+
 /**
  * Tüm sigorta ürünleri slug -> tanım eşlemesi.
  * Yeni ürün eklemek = buraya bir nesne eklemek (bkz. docs/01).
@@ -590,6 +678,8 @@ export const products: ProductCatalog = {
   [konut.slug]: konut,
   [dask.slug]: dask,
   [seyahat.slug]: seyahat,
+  // EN SONDA — kurumsal lead ürünü (docs/03 §9).
+  [kurumsal.slug]: kurumsal,
 };
 
 /** Slug'a göre ürün getirir (yoksa undefined). */

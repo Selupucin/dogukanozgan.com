@@ -21,11 +21,21 @@ export interface DisplayField {
 }
 
 /** Tek bir alan değerini, alan tanımına göre okunabilir metne çevirir. */
-function formatValue(field: ProductField | undefined, raw: unknown): string {
+function formatValue(
+  field: ProductField | undefined,
+  raw: unknown,
+  data?: Record<string, unknown>,
+): string {
   if (raw === null || raw === undefined || raw === "") return "—";
 
   // Boolean (checkbox) → Evet / Hayır.
   if (typeof raw === "boolean") return raw ? "Evet" : "Hayır";
+
+  // Zincirleme adres (il/ilçe) → ID yerine submit sırasında çözülmüş `<ad>Adi` göster.
+  if (field && (field.type === "province" || field.type === "district") && data) {
+    const name = data[`${field.name}Adi`];
+    if (typeof name === "string" && name) return name;
+  }
 
   // select/radio → seçenek etiketini (TR) çöz.
   if (field?.options && (field.type === "select" || field.type === "radio")) {
@@ -66,10 +76,15 @@ export function describePayload(productSlug: string, payload: unknown): DisplayF
       if (!(field.name in data)) continue;
 
       seen.add(field.name);
+      // Zincirleme adreste ID'nin yanındaki çözülmüş ad anahtarını (örn. ilAdi) gizle
+      // — ham anahtar olarak tekrar listelenmesin (değer zaten il/ilçe satırında görünür).
+      if (field.type === "province" || field.type === "district") {
+        seen.add(`${field.name}Adi`);
+      }
       result.push({
         key: field.name,
         label: field.label.tr,
-        value: formatValue(field, data[field.name]),
+        value: formatValue(field, data[field.name], data),
         sensitive: Boolean(field.sensitive),
       });
     }
@@ -81,7 +96,7 @@ export function describePayload(productSlug: string, payload: unknown): DisplayF
     result.push({
       key,
       label: key,
-      value: formatValue(undefined, value),
+      value: formatValue(undefined, value, data),
       sensitive: false,
     });
   }

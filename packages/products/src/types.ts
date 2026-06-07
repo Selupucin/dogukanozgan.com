@@ -27,7 +27,13 @@ export type FieldType =
   | "checkbox"
   | "tcKimlik"
   | "plaka"
-  | "file";
+  | "file"
+  // Zincirleme (cascade) adres seçimi — docs/03 "Zincirleme adres":
+  // province (il) → district (ilçe, il'e bağlı) → neighborhood (mahalle, ilçe'ye bağlı).
+  // İl/ilçe verisi pakette gömülü; mahalle sunucu API route'undan talebe göre gelir.
+  | "province"
+  | "district"
+  | "neighborhood";
 
 /** select / radio alanları için tek seçenek. */
 export interface FieldOption {
@@ -55,6 +61,27 @@ export interface FieldValidation {
   maxSizeMb?: number;
 }
 
+/**
+ * Koşullu görünürlük kuralı (docs/03 "Koşullu alan görünürlüğü").
+ * Alan, yalnızca `field` adlı BAŞKA bir alanın değeri `equals` ile eşleşince gösterilir.
+ * `equals` dizi ise herhangi biriyle eşleşmesi yeterlidir.
+ * Gizliyken: alan render EDİLMEZ ve Zod doğrulamasına DAHİL EDİLMEZ (zorunlu olsa bile).
+ * Örn. saglik "kişi sayısı" yalnız kapsam="aile" iken görünür.
+ */
+export interface FieldVisibility {
+  field: string;
+  equals: string | string[];
+}
+
+/**
+ * Zincirleme (cascade) bağımlılık (docs/03 "Zincirleme adres").
+ * district alanı bir province alanına, neighborhood alanı bir district alanına bağlanır.
+ * `parent` üst alanın `name`'idir; üst değişince bu alan sıfırlanır.
+ */
+export interface FieldCascade {
+  parent: string;
+}
+
 /** Tek bir form alanı tanımı. */
 export interface ProductField {
   /** payload JSON anahtarı ile birebir eşleşir (kararlı tutulmalı). */
@@ -75,6 +102,16 @@ export interface ProductField {
    * Kaynak: docs/03 "özel durum", docs/06.
    */
   sensitive?: boolean;
+  /**
+   * Koşullu görünürlük (docs/03). Verilirse alan yalnızca koşul sağlanınca gösterilir
+   * ve gizliyken doğrulamaya dahil edilmez.
+   */
+  showIf?: FieldVisibility;
+  /**
+   * Zincirleme adres bağımlılığı (docs/03). district/neighborhood alanlarında üst alanı
+   * (il/ilçe) belirtir; üst seçim değişince bu alan otomatik sıfırlanır.
+   */
+  cascade?: FieldCascade;
 }
 
 /**

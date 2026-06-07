@@ -27,16 +27,29 @@ function msg(key: keyof typeof messages, locale: Locale): string {
   return messages[key][locale];
 }
 
+/**
+ * docs/03 "Koşullu alan görünürlüğü": bir alanın `showIf` koşulu, mevcut form
+ * değerlerine göre sağlanıyor mu? Koşul yoksa alan her zaman görünür (true).
+ * `equals` dizi ise herhangi biriyle eşleşmesi yeterlidir.
+ */
+export function isFieldVisible(field: ProductField, values: Record<string, unknown>): boolean {
+  if (!field.showIf) return true;
+  const current = values[field.showIf.field];
+  const expected = field.showIf.equals;
+  return Array.isArray(expected) ? expected.includes(current as string) : current === expected;
+}
+
 /** Tek bir alanı Zod tipine çevirir. */
 function fieldSchema(field: ProductField, locale: Locale): z.ZodTypeAny {
   const v = field.validation ?? {};
 
   switch (field.type) {
     case "checkbox": {
-      // Zorunlu checkbox = "true olmalı" (örn. SGK onayı). Aksi halde boolean.
-      return field.required
-        ? z.boolean().refine((val) => val === true, { message: msg("required", locale) })
-        : z.boolean().optional().default(false);
+      // docs/03 (görev #1): ÜRÜN-İÇİ checkbox alanları HER ZAMAN opsiyoneldir; bir
+      // boolean tikinin işaretlenmesi zorunlu kılınamaz (KVKK rıza kutuları AYRI —
+      // buildFormSchema'da ayrıca eklenir ve zorunludur). Böylece SGK gibi alanlar
+      // işaretlenmese de form geçerli olur.
+      return z.boolean().optional().default(false);
     }
 
     case "number": {
@@ -81,6 +94,15 @@ function fieldSchema(field: ProductField, locale: Locale): z.ZodTypeAny {
         const e = z.enum(values as [string, ...string[]]);
         return field.required ? e : e.optional();
       }
+      return field.required ? requiredString(locale) : z.string().optional();
+    }
+
+    case "province":
+    case "district":
+    case "neighborhood": {
+      // Zincirleme adres (docs/03): değerler dinamik (il/ilçe ID'si veya mahalle adı),
+      // statik enum yapılamaz → serbest string olarak doğrulanır. province/district
+      // genelde zorunlu, neighborhood opsiyonel (definitions.ts'e göre).
       return field.required ? requiredString(locale) : z.string().optional();
     }
 
@@ -137,8 +159,17 @@ function optionalString(inner: z.ZodTypeAny) {
  */
 export function buildFormSchema(fields: ProductField[], locale: Locale, sensitive: boolean) {
   const shape: Record<string, z.ZodTypeAny> = {};
+  // Koşullu (showIf) alanları belirle; bunlar TEMELDE opsiyonel üretilir (gizliyken
+  // doğrulamayı bozmasın), zorunluluk superRefine ile koşula göre uygulanır.
+  const conditionalFields = fields.filter((f) => f.showIf);
+
   for (const field of fields) {
-    shape[field.name] = fieldSchema(field, locale);
+    if (field.showIf) {
+      // Görünürken doğrulanacak; gizliyken pas geçilecek → temel şema "required false".
+      shape[field.name] = fieldSchema({ ...field, required: false }, locale);
+    } else {
+      shape[field.name] = fieldSchema(field, locale);
+    }
   }
 
   // KVKK açık rıza kutusu — zorunlu (docs/03/06). Form alanlarından AYRI tutulur.
@@ -153,7 +184,30 @@ export function buildFormSchema(fields: ProductField[], locale: Locale, sensitiv
       .refine((val) => val === true, { message: msg("required", locale) });
   }
 
-  return z.object(shape);
+  const base = z.object(shape);
+  if (conditionalFields.length === 0) return base;
+
+  // docs/03: koşullu alanlar GÖRÜNÜR ve ZORUNLU iken boşsa hata; gizliyken atlanır.
+  return base.superRefine((data, ctx) => {
+    const values = data as Record<string, unknown>;
+    for (const field of conditionalFields) {
+      if (!field.required) continue;
+      if (!isFieldVisible(field, values)) continue;
+      const value = values[field.name];
+      const empty =
+        value === undefined ||
+        value === null ||
+        value === "" ||
+        (typeof value === "number" && Number.isNaN(value));
+      if (empty) {
+        ctx.addIssue({
+          code: "custom",
+          path: [field.name],
+          message: msg("required", locale),
+        });
+      }
+    }
+  });
 }
 
 export type FormValues = Record<string, unknown>;

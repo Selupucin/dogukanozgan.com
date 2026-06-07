@@ -5,8 +5,10 @@
 // RHF register/Controller ile bağlanır.
 
 import { type UseFormReturn, Controller } from "react-hook-form";
+import { Check } from "lucide-react";
 import { cn } from "@do/ui";
 import type { ProductField, Locale } from "./types-bridge";
+import { CascadeField } from "./cascade-field";
 
 interface FieldProps {
   field: ProductField;
@@ -23,6 +25,92 @@ const inputClass = cn(
   "transition-shadow",
 );
 
+// ── Şık custom checkbox (docs/09): çirkin kare kenarlık YOK; teal aksan, hafif yuvarlak
+// köşe, görünür focus halkası, light+dark uyumlu. Gerçek <input> "peer" olarak gizlenir;
+// görsel kutu peer durumlarını yansıtır. Tıklama alanı = kutu + METİN (w-fit). docs/03 #3.
+function CheckboxControl({
+  id,
+  name,
+  register,
+  labelText,
+  describedBy,
+}: {
+  id: string;
+  name: string;
+  register: UseFormReturn<Record<string, unknown>>["register"];
+  labelText: string;
+  describedBy?: string;
+}) {
+  return (
+    <label htmlFor={id} className="group inline-flex w-fit cursor-pointer items-start gap-3 py-1.5">
+      <span className="relative inline-flex shrink-0 items-center justify-center">
+        <input
+          id={id}
+          type="checkbox"
+          aria-describedby={describedBy}
+          {...register(name)}
+          className="peer sr-only"
+        />
+        <span
+          aria-hidden
+          className={cn(
+            "flex h-5 w-5 items-center justify-center rounded-md border-2 border-input bg-card text-transparent transition-colors",
+            "peer-checked:border-secondary peer-checked:bg-secondary peer-checked:text-white",
+            "peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background",
+            "group-hover:border-secondary/70",
+          )}
+        >
+          <Check className="h-3.5 w-3.5" strokeWidth={3} />
+        </span>
+      </span>
+      <span className="text-sm leading-snug text-foreground">{labelText}</span>
+    </label>
+  );
+}
+
+// ── Şık custom radio (docs/09): yuvarlak, teal/turuncu seçili durumu, görünür focus.
+// Tıklama alanı seçenek pill'i (içeriğe göre); satırın boş kalanı tıklanmaz. docs/03 #3.
+function RadioControl({
+  name,
+  options,
+  locale,
+  register,
+}: {
+  name: string;
+  options: ProductField["options"];
+  locale: Locale;
+  register: UseFormReturn<Record<string, unknown>>["register"];
+}) {
+  return (
+    <div role="radiogroup" className="flex flex-wrap gap-3 pt-1">
+      {options?.map((o) => (
+        <label
+          key={o.value}
+          className={cn(
+            "group inline-flex w-fit cursor-pointer items-center gap-2.5 rounded-pill border border-input bg-card px-4 py-2 text-sm transition-colors",
+            "hover:border-secondary/60 has-[:checked]:border-secondary has-[:checked]:bg-accent",
+            "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-1 has-[:focus-visible]:ring-offset-background",
+          )}
+        >
+          <span className="relative inline-flex shrink-0 items-center justify-center">
+            <input type="radio" value={o.value} {...register(name)} className="peer sr-only" />
+            <span
+              aria-hidden
+              className={cn(
+                "flex h-[18px] w-[18px] items-center justify-center rounded-full border-2 border-input bg-card transition-colors",
+                "peer-checked:border-secondary group-hover:border-secondary/70",
+              )}
+            >
+              <span className="h-2 w-2 rounded-full bg-secondary opacity-0 transition-opacity peer-checked:opacity-100" />
+            </span>
+          </span>
+          <span className="text-foreground">{o.label[locale]}</span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
 export function Field({ field, locale, form }: FieldProps) {
   const {
     register,
@@ -36,22 +124,24 @@ export function Field({ field, locale, form }: FieldProps) {
   const id = `field-${field.name}`;
   const describedBy = help ? `${id}-help` : undefined;
 
-  // Checkbox: etiket sağda, satır içi.
+  // Checkbox: etiket sağda; tıklama alanı = kutu + metin (w-fit), boş alan tıklanmaz.
   if (field.type === "checkbox") {
     return (
-      <label htmlFor={id} className="flex min-h-[44px] items-start gap-3 py-1.5">
-        <input
+      <div className="flex flex-col gap-1">
+        <CheckboxControl
           id={id}
-          type="checkbox"
-          {...register(field.name)}
-          className="mt-0.5 h-5 w-5 shrink-0 rounded-md border-input text-primary focus:ring-2 focus:ring-ring"
+          name={field.name}
+          register={register}
+          labelText={labelText}
+          describedBy={describedBy}
         />
-        <span className="text-sm text-foreground">
-          {labelText}
-          {field.required && <span className="text-primary"> *</span>}
-        </span>
+        {help && (
+          <p id={describedBy} className="text-xs text-muted-foreground">
+            {help}
+          </p>
+        )}
         {renderError(error)}
-      </label>
+      </div>
     );
   }
 
@@ -70,6 +160,7 @@ export function Field({ field, locale, form }: FieldProps) {
         describedBy,
         register,
         control,
+        form,
         inputClass,
       })}
 
@@ -91,6 +182,7 @@ function renderControl({
   describedBy,
   register,
   control,
+  form,
   inputClass: cls,
 }: {
   field: ProductField;
@@ -100,9 +192,18 @@ function renderControl({
   describedBy?: string;
   register: UseFormReturn<Record<string, unknown>>["register"];
   control: UseFormReturn<Record<string, unknown>>["control"];
+  form: UseFormReturn<Record<string, unknown>>;
   inputClass: string;
 }) {
   switch (field.type) {
+    // Zincirleme adres (docs/03): İl → İlçe → Mahalle.
+    case "province":
+    case "district":
+    case "neighborhood":
+      return (
+        <CascadeField field={field} locale={locale} form={form} id={id} describedBy={describedBy} />
+      );
+
     case "select":
       return (
         <select id={id} aria-describedby={describedBy} {...register(field.name)} className={cls}>
@@ -117,22 +218,12 @@ function renderControl({
 
     case "radio":
       return (
-        <div role="radiogroup" className="flex flex-wrap gap-3 pt-1">
-          {field.options?.map((o) => (
-            <label
-              key={o.value}
-              className="flex min-h-[44px] items-center gap-2 rounded-pill border border-input bg-card px-4 py-2 text-sm has-[:checked]:border-secondary has-[:checked]:bg-accent"
-            >
-              <input
-                type="radio"
-                value={o.value}
-                {...register(field.name)}
-                className="h-4 w-4 text-secondary focus:ring-2 focus:ring-ring"
-              />
-              {o.label[locale]}
-            </label>
-          ))}
-        </div>
+        <RadioControl
+          name={field.name}
+          options={field.options}
+          locale={locale}
+          register={register}
+        />
       );
 
     case "number":

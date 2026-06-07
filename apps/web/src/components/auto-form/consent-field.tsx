@@ -66,26 +66,40 @@ export function ConsentField({
         return (
           <div>
             <div className="flex items-start gap-3">
-              {/* Onay kutusu: TIKLANABİLİR (disabled değil). Okunmadan tıklanırsa
-                  işaretlenmez, sözleşme modal'ı açılır; okunduysa normal işaretlenir. */}
-              <input
-                type="checkbox"
-                checked={checked}
-                aria-describedby={`${name}-hint`}
-                onClick={(e) => {
-                  // Okunmadıysa: kutuyu işaretleme, bunun yerine modal'ı aç.
-                  if (!readToEnd && !checked) {
-                    e.preventDefault();
-                    setOpen(true);
-                  }
-                }}
-                onChange={(e) => {
-                  // Okunmadan değişimi yok say (savunma); okunduysa RHF'e yaz.
-                  if (!readToEnd && !checked) return;
-                  field.onChange(e.target.checked);
-                }}
-                className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer rounded-md border-input text-primary focus:ring-2 focus:ring-ring"
-              />
+              {/* Onay kutusu — diğer form checkbox'larıyla TUTARLI şık stil (docs/03 #3,
+                  docs/09): appearance-none, teal aksan, hafif yuvarlak köşe, görünür focus.
+                  TIKLANABİLİR (disabled değil): okunmadan tıklanırsa işaretlenmez, sözleşme
+                  modal'ı açılır; okunduysa normal işaretlenir. Tik (✔) checked iken görünür. */}
+              <span className="relative mt-0.5 inline-flex shrink-0 items-center justify-center">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  aria-describedby={`${name}-hint`}
+                  onClick={(e) => {
+                    // Okunmadıysa: kutuyu işaretleme, bunun yerine modal'ı aç.
+                    if (!readToEnd && !checked) {
+                      e.preventDefault();
+                      setOpen(true);
+                    }
+                  }}
+                  onChange={(e) => {
+                    // Okunmadan değişimi yok say (savunma); okunduysa RHF'e yaz.
+                    if (!readToEnd && !checked) return;
+                    field.onChange(e.target.checked);
+                  }}
+                  className={cn(
+                    "peer h-5 w-5 shrink-0 cursor-pointer appearance-none rounded-md border-2 border-input bg-card transition-colors",
+                    "checked:border-secondary checked:bg-secondary",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    "hover:border-secondary/70",
+                  )}
+                />
+                <Check
+                  className="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100"
+                  strokeWidth={3}
+                  aria-hidden
+                />
+              </span>
               <span className="text-sm text-muted-foreground">
                 {label}{" "}
                 <button

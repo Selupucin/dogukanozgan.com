@@ -19,6 +19,7 @@
 import { headers } from "next/headers";
 import { prisma, uploadToStorage, isStorageConfigured, Prisma } from "@do/db";
 import { getProduct } from "@do/products";
+import { getProvinces, getDistricts } from "@do/products/locations";
 import type { ProductDefinition, ProductField } from "@do/products";
 import { buildFormSchema } from "@/components/auto-form/schema";
 import { routing } from "@/i18n/routing";
@@ -249,7 +250,28 @@ function splitCommonFields(
       email = value === "" ? undefined : String(value);
       continue;
     }
-    // Geri kalan her şey (TC, plaka, tarih, sayı, seçim, dosya adı dahil DEĞİL) payload.
+    // Zincirleme adres (docs/03): il/ilçe ID olarak gelir → admin'de okunaklı olsun diye
+    // ID + çözümlenmiş AD birlikte saklanır. Mahalle zaten ad olarak gelir.
+    if (field.type === "province") {
+      const id = String(value);
+      payload[field.name] = id;
+      const name = getProvinces().find((p) => String(p.id) === id)?.name;
+      if (name) payload[`${field.name}Adi`] = name;
+      continue;
+    }
+    if (field.type === "district") {
+      const id = String(value);
+      payload[field.name] = id;
+      // İlçe adı için üst ilin ID'si gerekir (cascade.parent).
+      const parentId = field.cascade?.parent ? data[field.cascade.parent] : undefined;
+      if (parentId !== undefined) {
+        const name = getDistricts(String(parentId)).find((d) => String(d.id) === id)?.name;
+        if (name) payload[`${field.name}Adi`] = name;
+      }
+      continue;
+    }
+
+    // Geri kalan her şey (TC, plaka, tarih, sayı, seçim, mahalle adı, dosya HARİÇ) payload.
     if (field.type !== "file") {
       payload[field.name] = value;
     }

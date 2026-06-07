@@ -498,6 +498,74 @@ const seyahat: ProductContent = {
   ],
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Kurumsal Anlaşma (docs/03 §9). Bireysel ürünlerden farklı: bir LEAD/iletişim
+// ürünü. ⚠️ TASLAK içerik. TODO(doc): Doğukan'ın gerçek kurumsal teklif metni gelince
+// güncellenir.
+// ─────────────────────────────────────────────────────────────────────────────
+const kurumsal: ProductContent = {
+  intro: {
+    tr: "Kurumsal anlaşma; çalışanlarınızın sağlık ve hayat sigortasından araç filonuzun kasko/trafiğine, iş yeri poliçenize kadar şirketinizin tüm sigorta ihtiyaçlarını tek elden, avantajlı koşullarla yönetmenizi sağlar.",
+    en: "A corporate agreement lets you manage all your company's insurance needs from a single point on favourable terms — from employee health and life cover to your fleet's auto policies and workplace insurance.",
+  },
+  lead: {
+    tr: "Bir şirketi büyüten, çalışanları ve işini güvende hissetmesidir. Kurumsal anlaşmayla; ekibinizin sağlık ve hayat güvencesini, araç filonuzu ve iş yerinizi tek bir muhatapla, toplu ölçeğin getirdiği avantajlı koşullarla planlarız. İhtiyacınızı birlikte dinler, 20'den fazla şirketin tekliflerini firmanız için karşılaştırır, size özel bir çözüm kurgularız. Birkaç bilgiyi bırakın; kurumsal teklifiniz için sizi arayalım.",
+    en: "What grows a company is people and a business that feel secure. With a corporate agreement we plan your team's health and life cover, your vehicle fleet and your workplace through a single point of contact, on the favourable terms that scale brings. We listen to your needs, compare 20+ companies' offers for your firm and build a tailored solution. Leave a few details and we'll call you for your corporate quote.",
+  },
+  coverage: [
+    {
+      tr: "Çalışanlara grup sağlık ve hayat sigortası",
+      en: "Group health and life insurance for employees",
+    },
+    {
+      tr: "Araç filosu için toplu kasko / trafik poliçeleri",
+      en: "Bulk comprehensive / traffic policies for the vehicle fleet",
+    },
+    {
+      tr: "İş yeri, sorumluluk ve diğer kurumsal teminatlar",
+      en: "Workplace, liability and other corporate covers",
+    },
+  ],
+  advantages: [
+    {
+      title: { tr: "Tek muhatap, toplu çözüm", en: "One contact, bulk solution" },
+      body: {
+        tr: "Tüm kurumsal poliçelerinizi tek elden yönetir, süreçleri sizin için sadeleştiririz.",
+        en: "We manage all your corporate policies from one point and simplify the process for you.",
+      },
+    },
+    {
+      title: { tr: "Ölçeğe özel avantaj", en: "Scale-based advantage" },
+      body: {
+        tr: "Toplu poliçelerde 20+ şirketi karşılaştırıp firmanıza özel avantajlı koşulları buluruz.",
+        en: "For bulk policies we compare 20+ companies and find favourable terms tailored to your firm.",
+      },
+    },
+  ],
+  faq: [
+    {
+      q: {
+        tr: "Kaç çalışandan itibaren kurumsal anlaşma yapılır?",
+        en: "From how many employees is a corporate agreement possible?",
+      },
+      a: {
+        tr: "Ekip büyüklüğünüze göre esnek çözümler sunuyoruz; küçük ekipler için de avantajlı kurumsal paketler mümkündür. Detay için iletişime geçin.",
+        en: "We offer flexible solutions based on your team size; advantageous corporate packages are possible for small teams too. Get in touch for details.",
+      },
+    },
+    {
+      q: {
+        tr: "Hem çalışanları hem araçları aynı anlaşmaya dahil edebilir miyim?",
+        en: "Can I include both employees and vehicles in the same agreement?",
+      },
+      a: {
+        tr: "Evet. Sağlık/hayat, kasko/trafik ve iş yeri teminatlarını tek bir kurumsal çözümde birleştirebiliriz.",
+        en: "Yes. We can combine health/life, auto and workplace covers in a single corporate solution.",
+      },
+    },
+  ],
+};
+
 /** Slug (kanonik = TR) -> tanım sayfası içeriği. Bilinmeyen ürün için undefined. */
 const byCanonicalSlug: Record<string, ProductContent> = {
   trafik,
@@ -508,6 +576,7 @@ const byCanonicalSlug: Record<string, ProductContent> = {
   konut,
   dask,
   seyahat,
+  kurumsal,
 };
 
 export function getProductContent(canonicalSlug: string): ProductContent | undefined {
