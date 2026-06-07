@@ -14,6 +14,12 @@ type L = Record<Locale, string>;
 export interface ProductContent {
   /** Sayfa üstü kısa tanıtım (description'a ek, "ne işe yarar"). */
   intro: L;
+  /**
+   * Akıcı TANITIM PARAGRAFI — şık "lead" blok olarak gösterilir (docs/09 dili:
+   * büyük puntolu giriş cümlesi + yumuşak kart/zemin + ikon).
+   * ⚠️ YER TUTUCU metin. TODO(doc): Doğukan'ın gerçek tanıtım metni gelince güncellenir.
+   */
+  lead: L;
   /** "Neyi kapsar / teminat öne çıkanları" maddeleri. */
   coverage: L[];
   /** "Avantajlar / neden bu ürün" maddeleri (başlık + metin). */
@@ -29,6 +35,10 @@ const trafik: ProductContent = {
   intro: {
     tr: "Trafik sigortası (zorunlu mali sorumluluk), bir kazada karşı tarafa verebileceğiniz maddi ve bedeni zararları yasal limitler dahilinde güvence altına alır. Araç sahibi olan herkes için zorunludur.",
     en: "Traffic insurance (compulsory motor third-party liability) covers, within legal limits, the material and bodily damage you may cause to others in an accident. It is mandatory for every vehicle owner.",
+  },
+  lead: {
+    tr: "Direksiyona her geçtiğinizde sadece kendinizi değil, yoldaki herkesi de düşünürsünüz. Zorunlu trafik sigortası, beklenmedik bir anda ortaya çıkan sorumluluğu sizin için güvenceye alır; biz de 20'den fazla şirketin tarifesini plakanıza göre karşılaştırıp en uygun primi sizin adınıza buluruz.",
+    en: "Every time you get behind the wheel, you think not only of yourself but of everyone on the road. Compulsory traffic insurance secures the liability that can arise in an instant; we compare the tariffs of 20+ companies for your plate and find the most suitable premium on your behalf.",
   },
   coverage: [
     {
@@ -89,6 +99,10 @@ const saglik: ProductContent = {
     tr: "Özel ve tamamlayıcı sağlık sigortası, SGK'nın karşılamadığı veya kısmen karşıladığı tedavi giderlerinizi güvence altına alır; özel hastanelere erişiminizi kolaylaştırır.",
     en: "Private and complementary health insurance covers treatment costs that SGK does not or only partly covers, and eases your access to private hospitals.",
   },
+  lead: {
+    tr: "Sağlık, ertelenemeyecek tek konudur. Doğru sağlık sigortası, hastalandığınızda nereye gideceğinizi ve cebinizden ne çıkacağını dert etmeden, en iyi tedaviye odaklanmanızı sağlar. Bireysel mi aile kapsamı mı, tamamlayıcı mı tam kapsam mı — bütçenize ve beklentinize en uygun planı birlikte, sade bir dille seçeriz.",
+    en: "Health is the one thing that cannot wait. The right health plan lets you focus on the best treatment without worrying about where to go or what comes out of your pocket. Individual or family, complementary or full cover — we choose the plan that best fits your budget and expectations together, in plain language.",
+  },
   coverage: [
     {
       tr: "Yatarak tedavi (ameliyat, hastane) giderleri",
@@ -145,6 +159,10 @@ const bireyselEmeklilik: ProductContent = {
     tr: "Bireysel Emeklilik Sistemi (BES), düzenli birikimlerinize %30 devlet katkısı ekleyerek uzun vadede daha büyük bir emeklilik birikimi oluşturmanızı sağlar.",
     en: "The Private Pension System (BES) adds a 30% state contribution to your regular savings, helping you build a larger retirement fund over the long term.",
   },
+  lead: {
+    tr: "Geleceğinizi bugünden kurmak, küçük ama düzenli adımlarla başlar. BES'te her ödemenize eklenen %30 devlet katkısı ve bileşik getiri, zamanla fark yaratan bir birikime dönüşür. Aşağıdaki hesaplayıcıyla aylık ödemenize ve süreye göre tahmini birikiminizi saniyeler içinde görebilir, ardından size en uygun planı birlikte kurabiliriz.",
+    en: "Building your future starts today, with small but steady steps. In BES, the 30% state contribution added to every payment, together with compound returns, turns into savings that make a real difference over time. With the calculator below you can see your estimated savings in seconds based on your monthly payment and term, then we build the right plan together.",
+  },
   coverage: [
     { tr: "Katkılarınıza %30 devlet katkısı", en: "30% state contribution on your payments" },
     {
@@ -191,6 +209,10 @@ const hayat: ProductContent = {
   intro: {
     tr: "Hayat sigortası, beklenmedik bir durumda sevdiklerinizin maddi geleceğini güvence altına alır; kredi teminatından birikime kadar farklı amaçlara uyarlanabilir.",
     en: "Life insurance secures the financial future of your loved ones in an unexpected event; it can be tailored from loan protection to savings.",
+  },
+  lead: {
+    tr: "Hayat sigortası, en zor anda sevdiklerinize bırakabileceğiniz en somut güvencedir. İster bir kredinin teminatı, ister ailenizin geleceği için bir koruma kalkanı olsun — teminat tutarını, süreyi ve amacı ihtiyacınıza göre birlikte kurgularız. Aşağıdaki hesaplayıcıyla yaşınıza ve teminatınıza göre tahmini primi önceden görebilirsiniz.",
+    en: "Life insurance is the most tangible security you can leave your loved ones in the hardest moment. Whether as collateral for a loan or a shield for your family's future, we shape the coverage amount, term and purpose around your needs. With the calculator below you can preview an estimated premium based on your age and coverage.",
   },
   coverage: [
     {
@@ -245,6 +267,10 @@ const konut: ProductContent = {
     tr: "Konut sigortası, evinizi ve eşyalarınızı yangın, hırsızlık, su baskını gibi risklere karşı korur; DASK'a ek olarak kapsamlı güvence sağlar.",
     en: "Home insurance protects your home and belongings against risks such as fire, theft and flooding, providing comprehensive cover in addition to DASK.",
   },
+  lead: {
+    tr: "Eviniz sadece dört duvar değil; emeğinizin ve anılarınızın biriktiği yer. Konut sigortası, yangından su baskınına, hırsızlıktan cam kırılmasına kadar pek çok riske karşı hem yapınızı hem eşyalarınızı güvenceye alır. Brüt m², yapı tarzı ve eşya bedelinize göre dengeli bir teminatı birlikte kurgularız.",
+    en: "Your home is more than four walls; it is where your effort and memories accumulate. Home insurance secures both your structure and your belongings against many risks, from fire and flooding to theft and glass breakage. We design balanced coverage together based on your gross m², construction type and contents value.",
+  },
   coverage: [
     { tr: "Yangın, infilak, duman zararları", en: "Fire, explosion and smoke damage" },
     { tr: "Hırsızlık ve su baskını (dahili su)", en: "Theft and water damage (internal water)" },
@@ -290,13 +316,198 @@ const konut: ProductContent = {
   ],
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Yeni ürünler — DASK, Kasko, Seyahat (docs/03). ⚠️ TASLAK içerik.
+// TODO(doc): Doğukan'ın gerçek teminat/avantaj/SSS metinleri gelince güncellenir.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const dask: ProductContent = {
+  intro: {
+    tr: "DASK (Zorunlu Deprem Sigortası), deprem ve deprem kaynaklı risklere karşı konutunuzun yapısını yasal teminat limitlerinde güvence altına alan zorunlu bir sigortadır.",
+    en: "DASK (Compulsory Earthquake Insurance) is a mandatory policy that secures the structure of your home against earthquake and earthquake-related risks within statutory coverage limits.",
+  },
+  lead: {
+    tr: "Deprem bir ihtimal değil, hazırlıklı olmamız gereken bir gerçek. DASK, konutunuzun yapısını deprem ve deprem kaynaklı yangın, infilak, tsunami ve heyelan risklerine karşı güvenceye alır; üstelik tapu ve abonelik işlemleri için de zorunludur. Birkaç bilgiyle poliçenizi hızlıca düzenleyelim.",
+    en: "An earthquake is not a possibility but a reality we must be prepared for. DASK secures your home's structure against earthquake and earthquake-related fire, explosion, tsunami and landslide risks; it is also mandatory for title-deed and utility transactions. Let's arrange your policy quickly with a few details.",
+  },
+  coverage: [
+    {
+      tr: "Deprem ve deprem kaynaklı yangın, infilak, tsunami, yer kayması",
+      en: "Earthquake and earthquake-related fire, explosion, tsunami and landslide",
+    },
+    {
+      tr: "Binanın taşıyıcı ve taşıyıcı olmayan yapı elemanları",
+      en: "Load-bearing and non-load-bearing structural elements of the building",
+    },
+    {
+      tr: "Azami teminat limiti kapsamında yapısal hasar",
+      en: "Structural damage within the maximum coverage limit",
+    },
+  ],
+  advantages: [
+    {
+      title: { tr: "Zorunlu ve hızlı", en: "Mandatory and fast" },
+      body: {
+        tr: "Tapu ve abonelik işlemleri için gereken DASK poliçenizi kısa sürede düzenleriz.",
+        en: "We issue the DASK policy required for title-deed and utility transactions quickly.",
+      },
+    },
+    {
+      title: { tr: "Resmî tarife güvencesi", en: "Official tariff assurance" },
+      body: {
+        tr: "DASK primleri resmî tarifeye göre belirlenir; doğru bilgiyle doğru primi öderiz.",
+        en: "DASK premiums are set by the official tariff; with correct details you pay the correct premium.",
+      },
+    },
+  ],
+  faq: [
+    {
+      q: {
+        tr: "DASK ile konut sigortası aynı şey mi?",
+        en: "Are DASK and home insurance the same?",
+      },
+      a: {
+        tr: "Hayır. DASK yalnızca deprem riskini ve binanın yapısını kapsar; konut sigortası ise yangın, hırsızlık, su baskını ve eşya gibi daha geniş riskleri kapsayan tamamlayıcı bir poliçedir.",
+        en: "No. DASK covers only earthquake risk and the building's structure; home insurance is a complementary policy covering broader risks such as fire, theft, flooding and contents.",
+      },
+    },
+    {
+      q: { tr: "DASK zorunlu mu?", en: "Is DASK mandatory?" },
+      a: {
+        tr: "Evet. Meskenler için DASK zorunludur ve tapu işlemleri ile su/elektrik aboneliklerinde aranır.",
+        en: "Yes. DASK is mandatory for dwellings and is required for title-deed transactions and water/electricity subscriptions.",
+      },
+    },
+  ],
+};
+
+const kasko: ProductContent = {
+  intro: {
+    tr: "Kasko sigortası, aracınızın kendi hasarlarını (çarpma, çarpışma, yanma, çalınma vb.) isteğe bağlı ve geniş kapsamlı şekilde güvence altına alır.",
+    en: "Comprehensive auto insurance optionally and broadly secures damage to your own vehicle (collision, fire, theft, etc.).",
+  },
+  lead: {
+    tr: "Trafik sigortası karşı tarafı korur; kasko ise asıl sizin aracınızı düşünür. Çarpma, çarpışma, yangın, hırsızlık ve doğal afetlerden cam, anahtar kaybı gibi günlük aksiliklere kadar pek çok riske karşı aracınızı güvenceye alır. 20'den fazla şirketin teklifini karşılaştırıp ihtiyacınıza en uygun kasko paketini birlikte seçeriz.",
+    en: "Traffic insurance protects the other party; comprehensive auto insurance thinks of your own vehicle. It secures your car against many risks, from collision, fire, theft and natural disasters to everyday mishaps like glass damage or lost keys. We compare offers from 20+ companies and choose the package that best fits your needs together.",
+  },
+  coverage: [
+    {
+      tr: "Çarpma, çarpışma, devrilme ve yanma hasarları",
+      en: "Impact, collision, rollover and fire damage",
+    },
+    { tr: "Hırsızlık ve hırsızlığa teşebbüs", en: "Theft and attempted theft" },
+    {
+      tr: "Doğal afet, sel ve isteğe bağlı ek teminatlar (cam, ikame araç vb.)",
+      en: "Natural disasters, flood and optional riders (glass, replacement vehicle, etc.)",
+    },
+  ],
+  advantages: [
+    {
+      title: { tr: "İhtiyaca özel paket", en: "A package for your needs" },
+      body: {
+        tr: "Ek teminatları (ikame araç, cam, mini onarım) ihtiyacınıza göre seçer, gereksiz maliyeti eleriz.",
+        en: "We select riders (replacement vehicle, glass, minor repair) per your needs and cut unnecessary cost.",
+      },
+    },
+    {
+      title: { tr: "20+ şirket karşılaştırması", en: "20+ company comparison" },
+      body: {
+        tr: "Aracınıza göre tüm tarifeleri karşılaştırıp en avantajlı kaskoyu buluruz.",
+        en: "We compare all tariffs for your vehicle and find the most advantageous cover.",
+      },
+    },
+  ],
+  faq: [
+    {
+      q: { tr: "Kasko zorunlu mu?", en: "Is comprehensive auto insurance mandatory?" },
+      a: {
+        tr: "Hayır, kasko isteğe bağlıdır; ancak aracınızın kendi hasarlarını trafik sigortası karşılamadığı için güçlü bir koruma sağlar.",
+        en: "No, it is optional; but it provides strong protection since traffic insurance does not cover damage to your own vehicle.",
+      },
+    },
+    {
+      q: {
+        tr: "Trafik sigortam varken kasko gerekir mi?",
+        en: "Do I need it if I have traffic insurance?",
+      },
+      a: {
+        tr: "Trafik sigortası yalnızca karşı tarafa verdiğiniz zararı karşılar; kendi aracınızın hasarı için kasko gerekir.",
+        en: "Traffic insurance only covers damage you cause to others; for damage to your own vehicle you need comprehensive cover.",
+      },
+    },
+  ],
+};
+
+const seyahat: ProductContent = {
+  intro: {
+    tr: "Seyahat sağlık sigortası, yurt dışı seyahatleriniz boyunca olası sağlık giderlerinizi güvence altına alır ve Schengen başta olmak üzere vize başvurularında talep edilir.",
+    en: "Travel health insurance secures potential medical expenses during your trips abroad and is required for visa applications, notably Schengen.",
+  },
+  lead: {
+    tr: "Yurt dışında her şey yolunda gitsin diye yola çıkarız; ama beklenmedik bir sağlık sorunu en güzel seyahati gölgeleyebilir. Seyahat sağlık sigortası, yurt dışındaki acil tedavi ve sağlık giderlerinizi karşılar, çoğu vize başvurusunda da zorunludur. Gideceğiniz ülke ve tarihlere göre poliçenizi dakikalar içinde hazırlayalım.",
+    en: "We set off hoping everything goes smoothly abroad; but an unexpected health issue can overshadow the best trip. Travel health insurance covers your emergency treatment and medical expenses abroad and is mandatory for most visa applications. Let's prepare your policy in minutes based on your destination and dates.",
+  },
+  coverage: [
+    {
+      tr: "Yurt dışında acil tıbbi tedavi ve hastane giderleri",
+      en: "Emergency medical treatment and hospital costs abroad",
+    },
+    {
+      tr: "Tıbbi nakil ve gerektiğinde ülkeye geri dönüş",
+      en: "Medical transport and repatriation when needed",
+    },
+    {
+      tr: "Vize (Schengen vb.) için gerekli minimum teminat",
+      en: "Minimum coverage required for visas (Schengen, etc.)",
+    },
+  ],
+  advantages: [
+    {
+      title: { tr: "Vize uyumlu poliçe", en: "Visa-compliant policy" },
+      body: {
+        tr: "Schengen ve diğer vize başvuruları için gerekli teminat limitlerini sağlayan poliçeyi hazırlarız.",
+        en: "We prepare a policy meeting the coverage limits required for Schengen and other visa applications.",
+      },
+    },
+    {
+      title: { tr: "Seyahatinize göre süre", en: "Term to match your trip" },
+      body: {
+        tr: "Tek seyahat veya yıllık çoklu seyahat seçenekleriyle ihtiyacınıza uygun süreyi seçeriz.",
+        en: "With single-trip or annual multi-trip options, we choose the term that suits you.",
+      },
+    },
+  ],
+  faq: [
+    {
+      q: { tr: "Schengen vizesi için zorunlu mu?", en: "Is it mandatory for a Schengen visa?" },
+      a: {
+        tr: "Evet. Schengen vize başvurularında belirli bir teminat limitine sahip seyahat sağlık sigortası talep edilir.",
+        en: "Yes. Schengen visa applications require travel health insurance with a certain coverage limit.",
+      },
+    },
+    {
+      q: {
+        tr: "Mevcut sağlık durumum soruluyor mu?",
+        en: "Are my existing health conditions asked?",
+      },
+      a: {
+        tr: "Standart başvuruda sağlık beyanı alınmaz; teklif için yalnızca tarih, ülke ve kişi bilgileriniz yeterlidir.",
+        en: "A standard application does not require a health declaration; only your dates, destination and traveller details are needed for a quote.",
+      },
+    },
+  ],
+};
+
 /** Slug (kanonik = TR) -> tanım sayfası içeriği. Bilinmeyen ürün için undefined. */
 const byCanonicalSlug: Record<string, ProductContent> = {
   trafik,
+  kasko,
   saglik,
   "bireysel-emeklilik": bireyselEmeklilik,
   hayat,
   konut,
+  dask,
+  seyahat,
 };
 
 export function getProductContent(canonicalSlug: string): ProductContent | undefined {

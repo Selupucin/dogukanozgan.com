@@ -13,7 +13,7 @@ import {
   InputRow,
   ResultStat,
   EstimateNotice,
-  numberInputClass,
+  NumberField,
   formatRangeTRY,
 } from "./ui";
 
@@ -40,15 +40,14 @@ export function SaglikCalculator({
     <CalculatorShell titleKey="saglik.title" introKey="saglik.intro">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <InputRow id="saglik-age" label={t("saglik.age")}>
-          <input
+          <NumberField
             id="saglik-age"
-            type="number"
-            inputMode="numeric"
             min={SAGLIK.minAge}
             max={SAGLIK.maxAge}
             value={age}
-            onChange={(e) => setAge(Number(e.target.value))}
-            className={numberInputClass}
+            fallback={SAGLIK.defaultAge}
+            onChange={setAge}
+            clearLabel={t("clear")}
           />
         </InputRow>
 
@@ -57,7 +56,7 @@ export function SaglikCalculator({
             {(["bireysel", "aile"] as const).map((c) => (
               <label
                 key={c}
-                className="flex items-center gap-2 rounded-pill border border-input bg-card px-4 py-2 text-sm has-[:checked]:border-secondary has-[:checked]:bg-accent"
+                className="flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-pill border border-input bg-card px-4 py-2 text-sm has-[:checked]:border-secondary has-[:checked]:bg-accent sm:flex-none sm:justify-start"
               >
                 <input
                   type="radio"
@@ -75,20 +74,19 @@ export function SaglikCalculator({
 
         {coverage === "aile" && (
           <InputRow id="saglik-people" label={t("saglik.people")}>
-            <input
+            <NumberField
               id="saglik-people"
-              type="number"
-              inputMode="numeric"
               min={2}
               max={SAGLIK.maxPeople}
               value={people}
-              onChange={(e) => setPeople(Number(e.target.value))}
-              className={numberInputClass}
+              fallback={3}
+              onChange={setPeople}
+              clearLabel={t("clear")}
             />
           </InputRow>
         )}
 
-        <label className="flex items-center gap-3 self-end py-2 sm:col-span-2">
+        <label className="flex min-h-[44px] items-center gap-3 self-end py-2 sm:col-span-2">
           <input
             type="checkbox"
             checked={hasSgk}
@@ -120,7 +118,7 @@ export function SaglikCalculator({
           onClick={() =>
             onUseValues({ kapsam: coverage, kisiSayisi: coverage === "aile" ? people : undefined })
           }
-          className="mt-4 rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:bg-destructive"
+          className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:bg-destructive sm:w-auto"
         >
           {t("useInForm")}
         </button>

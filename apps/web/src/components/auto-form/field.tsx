@@ -15,8 +15,9 @@ interface FieldProps {
 }
 
 // Ortak girdi sınıfları (docs/09: yuvarlak, teal focus ring, dokunma hedefi ≥44px).
+// Mobil: text-base (≥16px) iOS otomatik yakınlaştırmayı önler; min-h-[44px] dokunma hedefi.
 const inputClass = cn(
-  "w-full rounded-xl border border-input bg-card px-4 py-2.5 text-foreground",
+  "w-full min-h-[44px] rounded-xl border border-input bg-card px-4 py-2.5 text-base text-foreground",
   "placeholder:text-muted-foreground/70",
   "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 focus:ring-offset-background",
   "transition-shadow",
@@ -38,7 +39,7 @@ export function Field({ field, locale, form }: FieldProps) {
   // Checkbox: etiket sağda, satır içi.
   if (field.type === "checkbox") {
     return (
-      <label htmlFor={id} className="flex items-start gap-3 py-1">
+      <label htmlFor={id} className="flex min-h-[44px] items-start gap-3 py-1.5">
         <input
           id={id}
           type="checkbox"
@@ -120,7 +121,7 @@ function renderControl({
           {field.options?.map((o) => (
             <label
               key={o.value}
-              className="flex items-center gap-2 rounded-pill border border-input bg-card px-4 py-2 text-sm has-[:checked]:border-secondary has-[:checked]:bg-accent"
+              className="flex min-h-[44px] items-center gap-2 rounded-pill border border-input bg-card px-4 py-2 text-sm has-[:checked]:border-secondary has-[:checked]:bg-accent"
             >
               <input
                 type="radio"

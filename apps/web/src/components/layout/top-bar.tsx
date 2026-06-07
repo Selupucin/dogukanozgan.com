@@ -3,11 +3,15 @@
 
 import { getTranslations } from "next-intl/server";
 import { Phone, ShieldCheck, LifeBuoy } from "lucide-react";
-import { Link } from "@/i18n/navigation";
 import { contact } from "@/lib/site";
 
 export async function TopBar() {
   const t = await getTranslations("topbar");
+
+  // "Hasar Anında" → doğrudan WhatsApp (hazır mesajla). docs/02 üst bar.
+  const claimWaHref = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
+    t("claimWhatsapp"),
+  )}`;
 
   return (
     <div className="bg-foreground text-background/85">
@@ -27,13 +31,15 @@ export async function TopBar() {
           <span aria-hidden className="text-background/30">
             ·
           </span>
-          <Link
-            href="/sss"
+          <a
+            href={claimWaHref}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 transition hover:text-background"
           >
             <LifeBuoy className="h-3.5 w-3.5" aria-hidden />
             {t("claim")}
-          </Link>
+          </a>
         </span>
       </div>
     </div>

@@ -377,18 +377,219 @@ const konut: ProductDefinition = {
   ],
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Yeni ürünler (docs/03 "🔮 Olası Ek Ürünler" → tanımlandı): DASK, Kasko, Seyahat.
+// ⚠️ TASLAK alanlar — // TODO(doc): nihai alanlar Doğukan'dan gelince güncellenir.
+// Üçü de hesaplayıcısız (hasCalculator: false).
+// ─────────────────────────────────────────────────────────────────────────────
+
+const dask: ProductDefinition = {
+  slug: "dask", // kanonik (= slugs.tr)
+  // docs/03: EN slug — DASK marka adı yaygın, ancak EN okur için açıklayıcı
+  // "compulsory-earthquake" tercih edildi (SEO + niyet netliği).
+  slugs: { tr: "dask", en: "compulsory-earthquake" },
+  name: { tr: "Zorunlu Deprem Sigortası (DASK)", en: "Compulsory Earthquake Insurance (DASK)" },
+  description: {
+    tr: "Konutunuz için zorunlu deprem sigortası (DASK) poliçenizi hızlıca düzenleyelim.",
+    en: "Let's quickly arrange your compulsory earthquake (DASK) policy for your home.",
+  },
+  icon: "Building2",
+  hasCalculator: false, // docs/03: DASK tarifesi 🔧 netleşecek → şimdilik hesaplayıcı yok
+  // TODO(doc): DASK alanları TASLAK — nihai alanlar netleşecek (docs/03).
+  fields: [
+    adSoyad,
+    telefon,
+    il,
+    {
+      name: "ilce",
+      type: "text",
+      required: true,
+      label: { tr: "İlçe", en: "District" },
+      placeholder: { tr: "İlçe", en: "District" },
+    },
+    {
+      name: "binaYapiTarzi",
+      type: "select",
+      required: true,
+      label: { tr: "Bina yapı tarzı", en: "Building construction type" },
+      options: [
+        { value: "betonarme", label: { tr: "Betonarme", en: "Reinforced concrete" } },
+        { value: "yigma", label: { tr: "Yığma", en: "Masonry" } },
+        { value: "diger", label: { tr: "Diğer", en: "Other" } },
+      ],
+    },
+    {
+      name: "brutM2",
+      type: "number",
+      required: true,
+      label: { tr: "Brüt m²", en: "Gross m²" },
+      validation: { min: 1, max: 2000 },
+    },
+    {
+      name: "binaInsaYili",
+      type: "number",
+      required: true,
+      label: { tr: "Bina inşa yılı", en: "Year of construction" },
+      validation: { min: 1900, max: 2100 },
+    },
+    {
+      name: "katSayisi",
+      type: "number",
+      required: false,
+      label: { tr: "Bina kat sayısı", en: "Number of floors" },
+      validation: { min: 1, max: 100 },
+    },
+    {
+      name: "daireKati",
+      type: "number",
+      required: false,
+      label: { tr: "Dairenin bulunduğu kat", en: "Floor of the flat" },
+    },
+    eposta,
+  ],
+};
+
+const kasko: ProductDefinition = {
+  slug: "kasko", // kanonik (= slugs.tr)
+  // docs/03: EN slug — "kasko" tek kelime uluslararası anlaşılır değil; açıklayıcı
+  // "comprehensive-auto" tercih edildi.
+  slugs: { tr: "kasko", en: "comprehensive-auto" },
+  name: { tr: "Kasko Sigortası", en: "Comprehensive Auto Insurance" },
+  description: {
+    tr: "Aracınız için kapsamlı kasko teminatında 20+ şirketten en uygun teklifi karşılaştırın.",
+    en: "Compare the best comprehensive auto cover from 20+ companies for your vehicle.",
+  },
+  icon: "CarFront",
+  hasCalculator: false, // docs/03: kasko primi şirkete/araca bağlı → hesaplayıcı yok
+  // TODO(doc): Kasko alanları TASLAK — nihai alanlar netleşecek (docs/03).
+  fields: [
+    adSoyad,
+    telefon,
+    {
+      name: "plaka",
+      type: "plaka",
+      required: true,
+      label: { tr: "Plaka", en: "License Plate" },
+      placeholder: { tr: "34 ABC 123", en: "34 ABC 123" },
+    },
+    {
+      name: "marka",
+      type: "text",
+      required: true,
+      label: { tr: "Araç markası", en: "Vehicle make" },
+      placeholder: { tr: "Örn. Renault", en: "e.g. Renault" },
+    },
+    {
+      name: "model",
+      type: "text",
+      required: true,
+      label: { tr: "Model", en: "Model" },
+      placeholder: { tr: "Örn. Clio", en: "e.g. Clio" },
+    },
+    {
+      name: "modelYili",
+      type: "number",
+      required: true,
+      label: { tr: "Model yılı", en: "Model year" },
+      validation: { min: 1950, max: 2100 },
+    },
+    {
+      name: "kullanimTarzi",
+      type: "radio",
+      required: true,
+      label: { tr: "Kullanım tarzı", en: "Usage type" },
+      options: [
+        { value: "hususi", label: { tr: "Hususi", en: "Private" } },
+        { value: "ticari", label: { tr: "Ticari", en: "Commercial" } },
+      ],
+    },
+    {
+      name: "dogumTarihi",
+      type: "date",
+      required: true,
+      label: { tr: "Doğum Tarihi", en: "Date of Birth" },
+    },
+    eposta,
+  ],
+};
+
+const seyahat: ProductDefinition = {
+  slug: "seyahat", // kanonik (= slugs.tr)
+  slugs: { tr: "seyahat", en: "travel" },
+  name: { tr: "Seyahat Sağlık Sigortası", en: "Travel Health Insurance" },
+  description: {
+    tr: "Yurt dışı seyahatleriniz ve vize başvurularınız için seyahat sağlık sigortanızı alın.",
+    en: "Get travel health insurance for your trips abroad and visa applications.",
+  },
+  icon: "Plane",
+  // NOT: Seyahatte sağlık VERİSİ sorulmuyor (sadece tarih/ülke/amaç) → sensitive DEĞİL.
+  hasCalculator: false,
+  // TODO(doc): Seyahat alanları TASLAK — nihai alanlar netleşecek (docs/03).
+  fields: [
+    adSoyad,
+    telefon,
+    {
+      name: "dogumTarihi",
+      type: "date",
+      required: true,
+      label: { tr: "Doğum Tarihi", en: "Date of Birth" },
+    },
+    {
+      name: "gidilecekUlkeBolge",
+      type: "text",
+      required: true,
+      label: { tr: "Gidilecek ülke / bölge", en: "Destination country / region" },
+      placeholder: { tr: "Örn. Schengen / Almanya", en: "e.g. Schengen / Germany" },
+    },
+    {
+      name: "baslangicTarihi",
+      type: "date",
+      required: true,
+      label: { tr: "Seyahat başlangıç tarihi", en: "Trip start date" },
+    },
+    {
+      name: "bitisTarihi",
+      type: "date",
+      required: true,
+      label: { tr: "Seyahat bitiş tarihi", en: "Trip end date" },
+    },
+    {
+      name: "kisiSayisi",
+      type: "number",
+      required: true,
+      label: { tr: "Kişi sayısı", en: "Number of people" },
+      validation: { min: 1, max: 20 },
+    },
+    {
+      name: "seyahatAmaci",
+      type: "radio",
+      required: false,
+      label: { tr: "Seyahat amacı", en: "Purpose of travel" },
+      options: [
+        { value: "turistik", label: { tr: "Turistik", en: "Tourism" } },
+        { value: "is", label: { tr: "İş", en: "Business" } },
+        { value: "egitim", label: { tr: "Eğitim", en: "Education" } },
+      ],
+    },
+    eposta,
+  ],
+};
+
 /**
  * Tüm sigorta ürünleri slug -> tanım eşlemesi.
  * Yeni ürün eklemek = buraya bir nesne eklemek (bkz. docs/01).
- * TODO(doc): Kasko, DASK, Ferdi Kaza, İş Yeri vb. ileride eklenecek
- * (docs/03 "🔮 Olası Ek Ürünler"). Hayat → Aşama 4'te eklendi.
+ * TODO(doc): Ferdi Kaza, İş Yeri vb. ileride eklenecek (docs/03 "🔮 Olası Ek Ürünler").
+ * Hayat → Aşama 4'te; DASK/Kasko/Seyahat → bu görevde eklendi (docs/03).
  */
 export const products: ProductCatalog = {
   [trafik.slug]: trafik,
+  [kasko.slug]: kasko,
   [saglik.slug]: saglik,
   [bireyselEmeklilik.slug]: bireyselEmeklilik,
   [hayat.slug]: hayat,
   [konut.slug]: konut,
+  [dask.slug]: dask,
+  [seyahat.slug]: seyahat,
 };
 
 /** Slug'a göre ürün getirir (yoksa undefined). */

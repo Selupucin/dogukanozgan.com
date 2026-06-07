@@ -7,8 +7,9 @@
 // "Tahmini değerdir" uyarısı (EstimateNotice) docs/03 gereği ZORUNLU'dur ve her
 // hesaplayıcı sonucunun yanında gösterilir.
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Calculator, Info } from "lucide-react";
+import { Calculator, Info, X } from "lucide-react";
 import { cn } from "@do/ui";
 import type { Locale } from "@/components/auto-form/types-bridge";
 
@@ -62,12 +63,100 @@ export function InputRow({
   );
 }
 
+// Mobil-dostu girdi: ≥16px font (iOS zoom önler), ≥44px dokunma hedefi (docs/09).
 export const numberInputClass = cn(
-  "w-full rounded-xl border border-input bg-card px-4 py-2.5 text-foreground",
+  "w-full min-h-[44px] rounded-xl border border-input bg-card px-4 py-2.5 text-base text-foreground",
   "placeholder:text-muted-foreground/70",
   "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 focus:ring-offset-background",
   "transition-shadow",
 );
+
+/**
+ * Mobil-dostu sayısal girdi (docs/09 erişilebilirlik).
+ * - Değer STRING olarak tutulur → kullanıcı alanı tamamen SİLEBİLİR (mobil bug çözümü:
+ *   number state + Number("") kombinasyonu alanı temizlenemez yapıyordu).
+ * - inputMode ile mobil sayısal klavye; ≥16px font, ≥44px dokunma hedefi.
+ * - Dolu iken sağda "×" temizleme butonu (parmakla kolay temizleme).
+ * - Boş/geçersiz değer üst bileşene fallback (varsayılan) olarak iletilir.
+ */
+export function NumberField({
+  id,
+  value,
+  onChange,
+  fallback,
+  min,
+  max,
+  step,
+  decimal,
+  clearLabel,
+}: {
+  id: string;
+  value: number;
+  onChange: (next: number) => void;
+  /** Alan boş bırakılırsa hesap için kullanılacak değer. */
+  fallback: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  /** true ise inputMode="decimal" (ondalık), değilse "numeric". */
+  decimal?: boolean;
+  /** "×" butonu için erişilebilir etiket. */
+  clearLabel: string;
+}) {
+  // İçeride STRING state tutulur → kullanıcı alanı tamamen boşaltıp yeniden yazabilir
+  // (mobilde "silinemiyor" hatasının kök sebebi: number state'i boş bırakılamıyordu).
+  // Hesaba boş değer gitmesin diye, boş iken üst bileşene `fallback` iletilir; ancak
+  // input görsel olarak BOŞ kalır (kullanıcı yazmaya devam edebilir).
+  const [text, setText] = useState<string>(String(value));
+
+  // Dışarıdan gelen değer (ör. "bu değerlerle teklif al" / temizleme) input ile
+  // uyuşmuyorsa senkronize et. Kullanıcı boş bıraktıysa (text === "") ezme.
+  useEffect(() => {
+    if (text === "") return;
+    if (Number(text.replace(",", ".")) !== value) setText(String(value));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return (
+    <div className="relative">
+      <input
+        id={id}
+        type="text"
+        inputMode={decimal ? "decimal" : "numeric"}
+        pattern={decimal ? "[0-9]*[.,]?[0-9]*" : "[0-9]*"}
+        value={text}
+        onChange={(e) => {
+          const raw = e.target.value;
+          setText(raw);
+          const cleaned = raw.replace(",", ".").trim();
+          if (cleaned === "") {
+            onChange(fallback);
+            return;
+          }
+          const n = Number(cleaned);
+          if (!Number.isNaN(n)) onChange(n);
+        }}
+        min={min}
+        max={max}
+        step={step}
+        className={cn(numberInputClass, "pr-11")}
+      />
+      {text !== "" && (
+        <button
+          type="button"
+          aria-label={clearLabel}
+          onClick={() => {
+            setText("");
+            onChange(fallback);
+          }}
+          className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <X className="h-4 w-4" aria-hidden />
+        </button>
+      )}
+    </div>
+  );
+}
 
 /** Tek bir vurgulu sonuç satırı (büyük rakam). */
 export function ResultStat({

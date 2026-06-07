@@ -13,7 +13,7 @@ import {
   InputRow,
   ResultStat,
   EstimateNotice,
-  numberInputClass,
+  NumberField,
   formatRangeTRY,
 } from "./ui";
 
@@ -40,45 +40,42 @@ export function HayatCalculator({
     <CalculatorShell titleKey="hayat.title" introKey="hayat.intro">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <InputRow id="hayat-age" label={t("hayat.age")}>
-          <input
+          <NumberField
             id="hayat-age"
-            type="number"
-            inputMode="numeric"
             min={HAYAT.minAge}
             max={HAYAT.maxAge}
             value={age}
-            onChange={(e) => setAge(Number(e.target.value))}
-            className={numberInputClass}
+            fallback={HAYAT.defaultAge}
+            onChange={setAge}
+            clearLabel={t("clear")}
           />
         </InputRow>
         <InputRow id="hayat-coverage" label={t("hayat.coverage")}>
-          <input
+          <NumberField
             id="hayat-coverage"
-            type="number"
-            inputMode="numeric"
             min={HAYAT.minCoverage}
             max={HAYAT.maxCoverage}
             step={50000}
             value={coverage}
-            onChange={(e) => setCoverage(Number(e.target.value))}
-            className={numberInputClass}
+            fallback={HAYAT.defaultCoverage}
+            onChange={setCoverage}
+            clearLabel={t("clear")}
           />
         </InputRow>
         <InputRow id="hayat-years" label={t("hayat.years")}>
-          <input
+          <NumberField
             id="hayat-years"
-            type="number"
-            inputMode="numeric"
             min={HAYAT.minYears}
             max={HAYAT.maxYears}
             value={years}
-            onChange={(e) => setYears(Number(e.target.value))}
-            className={numberInputClass}
+            fallback={HAYAT.defaultYears}
+            onChange={setYears}
+            clearLabel={t("clear")}
           />
         </InputRow>
       </div>
 
-      <label className="mt-4 flex items-center gap-3 py-1">
+      <label className="mt-4 flex min-h-[44px] items-center gap-3 py-1">
         <input
           type="checkbox"
           checked={smoker}
@@ -107,7 +104,7 @@ export function HayatCalculator({
         <button
           type="button"
           onClick={() => onUseValues({ teminatTutari: coverage, sure: years, sigara: smoker })}
-          className="mt-4 rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:bg-destructive"
+          className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:bg-destructive sm:w-auto"
         >
           {t("useInForm")}
         </button>

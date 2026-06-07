@@ -2,20 +2,26 @@
 // Bilinmeyen anahtar için güvenli varsayılan (Shield) kullanılır.
 import {
   Car,
+  CarFront,
   HeartPulse,
   HeartHandshake,
   PiggyBank,
   Home,
+  Building2,
+  Plane,
   Shield,
   type LucideIcon,
 } from "lucide-react";
 
 const icons: Record<string, LucideIcon> = {
   Car,
+  CarFront,
   HeartPulse,
   HeartHandshake,
   PiggyBank,
   Home,
+  Building2,
+  Plane,
   Shield,
 };
 

@@ -17,6 +17,7 @@ import {
   Scale,
   HeartHandshake,
   Calculator,
+  Sparkles,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
@@ -108,6 +109,155 @@ export default async function ProductPage({
     { icon: HeartHandshake, title: tp("why3Title"), body: tp("why3Body") },
   ];
 
+  // docs/02/03 düzen: hesaplayıcısı OLAN ürünlerde hesaplayıcı EN ÜSTTE (hero hemen
+  // sonrası); açıklamalar/teminat/avantaj/SSS aşağıda. Hesaplayıcısız ürünlerde
+  // mevcut düzen (lead → kapsam → avantaj …) korunur. "Teklif Al" CTA hero'da hep var.
+
+  // ── Şık TANITIM PARAGRAFI bloğu (docs/09: lead paragraf + yumuşak kart + ikon) ──
+  const leadBlock =
+    content && content.lead ? (
+      <section className="py-14 sm:py-16">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6">
+          <div className="relative overflow-hidden rounded-[var(--radius)] border border-border bg-card p-7 shadow-sm sm:p-10">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[radial-gradient(circle,hsl(177_60%_27%/0.12),transparent_70%)]"
+            />
+            <span className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-secondary/15 text-secondary">
+              <Sparkles className="h-5 w-5" aria-hidden />
+            </span>
+            <span className="relative mt-5 block text-xs font-extrabold uppercase tracking-[0.1em] text-primary">
+              {t("leadEyebrow")}
+            </span>
+            <p className="relative mt-3 font-heading text-[clamp(1.15rem,2.2vw,1.5rem)] font-medium leading-relaxed text-foreground">
+              {content.lead[loc]}
+            </p>
+          </div>
+        </div>
+      </section>
+    ) : null;
+
+  // ── Hesaplayıcı bloğu ──
+  const calculatorBlock =
+    product.hasCalculator && product.calculator ? (
+      <section id="hesaplayici" className="scroll-mt-24 py-14 sm:py-16">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6">
+          <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-primary">
+            {t("calculatorEyebrow")}
+          </span>
+          <h2 className="mt-3 font-heading text-[clamp(1.7rem,3vw,2.3rem)] font-semibold text-foreground">
+            {t("calculatorTitle")}
+          </h2>
+          <div className="mt-6">
+            <CalculatorSection kind={product.calculator} locale={loc} slug={slug} />
+          </div>
+        </div>
+      </section>
+    ) : null;
+
+  // ── Kapsam ──
+  const coverageBlock =
+    content && content.coverage.length > 0 ? (
+      <section className="py-16 sm:py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-primary">
+            {t("coverageEyebrow")}
+          </span>
+          <h2 className="mt-3 font-heading text-[clamp(1.7rem,3vw,2.3rem)] font-semibold text-foreground">
+            {t("coverageTitle")}
+          </h2>
+          <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {content.coverage.map((c) => (
+              <li
+                key={c[loc]}
+                className="flex items-start gap-3 rounded-[var(--radius)] border border-border bg-card p-5"
+              >
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-secondary" aria-hidden />
+                <span className="text-sm text-foreground">{c[loc]}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    ) : null;
+
+  // ── Avantajlar ──
+  const advantagesBlock =
+    content && content.advantages.length > 0 ? (
+      <section className="bg-muted/60 py-16 sm:py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-primary">
+            {t("advantagesEyebrow")}
+          </span>
+          <h2 className="mt-3 font-heading text-[clamp(1.7rem,3vw,2.3rem)] font-semibold text-foreground">
+            {t("advantagesTitle")}
+          </h2>
+          <ul className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {content.advantages.map((a) => (
+              <li
+                key={a.title[loc]}
+                className="rounded-[var(--radius)] border border-border bg-card p-6"
+              >
+                <h3 className="font-heading text-lg text-foreground">{a.title[loc]}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{a.body[loc]}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    ) : null;
+
+  // ── Neden Doğukan ile ──
+  const whyBlock = (
+    <section className="bg-muted/60 py-16 sm:py-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-primary">
+          {t("whyEyebrow")}
+        </span>
+        <h2 className="mt-3 font-heading text-[clamp(1.7rem,3vw,2.3rem)] font-semibold text-foreground">
+          {t("whyTitle")}
+        </h2>
+        <ul className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
+          {why.map((w) => (
+            <li key={w.title} className="rounded-[var(--radius)] border border-border bg-card p-6">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+                <w.icon className="h-5 w-5" aria-hidden />
+              </span>
+              <h3 className="mt-4 font-heading text-lg text-foreground">{w.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{w.body}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+
+  // ── Ürün SSS ──
+  const faqBlock =
+    content && content.faq.length > 0 ? (
+      <section className="py-16 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <div className="text-center">
+            <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-primary">
+              {t("faqEyebrow")}
+            </span>
+            <h2 className="mt-3 font-heading text-[clamp(1.7rem,3vw,2.3rem)] font-semibold text-foreground">
+              {t("faqTitle")}
+            </h2>
+          </div>
+          <div className="mt-8">
+            <FaqAccordion locale={loc} items={content.faq.map((f) => ({ q: f.q, a: f.a }))} />
+          </div>
+        </div>
+      </section>
+    ) : null;
+
+  // Bölüm sırası: hesaplayıcı varsa → hesaplayıcı önce, sonra tanıtım/açıklamalar.
+  // Yoksa → tanıtım (lead) önce, ardından açıklamalar (mevcut düzen).
+  const bodySections = product.hasCalculator
+    ? [calculatorBlock, leadBlock, coverageBlock, advantagesBlock, whyBlock, faqBlock]
+    : [leadBlock, coverageBlock, advantagesBlock, whyBlock, faqBlock];
+
   return (
     <main>
       <script
@@ -169,114 +319,8 @@ export default async function ProductPage({
         </div>
       </section>
 
-      {/* ===== KAPSAM ===== */}
-      {content && content.coverage.length > 0 && (
-        <section className="py-16 sm:py-20">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-primary">
-              {t("coverageEyebrow")}
-            </span>
-            <h2 className="mt-3 font-heading text-[clamp(1.7rem,3vw,2.3rem)] font-semibold text-foreground">
-              {t("coverageTitle")}
-            </h2>
-            <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {content.coverage.map((c) => (
-                <li
-                  key={c[loc]}
-                  className="flex items-start gap-3 rounded-[var(--radius)] border border-border bg-card p-5"
-                >
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-secondary" aria-hidden />
-                  <span className="text-sm text-foreground">{c[loc]}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
-
-      {/* ===== AVANTAJLAR ===== */}
-      {content && content.advantages.length > 0 && (
-        <section className="bg-muted/60 py-16 sm:py-20">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-primary">
-              {t("advantagesEyebrow")}
-            </span>
-            <h2 className="mt-3 font-heading text-[clamp(1.7rem,3vw,2.3rem)] font-semibold text-foreground">
-              {t("advantagesTitle")}
-            </h2>
-            <ul className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
-              {content.advantages.map((a) => (
-                <li
-                  key={a.title[loc]}
-                  className="rounded-[var(--radius)] border border-border bg-card p-6"
-                >
-                  <h3 className="font-heading text-lg text-foreground">{a.title[loc]}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{a.body[loc]}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
-
-      {/* ===== HESAPLAYICI (varsa) — form YOK; "teklif al" teklif sayfasına gider ===== */}
-      {product.hasCalculator && product.calculator && (
-        <section id="hesaplayici" className="scroll-mt-24 py-16 sm:py-20">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6">
-            <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-primary">
-              {t("calculatorEyebrow")}
-            </span>
-            <div className="mt-4">
-              <CalculatorSection kind={product.calculator} locale={loc} slug={slug} />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ===== NEDEN DOĞUKAN İLE ===== */}
-      <section className="bg-muted/60 py-16 sm:py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-primary">
-            {t("whyEyebrow")}
-          </span>
-          <h2 className="mt-3 font-heading text-[clamp(1.7rem,3vw,2.3rem)] font-semibold text-foreground">
-            {t("whyTitle")}
-          </h2>
-          <ul className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
-            {why.map((w) => (
-              <li
-                key={w.title}
-                className="rounded-[var(--radius)] border border-border bg-card p-6"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-                  <w.icon className="h-5 w-5" aria-hidden />
-                </span>
-                <h3 className="mt-4 font-heading text-lg text-foreground">{w.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{w.body}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* ===== ÜRÜN SSS ===== */}
-      {content && content.faq.length > 0 && (
-        <section className="py-16 sm:py-20">
-          <div className="mx-auto max-w-3xl px-4 sm:px-6">
-            <div className="text-center">
-              <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-primary">
-                {t("faqEyebrow")}
-              </span>
-              <h2 className="mt-3 font-heading text-[clamp(1.7rem,3vw,2.3rem)] font-semibold text-foreground">
-                {t("faqTitle")}
-              </h2>
-            </div>
-            <div className="mt-8">
-              <FaqAccordion locale={loc} items={content.faq.map((f) => ({ q: f.q, a: f.a }))} />
-            </div>
-          </div>
-        </section>
-      )}
+      {/* ===== GÖVDE — sıra hesaplayıcı varlığına göre (docs/02/03 yeni düzen) ===== */}
+      {bodySections.map((node, i) => (node ? <div key={i}>{node}</div> : null))}
 
       {/* ===== FINAL CTA → TEKLİF SAYFASI ===== */}
       <section className="px-4 pb-20 sm:px-6 sm:pb-24">

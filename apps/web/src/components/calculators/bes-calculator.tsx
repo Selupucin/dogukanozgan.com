@@ -13,7 +13,7 @@ import {
   InputRow,
   ResultStat,
   EstimateNotice,
-  numberInputClass,
+  NumberField,
   formatTRY,
 } from "./ui";
 
@@ -44,39 +44,37 @@ export function BesCalculator({
     <CalculatorShell titleKey="bes.title" introKey="bes.intro">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <InputRow id="bes-monthly" label={t("bes.monthly")}>
-          <input
+          <NumberField
             id="bes-monthly"
-            type="number"
-            inputMode="numeric"
             min={BES.minMonthly}
             max={BES.maxMonthly}
             value={monthly}
-            onChange={(e) => setMonthly(Number(e.target.value))}
-            className={numberInputClass}
+            fallback={BES.defaultMonthly}
+            onChange={setMonthly}
+            clearLabel={t("clear")}
           />
         </InputRow>
         <InputRow id="bes-years" label={t("bes.years")}>
-          <input
+          <NumberField
             id="bes-years"
-            type="number"
-            inputMode="numeric"
             min={BES.minYears}
             max={BES.maxYears}
             value={years}
-            onChange={(e) => setYears(Number(e.target.value))}
-            className={numberInputClass}
+            fallback={BES.defaultYears}
+            onChange={setYears}
+            clearLabel={t("clear")}
           />
         </InputRow>
         <InputRow id="bes-return" label={t("bes.returnRate")}>
-          <input
+          <NumberField
             id="bes-return"
-            type="number"
-            inputMode="numeric"
+            decimal
             min={Math.round(BES.minAnnualReturnRate * 100)}
             max={Math.round(BES.maxAnnualReturnRate * 100)}
             value={returnPct}
-            onChange={(e) => setReturnPct(Number(e.target.value))}
-            className={numberInputClass}
+            fallback={Math.round(BES.defaultAnnualReturnRate * 100)}
+            onChange={setReturnPct}
+            clearLabel={t("clear")}
           />
         </InputRow>
       </div>
@@ -104,7 +102,7 @@ export function BesCalculator({
         <button
           type="button"
           onClick={() => onUseValues({ aylikTutar: monthly })}
-          className="mt-4 rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:bg-destructive"
+          className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5 hover:bg-destructive sm:w-auto"
         >
           {t("useInForm")}
         </button>

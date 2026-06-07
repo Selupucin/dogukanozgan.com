@@ -25,7 +25,8 @@
   },
   "topbar": {
     "trust": "Çoklu şirket acentesi — en uygun teklifi sizin için karşılaştırıyoruz",
-    "claim": "Hasar Anında"
+    "claim": "Hasar Anında",
+    "claimWhatsapp": "Merhaba, hasar anında yardım/yönlendirme almak istiyorum."
   },
   "home": {
     "heroBadge": "Bağımsız acente — 20+ şirketi karşılaştırır",
@@ -103,6 +104,8 @@
     "finalSubtitle": "Branşı seçin, ürün sayfasından dakikalar içinde ücretsiz teklif alın."
   },
   "productPage": {
+    "leadEyebrow": "Genel Bakış",
+    "calculatorTitle": "Hemen hesaplayın",
     "coverageEyebrow": "Kapsam",
     "coverageTitle": "Neyi kapsar?",
     "advantagesEyebrow": "Avantajlar",
@@ -268,6 +271,7 @@
   "calculator": {
     "estimateNotice": "Tahmini değerdir, kesin teklif için aşağıdaki formu doldurun.",
     "estimateNoticeStrong": "Bu bir tahmindir.",
+    "clear": "Alanı temizle",
     "useInForm": "Bu değerlerle teklif al",
     "usedInFormNotice": "Hesaplayıcı değerleri aşağıdaki forma aktarıldı.",
     "perMonth": "/ ay",

@@ -25,7 +25,8 @@
   },
   "topbar": {
     "trust": "Multi-company agency — we compare the best offer for you",
-    "claim": "In Case of a Claim"
+    "claim": "In Case of a Claim",
+    "claimWhatsapp": "Hello, I'd like to get help/guidance in case of a claim."
   },
   "home": {
     "heroBadge": "Independent agency — compares 20+ companies",
@@ -103,6 +104,8 @@
     "finalSubtitle": "Pick a branch and get a free quote from the product page in minutes."
   },
   "productPage": {
+    "leadEyebrow": "Overview",
+    "calculatorTitle": "Calculate right away",
     "coverageEyebrow": "Coverage",
     "coverageTitle": "What does it cover?",
     "advantagesEyebrow": "Advantages",
@@ -268,6 +271,7 @@
   "calculator": {
     "estimateNotice": "This is an estimate; for an exact quote, please fill in the form below.",
     "estimateNoticeStrong": "This is an estimate.",
+    "clear": "Clear field",
     "useInForm": "Get a quote with these values",
     "usedInFormNotice": "Calculator values have been carried over to the form below.",
     "perMonth": "/ mo",
