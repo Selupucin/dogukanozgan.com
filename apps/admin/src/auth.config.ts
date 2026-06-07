@@ -30,8 +30,6 @@ export const authConfig: NextAuthConfig = {
       const isAuthRoute = pathname.startsWith("/api/auth");
       const isLoginPage = pathname === "/login";
 
-      // GEÇİCİ teşhis uç noktası (sonra kaldırılacak) — middleware'den muaf.
-      if (pathname.startsWith("/api/diag")) return true;
       if (isAuthRoute) return true;
 
       if (isLoginPage) {
