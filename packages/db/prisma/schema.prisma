@@ -23,6 +23,9 @@
 
 generator client {
   provider = "prisma-client-js"
+  // "native" = yerel geliştirme; "rhel-openssl-3.0.x" = Vercel (Linux) çalışma zamanı.
+  // Bu olmadan Vercel'de "could not locate the Query Engine" hatası alınır.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
