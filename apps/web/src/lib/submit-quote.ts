@@ -25,6 +25,8 @@ import {
   Prisma,
   generateUniqueTrackingCode,
   createNotification,
+  checkRateLimit,
+  getClientIp,
 } from "@do/db";
 import { sendQuoteReceived, isEmailConfigured } from "@do/email";
 import { getProduct } from "@do/products";
@@ -32,7 +34,6 @@ import { getProvinces, getDistricts } from "@do/products/locations";
 import type { ProductDefinition, ProductField } from "@do/products";
 import { buildFormSchema } from "@/components/auto-form/schema";
 import { routing } from "@/i18n/routing";
-import { rateLimit } from "./rate-limit";
 
 type Locale = (typeof routing.locales)[number];
 
@@ -54,9 +55,11 @@ export interface SubmitQuoteResult {
   trackingCode?: string;
 }
 
-// Rate limit politikası: 15 dakikalık pencerede IP başına 8 gönderim.
+// Rate limit politikası (dağıtık/DB tabanlı — docs/13 §Y2). İki pencere: kısa "burst"
+// (dakikada 5) + saatlik üst sınır (30). Spam'ı hem ani hem birikimli sınırlar.
 // TODO(doc): Üretim eşiği netleşince ayarlanır (docs/06 §6).
-const RATE_LIMIT = { limit: 8, windowMs: 15 * 60 * 1000 };
+const RATE_LIMIT_BURST = { limit: 5, windowMs: 60 * 1000 };
+const RATE_LIMIT_HOURLY = { limit: 30, windowMs: 60 * 60 * 1000 };
 
 // İstemci tarafıyla aynı; honeypot alan adı (botlar doldurursa reddet).
 const HONEYPOT_FIELD = "website";
@@ -64,12 +67,16 @@ const HONEYPOT_FIELD = "website";
 export async function submitQuoteRequest(formData: FormData): Promise<SubmitQuoteResult> {
   try {
     const hdrs = await headers();
-    const ip = clientIp(hdrs);
+    const ip = getClientIp(hdrs);
     const userAgent = hdrs.get("user-agent") ?? null;
 
-    // 1) Rate limit (IP başına).
-    const rl = rateLimit(`quote:${ip}`, RATE_LIMIT);
-    if (!rl.ok) {
+    // 1) Rate limit (IP başına, dağıtık/DB — docs/13 §Y2). Burst + saatlik.
+    const burst = await checkRateLimit({ key: `quote:burst:${ip}`, ...RATE_LIMIT_BURST });
+    if (!burst.allowed) {
+      return { ok: false, error: "rateLimited" };
+    }
+    const hourly = await checkRateLimit({ key: `quote:hour:${ip}`, ...RATE_LIMIT_HOURLY });
+    if (!hourly.allowed) {
       return { ok: false, error: "rateLimited" };
     }
 
@@ -405,11 +412,4 @@ function toBool(v: FormDataEntryValue | null): boolean {
 function normalizeLocale(v: FormDataEntryValue | null): Locale {
   const s = typeof v === "string" ? v : "";
   return (routing.locales as readonly string[]).includes(s) ? (s as Locale) : routing.defaultLocale;
-}
-
-function clientIp(hdrs: Headers): string {
-  // Vercel: x-forwarded-for ilk IP gerçek istemcidir.
-  const fwd = hdrs.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]!.trim();
-  return hdrs.get("x-real-ip") ?? "unknown";
 }

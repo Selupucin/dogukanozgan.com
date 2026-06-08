@@ -45,3 +45,10 @@ export * from "./contact";
 
 // Teklif/poliçe yaşam döngüsü (K30/K32) — manuel oluştur, poliçe tarih/belge, bitiş sorgusu.
 export * from "./quotes";
+
+// Dağıtık (kalıcı) rate-limit — docs/13 §Y2. MongoDB tabanlı; in-memory limiter yerine.
+// YALNIZCA sunucu (Prisma). Login brute-force kilidi + form/lokasyon spam koruması.
+export * from "./rate-limit";
+
+// Güvenilir istemci IP çıkarımı (Vercel başlığı tercihli) — docs/13 §D1.
+export * from "./client-ip";

@@ -209,3 +209,29 @@ enum NotificationType {
   ILETISIM // Yeni iletişim talebi
   POLICE_BITIS // Yaklaşan/biten poliçe
 }
+
+// Dağıtık (kalıcı) rate-limit sayacı — docs/13 §Y2.
+// Mevcut MongoDB üzerinde tutulur (Upstash/Redis gibi EK SERVİS KURULMAZ — kullanıcı
+// kararı: non-teknik, ek altyapı istenmez). In-memory limiter serverless'te her
+// instance'ta ayrı saydığı için gerçek koruma sağlamıyordu (D2); bu model ile sayaç
+// tüm instance'larda paylaşılır.
+//
+// key örnekleri: "login:1.2.3.4:user@example.com" | "quote:1.2.3.4" | "loc:1.2.3.4".
+// Limit mantığı `expiresAt` sorgusuyla pencereyi kontrol eder (src/rate-limit.ts).
+//
+// ⚠️ `expiresAt` üzerinde standart index `prisma db push` ile oluşur. NOT: Prisma
+// MongoDB provider'ı henüz TTL (`expireAfterSeconds`) index'ini şemadan ÜRETMEZ —
+// gerçek otomatik silme için Atlas'ta tek seferlik el ile TTL index kurulur:
+//   db.RateLimit.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+// (docs/13 §Y2'de adımlar var.) TTL kurulana kadar süresi dolmuş kayıtlar OTOMATİK
+// SİLİNMEZ; ancak limit mantığı her zaman `expiresAt`'i sorguladığı için DOĞRU çalışır
+// (yalnızca eski satırlar birikir → zararsız, periyodik manuel temizlik yeterli).
+model RateLimit {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  key         String   @unique // "kapsam:ip[:kimlik]" — atomik sayaç anahtarı
+  count       Int      @default(0)
+  windowStart DateTime // mevcut pencerenin başlangıcı
+  expiresAt   DateTime // pencere bitişi; süre dolunca pencere sıfırlanır / TTL ile silinir
+
+  @@index([expiresAt])
+}

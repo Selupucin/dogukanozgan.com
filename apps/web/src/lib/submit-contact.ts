@@ -13,8 +13,7 @@
 
 import { headers } from "next/headers";
 import { z } from "zod";
-import { createContactRequest } from "@do/db";
-import { rateLimit } from "./rate-limit";
+import { createContactRequest, checkRateLimit, getClientIp } from "@do/db";
 
 export interface SubmitContactResult {
   ok: boolean;
@@ -23,9 +22,10 @@ export interface SubmitContactResult {
   contactId?: string;
 }
 
-// Rate limit: 15 dakikalık pencerede IP başına 5 gönderim (teklif formundan biraz katı).
+// Rate limit (dağıtık/DB — docs/13 §Y2): burst (dakikada 5) + saatlik (30) — teklif ile aynı.
 // TODO(doc): Üretim eşiği netleşince ayarlanır (docs/06 §6).
-const RATE_LIMIT = { limit: 5, windowMs: 15 * 60 * 1000 };
+const RATE_LIMIT_BURST = { limit: 5, windowMs: 60 * 1000 };
+const RATE_LIMIT_HOURLY = { limit: 30, windowMs: 60 * 60 * 1000 };
 
 const HONEYPOT_FIELD = "website";
 
@@ -48,12 +48,16 @@ const contactSchema = z.object({
 export async function submitContactRequest(formData: FormData): Promise<SubmitContactResult> {
   try {
     const hdrs = await headers();
-    const ip = clientIp(hdrs);
+    const ip = getClientIp(hdrs);
     const userAgent = hdrs.get("user-agent") ?? null;
 
-    // 1) Rate limit.
-    const rl = rateLimit(`contact:${ip}`, RATE_LIMIT);
-    if (!rl.ok) {
+    // 1) Rate limit (dağıtık/DB — docs/13 §Y2). Burst + saatlik.
+    const burst = await checkRateLimit({ key: `contact:burst:${ip}`, ...RATE_LIMIT_BURST });
+    if (!burst.allowed) {
+      return { ok: false, error: "rateLimited" };
+    }
+    const hourly = await checkRateLimit({ key: `contact:hour:${ip}`, ...RATE_LIMIT_HOURLY });
+    if (!hourly.allowed) {
       return { ok: false, error: "rateLimited" };
     }
 
@@ -124,10 +128,4 @@ function toBool(v: FormDataEntryValue | null): boolean {
   if (v == null) return false;
   const s = String(v).toLowerCase();
   return s === "true" || s === "on" || s === "1" || s === "yes";
-}
-
-function clientIp(hdrs: Headers): string {
-  const fwd = hdrs.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]!.trim();
-  return hdrs.get("x-real-ip") ?? "unknown";
 }

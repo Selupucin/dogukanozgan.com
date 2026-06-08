@@ -35,18 +35,32 @@ export const mapLinkUrl =
 
 /**
  * Anlaşmalı sigorta şirketleri (güven şeridi — docs/09).
- * ⚠️ YER TUTUCU liste; Türkiye'de yaygın şirketlerden örnek.
- * TODO(doc): Doğukan'ın GERÇEK anlaşmalı şirket listesi ile değiştirilecek.
+ * Doğukan'ın GERÇEK anlaşmalı şirket listesi (2026-06-08).
+ * Not: Logo görselleri istenirse ileride eklenir; şu an metin tabanlı şerit.
  */
 export const partnerCompanies: string[] = [
-  "Allianz",
+  "Quick Sigorta",
+  "Ethica Sigorta",
+  "Acıbadem Sigorta",
   "Anadolu Sigorta",
-  "AXA",
+  "Allianz",
+  "Sompo Sigorta",
+  "Türk Nippon Sigorta",
+  "Unico Sigorta",
+  "Koru Sigorta",
   "HDI Sigorta",
-  "Mapfre",
+  "HDI Fiba Emeklilik",
+  "Aksigorta",
+  "Doğa Sigorta",
   "Türkiye Sigorta",
-  "Sompo",
+  "AXA",
+  "Atlas Sigorta",
+  "HepiYi Sigorta",
+  "Neova Sigorta",
+  "Ray Sigorta",
   "Ankara Sigorta",
+  "Mapfre",
+  "Zurich Sigorta",
 ];
 
 /**
