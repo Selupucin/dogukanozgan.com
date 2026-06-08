@@ -7,13 +7,17 @@
 
 import { z } from "zod";
 import type { ProductField, Locale } from "./types-bridge";
+import { isValidPhone, isValidTc } from "@/lib/masks";
 
 /** Yerelleştirilmiş hata mesajları (TR/EN). */
 const messages = {
   required: { tr: "Bu alan zorunludur", en: "This field is required" },
   email: { tr: "Geçerli bir e-posta girin", en: "Enter a valid email" },
   tel: { tr: "Geçerli bir telefon girin", en: "Enter a valid phone number" },
-  tcKimlik: { tr: "TC Kimlik No 11 haneli olmalı", en: "ID number must be 11 digits" },
+  tcKimlik: {
+    tr: "Geçerli bir TC Kimlik No girin (11 hane)",
+    en: "Enter a valid ID number (11 digits)",
+  },
   plaka: { tr: "Geçerli bir plaka girin", en: "Enter a valid plate" },
   number: { tr: "Geçerli bir sayı girin", en: "Enter a valid number" },
   min: { tr: "Değer çok küçük", en: "Value is too small" },
@@ -67,15 +71,15 @@ function fieldSchema(field: ProductField, locale: Locale): z.ZodTypeAny {
     }
 
     case "tel": {
-      // Esnek telefon: en az 10 rakam (boşluk/+/-/parantez serbest).
-      const s = z
-        .string()
-        .refine((val) => (val.match(/\d/g)?.length ?? 0) >= 10, msg("tel", locale));
+      // TR cep telefonu: maske `0 (5XX) XXX XX XX` → tam 11 hane, 05 ile başlar.
+      // isValidPhone biçimden bağımsız çalışır (sadece rakamları kontrol eder).
+      const s = z.string().refine(isValidPhone, msg("tel", locale));
       return field.required ? requiredString(locale).pipe(s) : optionalString(s);
     }
 
     case "tcKimlik": {
-      const s = z.string().regex(/^\d{11}$/, msg("tcKimlik", locale));
+      // TC: 11 hane + algoritma (checksum) doğrulaması (10./11. hane kuralı).
+      const s = z.string().refine(isValidTc, msg("tcKimlik", locale));
       return field.required ? requiredString(locale).pipe(s) : optionalString(s);
     }
 

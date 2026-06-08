@@ -53,6 +53,7 @@ export function HayatCalculator({
         <InputRow id="hayat-coverage" label={t("hayat.coverage")}>
           <NumberField
             id="hayat-coverage"
+            thousands
             min={HAYAT.minCoverage}
             max={HAYAT.maxCoverage}
             step={50000}

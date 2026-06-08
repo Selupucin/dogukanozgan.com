@@ -18,10 +18,13 @@ export type ProductLocale = keyof LocalizedSlug; // "tr" | "en"
 // üründeki `sensitive` bayrağına göre rıza kutularını otomatik ekler (docs/03/06).
 // ─────────────────────────────────────────────────────────────────────────────
 
+// İLETİŞİM bölümü (docs/03 "Form bölümleri"): Ad Soyad + Telefon + E-posta "İletişim"
+// başlığı altında gruplanır. section: "iletisim" → AutoForm bunları en üstte toplar.
 const adSoyad: ProductField = {
   name: "adSoyad",
   type: "text",
   required: true,
+  section: "iletisim",
   label: { tr: "Ad Soyad", en: "Full Name" },
   placeholder: { tr: "Adınız ve soyadınız", en: "Your full name" },
   validation: { minLength: 2, maxLength: 80 },
@@ -31,8 +34,9 @@ const telefon: ProductField = {
   name: "telefon",
   type: "tel",
   required: true,
+  section: "iletisim",
   label: { tr: "Telefon", en: "Phone" },
-  placeholder: { tr: "05xx xxx xx xx", en: "05xx xxx xx xx" },
+  placeholder: { tr: "0 (5XX) XXX XX XX", en: "0 (5XX) XXX XX XX" },
 };
 
 // E-posta ZORUNLU (K30/docs/12): her teklifte onay maili + durum-takip kodu müşterinin
@@ -41,6 +45,7 @@ const eposta: ProductField = {
   name: "eposta",
   type: "email",
   required: true,
+  section: "iletisim",
   label: { tr: "E-posta", en: "Email" },
   placeholder: { tr: "ornek@eposta.com", en: "you@example.com" },
 };
@@ -76,6 +81,55 @@ const mahalleCascade: ProductField = {
   required: false,
   label: { tr: "Mahalle", en: "Neighborhood" },
   cascade: { parent: "ilce" },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Açık adres alanları (docs/03 Konut/DASK): İl → İlçe → Mahalle zincirinden SONRA
+// açık adres alınır. Cadde/Sokak + Bina No + Daire No birincil (required); adres
+// tarifi (2. satır) opsiyoneldir. payload anahtarları KARARLI (cadde/binaNo/daireNo/
+// adresTarifi). Konut + DASK formlarında ortak kullanılır.
+// ─────────────────────────────────────────────────────────────────────────────
+const cadde: ProductField = {
+  name: "cadde",
+  type: "text",
+  required: true,
+  label: { tr: "Cadde / Sokak", en: "Street / Avenue" },
+  placeholder: { tr: "Örn. Atatürk Caddesi", en: "e.g. Ataturk Street" },
+  validation: { minLength: 2, maxLength: 120 },
+};
+
+const binaNo: ProductField = {
+  name: "binaNo",
+  type: "text",
+  required: true,
+  label: { tr: "Bina No", en: "Building No" },
+  placeholder: { tr: "Örn. 12/A", en: "e.g. 12/A" },
+  validation: { maxLength: 20 },
+};
+
+const daireNo: ProductField = {
+  name: "daireNo",
+  type: "text",
+  required: true,
+  label: { tr: "Daire No", en: "Flat No" },
+  placeholder: { tr: "Örn. 5", en: "e.g. 5" },
+  validation: { maxLength: 20 },
+};
+
+const adresTarifi: ProductField = {
+  name: "adresTarifi",
+  type: "text",
+  required: false,
+  label: { tr: "Adres tarifi (opsiyonel)", en: "Address description (optional)" },
+  placeholder: {
+    tr: "Site/blok adı, ek tarif vb.",
+    en: "Complex/block name, extra description, etc.",
+  },
+  help: {
+    tr: "Adresinizi bulmamızı kolaylaştıracak ek bilgileri yazabilirsiniz.",
+    en: "Add any extra details that help us locate your address.",
+  },
+  validation: { maxLength: 200 },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -128,6 +182,8 @@ const trafik: ProductDefinition = {
       name: "ruhsatFoto",
       type: "file",
       required: false,
+      // docs/03 §1: ruhsat fotoğrafı için çekim rehberi modalı gösterilir.
+      captureGuide: true,
       label: { tr: "Ruhsat / Araç Fotoğrafı", en: "Registration / Vehicle Photo" },
       help: {
         tr: "Ruhsatınızın fotoğrafını yüklerseniz teklif süreci hızlanır.",
@@ -196,6 +252,26 @@ const saglik: ProductDefinition = {
         { value: "yok", label: { tr: "Yok", en: "None" } },
         { value: "var", label: { tr: "Var", en: "Yes" } },
       ],
+    },
+    // docs/03 §2 + docs/06: boy/kilo SAĞLIK verisidir (BKİ/risk değerlendirme) →
+    // özel nitelikli; sensitive: true (ürün zaten sensitive, alan bazında da işaretli).
+    {
+      name: "boy",
+      type: "number",
+      required: false,
+      sensitive: true,
+      label: { tr: "Boy (cm)", en: "Height (cm)" },
+      placeholder: { tr: "Örn. 175", en: "e.g. 175" },
+      validation: { min: 50, max: 250 },
+    },
+    {
+      name: "kilo",
+      type: "number",
+      required: false,
+      sensitive: true,
+      label: { tr: "Kilo (kg)", en: "Weight (kg)" },
+      placeholder: { tr: "Örn. 70", en: "e.g. 70" },
+      validation: { min: 20, max: 300 },
     },
     il,
     {
@@ -355,6 +431,11 @@ const konut: ProductDefinition = {
     il,
     ilceCascade,
     mahalleCascade,
+    // docs/03: Mahalleden sonra AÇIK ADRES (cadde/bina/daire zorunlu, tarif opsiyonel).
+    cadde,
+    binaNo,
+    daireNo,
+    adresTarifi,
     {
       name: "brutM2",
       type: "number",
@@ -433,6 +514,11 @@ const dask: ProductDefinition = {
     il,
     ilceCascade,
     mahalleCascade,
+    // docs/03: Mahalleden sonra AÇIK ADRES (cadde/bina/daire zorunlu, tarif opsiyonel).
+    cadde,
+    binaNo,
+    daireNo,
+    adresTarifi,
     {
       name: "binaYapiTarzi",
       type: "select",
@@ -541,6 +627,8 @@ const kasko: ProductDefinition = {
       name: "ruhsatFoto",
       type: "file",
       required: false,
+      // docs/03 §6: ruhsat fotoğrafı için çekim rehberi modalı gösterilir.
+      captureGuide: true,
       label: { tr: "Ruhsat Fotoğrafı", en: "Registration Photo" },
       help: {
         tr: "Ruhsatınızın fotoğrafını yüklerseniz teklif süreci hızlanır.",

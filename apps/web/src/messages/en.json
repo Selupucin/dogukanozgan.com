@@ -273,6 +273,10 @@
   "form": {
     "submit": "Send Quote Request",
     "submitting": "Sending…",
+    "sections": {
+      "iletisim": "Contact",
+      "detay": "Insurance Details"
+    },
     "submitAnother": "Send another request",
     "successTitle": "Your request was received",
     "successBody": "We'll get back to you shortly with the most suitable offer.",

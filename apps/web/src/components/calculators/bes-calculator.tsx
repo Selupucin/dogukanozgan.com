@@ -46,6 +46,7 @@ export function BesCalculator({
         <InputRow id="bes-monthly" label={t("bes.monthly")}>
           <NumberField
             id="bes-monthly"
+            thousands
             min={BES.minMonthly}
             max={BES.maxMonthly}
             value={monthly}

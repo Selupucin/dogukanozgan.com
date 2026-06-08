@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { Calculator, Info, X } from "lucide-react";
 import { cn } from "@do/ui";
 import type { Locale } from "@/components/auto-form/types-bridge";
+import { formatThousands } from "@/lib/masks";
 
 /** Hesaplayıcı kart kabuğu — başlık + ikon + giriş metni + içerik. */
 export function CalculatorShell({
@@ -88,6 +89,7 @@ export function NumberField({
   max,
   step,
   decimal,
+  thousands,
   clearLabel,
 }: {
   id: string;
@@ -100,6 +102,11 @@ export function NumberField({
   step?: number;
   /** true ise inputMode="decimal" (ondalık), değilse "numeric". */
   decimal?: boolean;
+  /**
+   * true ise PARA biçimi: girişte tr-TR binlik NOKTA ayırıcı gösterilir (örn. "7.500").
+   * Yalnızca tam sayılarda kullanılır (decimal ile birlikte kullanılmaz). docs/03 görev #7.
+   */
+  thousands?: boolean;
   /** "×" butonu için erişilebilir etiket. */
   clearLabel: string;
 }) {
@@ -107,13 +114,16 @@ export function NumberField({
   // (mobilde "silinemiyor" hatasının kök sebebi: number state'i boş bırakılamıyordu).
   // Hesaba boş değer gitmesin diye, boş iken üst bileşene `fallback` iletilir; ancak
   // input görsel olarak BOŞ kalır (kullanıcı yazmaya devam edebilir).
-  const [text, setText] = useState<string>(String(value));
+  // thousands modunda görünen değer binlik-biçimlidir; hesaba/onChange'e HAM sayı gider.
+  const display = (n: number) => (thousands ? formatThousands(String(n)) : String(n));
+  const [text, setText] = useState<string>(display(value));
 
   // Dışarıdan gelen değer (ör. "bu değerlerle teklif al" / temizleme) input ile
   // uyuşmuyorsa senkronize et. Kullanıcı boş bıraktıysa (text === "") ezme.
   useEffect(() => {
     if (text === "") return;
-    if (Number(text.replace(",", ".")) !== value) setText(String(value));
+    const current = Number((thousands ? text.replace(/\./g, "") : text).replace(",", "."));
+    if (current !== value) setText(display(value));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
@@ -127,6 +137,18 @@ export function NumberField({
         value={text}
         onChange={(e) => {
           const raw = e.target.value;
+          if (thousands) {
+            // Binlik maske: sadece rakam → tr-TR nokta ayırıcı; ham sayı onChange'e gider.
+            const formatted = formatThousands(raw);
+            setText(formatted);
+            if (formatted === "") {
+              onChange(fallback);
+              return;
+            }
+            const n = Number(formatted.replace(/\./g, ""));
+            if (!Number.isNaN(n)) onChange(n);
+            return;
+          }
           setText(raw);
           const cleaned = raw.replace(",", ".").trim();
           if (cleaned === "") {

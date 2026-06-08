@@ -4,11 +4,14 @@
 // Stil: docs/09 — yuvarlak girdiler, odakta teal halka (focus ring), erişilebilir.
 // RHF register/Controller ile bağlanır.
 
+import { useRef, useState } from "react";
 import { type UseFormReturn, Controller } from "react-hook-form";
 import { Check } from "lucide-react";
 import { cn, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@do/ui";
 import type { ProductField, Locale } from "./types-bridge";
 import { CascadeField } from "./cascade-field";
+import { CaptureGuideModal } from "./capture-guide-modal";
+import { formatPhone, formatTc } from "@/lib/masks";
 
 interface FieldProps {
   field: ProductField;
@@ -108,6 +111,123 @@ function RadioControl({
         </label>
       ))}
     </div>
+  );
+}
+
+// ── Maskeli metin girdisi (telefon / TC). Controller ile kontrollü; her tuşta `format`
+// uygulanır, böylece RHF değeri DAİMA biçimli/temiz kalır (docs/06 telefon/TC; docs/09).
+function MaskedControl({
+  name,
+  control,
+  id,
+  type,
+  inputMode,
+  placeholder,
+  describedBy,
+  format,
+  inputClass: cls,
+}: {
+  name: string;
+  control: UseFormReturn<Record<string, unknown>>["control"];
+  id: string;
+  type: "tel" | "text";
+  inputMode: "tel" | "numeric";
+  placeholder?: string;
+  describedBy?: string;
+  format: (raw: string) => string;
+  inputClass: string;
+}) {
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field: rhf }) => (
+        <input
+          id={id}
+          type={type}
+          inputMode={inputMode}
+          autoComplete={type === "tel" ? "tel" : "off"}
+          placeholder={placeholder}
+          aria-describedby={describedBy}
+          value={(rhf.value as string) ?? ""}
+          onChange={(e) => rhf.onChange(format(e.target.value))}
+          onBlur={rhf.onBlur}
+          className={cls}
+        />
+      )}
+    />
+  );
+}
+
+// ── Dosya yükleme girdisi. file: buton hover/efektli + cursor-pointer (docs/09 buton
+// hover dili). captureGuide: true ise, butona basınca ÖNCE rehber modalı açılır; "Anladım"
+// denince native dosya seçici tetiklenir. Bayrak yoksa normal dosya seçimi.
+function FileControl({
+  field,
+  locale,
+  id,
+  describedBy,
+  control,
+  inputClass: cls,
+}: {
+  field: ProductField;
+  locale: Locale;
+  id: string;
+  describedBy?: string;
+  control: UseFormReturn<Record<string, unknown>>["control"];
+  inputClass: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [guideOpen, setGuideOpen] = useState(false);
+
+  // file: buton hover (teal/accent koyulaşma) + cursor-pointer + yumuşak geçiş (docs/09).
+  const fileClass = cn(
+    cls,
+    "cursor-pointer transition-colors hover:border-secondary/60",
+    "file:mr-3 file:cursor-pointer file:rounded-pill file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground file:transition-colors",
+    "hover:file:bg-secondary hover:file:text-secondary-foreground",
+  );
+
+  return (
+    <Controller
+      name={field.name}
+      control={control}
+      render={({ field: rhf }) => (
+        <>
+          <input
+            ref={inputRef}
+            id={id}
+            type="file"
+            accept={field.validation?.accept}
+            aria-describedby={describedBy}
+            onChange={(e) => rhf.onChange(e.target.files?.[0])}
+            onBlur={rhf.onBlur}
+            // captureGuide: yükleme tetiklenince ÖNCE modalı aç; native seçiciyi engelle.
+            onClick={
+              field.captureGuide
+                ? (e) => {
+                    e.preventDefault();
+                    setGuideOpen(true);
+                  }
+                : undefined
+            }
+            className={fileClass}
+          />
+          {guideOpen && (
+            <CaptureGuideModal
+              locale={locale}
+              onClose={() => setGuideOpen(false)}
+              onConfirm={() => {
+                setGuideOpen(false);
+                // Modal kapandıktan sonra native dosya seçiciyi aç.
+                // requestAnimationFrame: DOM güncellenip overflow geri gelince tıkla.
+                requestAnimationFrame(() => inputRef.current?.click());
+              }}
+            />
+          )}
+        </>
+      )}
+    />
   );
 }
 
@@ -267,26 +387,15 @@ function renderControl({
       );
 
     case "file":
-      // Aşama 1: dosya yalnızca seçilir/validasyondan geçer; YÜKLENMEZ.
-      // TODO(doc): Aşama 2 — Supabase Storage upload bağlanacak (trafik ruhsat foto).
+      // Dosya yükleme alanı — hover/efektli buton + (captureGuide ise) çekim rehberi modalı.
       return (
-        <Controller
-          name={field.name}
+        <FileControl
+          field={field}
+          locale={locale}
+          id={id}
+          describedBy={describedBy}
           control={control}
-          render={({ field: rhf }) => (
-            <input
-              id={id}
-              type="file"
-              accept={field.validation?.accept}
-              aria-describedby={describedBy}
-              onChange={(e) => rhf.onChange(e.target.files?.[0])}
-              onBlur={rhf.onBlur}
-              className={cn(
-                cls,
-                "file:mr-3 file:rounded-pill file:border-0 file:bg-accent file:px-3 file:py-1 file:text-sm file:text-accent-foreground",
-              )}
-            />
-          )}
+          inputClass={cls}
         />
       );
 
@@ -303,19 +412,38 @@ function renderControl({
       );
 
     case "tel":
+      // Canlı maske: 0 (5XX) XXX XX XX. Sadece rakam, fazla hane engellenir.
       return (
-        <input
+        <MaskedControl
+          name={field.name}
+          control={control}
           id={id}
           type="tel"
+          inputMode="tel"
           placeholder={placeholder}
-          aria-describedby={describedBy}
-          {...register(field.name)}
-          className={cls}
+          describedBy={describedBy}
+          format={formatPhone}
+          inputClass={cls}
+        />
+      );
+
+    case "tcKimlik":
+      // 11 hane, sadece rakam, GRUPLAMA YOK (kullanıcı isteği), fazla hane engellenir.
+      return (
+        <MaskedControl
+          name={field.name}
+          control={control}
+          id={id}
+          type="text"
+          inputMode="numeric"
+          placeholder={placeholder}
+          describedBy={describedBy}
+          format={formatTc}
+          inputClass={cls}
         />
       );
 
     case "text":
-    case "tcKimlik":
     case "plaka":
     default:
       return (

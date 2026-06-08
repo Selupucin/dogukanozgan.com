@@ -273,6 +273,10 @@
   "form": {
     "submit": "Teklif Talebi Gönder",
     "submitting": "Gönderiliyor…",
+    "sections": {
+      "iletisim": "İletişim",
+      "detay": "Sigorta Bilgileri"
+    },
     "submitAnother": "Yeni talep gönder",
     "successTitle": "Talebiniz alındı",
     "successBody": "En kısa sürede size en uygun teklifle dönüş yapacağız.",

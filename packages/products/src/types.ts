@@ -112,6 +112,20 @@ export interface ProductField {
    * (il/ilçe) belirtir; üst seçim değişince bu alan otomatik sıfırlanır.
    */
   cascade?: FieldCascade;
+  /**
+   * Yalnızca `file` alanları için: true ise, kullanıcı yükleme butonuna basınca ÖNCE
+   * "Ruhsat/araç fotoğrafı nasıl çekilir?" rehber modalı açılır; "Anladım" denince native
+   * dosya seçici açılır. Trafik/Kasko ruhsat fotoğrafı alanlarında kullanılır (docs/03 §1/§6).
+   * Bayrak yoksa normal (rehbersiz) dosya seçimi yapılır.
+   */
+  captureGuide?: boolean;
+  /**
+   * Form bölümü (docs/03 "Form bölümleri"). Alanlar başlıklı bölümlere gruplanır:
+   *  - "iletisim": Ad Soyad / Telefon / E-posta gibi iletişim bilgileri ("İletişim").
+   *  - "detay": Ürüne özel bilgiler ("Sigorta Bilgileri").
+   * Verilmezse alan "detay" bölümünde sayılır. Bölüm sırası: iletisim → detay.
+   */
+  section?: "iletisim" | "detay";
 }
 
 /**

@@ -117,24 +117,37 @@ export function AutoForm({ product, locale, defaultValues }: AutoFormProps) {
       noValidate
       className="relative flex flex-col gap-5 rounded-[var(--radius)] border border-border bg-card p-6 shadow-sm sm:p-8"
     >
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        {product.fields.map((field) => {
-          // docs/03: koşullu (showIf) alan, koşul sağlanmazsa render edilmez.
-          if (!isFieldVisible(field, watched)) return null;
-          return (
-            <div
-              key={field.name}
-              className={
-                field.type === "checkbox" || field.type === "radio" || field.type === "file"
-                  ? "sm:col-span-2"
-                  : undefined
-              }
-            >
-              <Field field={field} locale={locale} form={form} />
+      {/* docs/03 "Form bölümleri": alanlar başlıklı bölümlere gruplanır.
+          İletişim (ad-soyad/telefon/e-posta) → Sigorta Bilgileri (ürüne özel). */}
+      {(["iletisim", "detay"] as const).map((section) => {
+        const sectionFields = product.fields.filter((f) => (f.section ?? "detay") === section);
+        if (sectionFields.length === 0) return null;
+        return (
+          <fieldset key={section} className="flex flex-col gap-4">
+            <legend className="mb-1 w-full border-b border-border pb-2 font-heading text-lg text-foreground">
+              {t(`sections.${section}`)}
+            </legend>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              {sectionFields.map((field) => {
+                // docs/03: koşullu (showIf) alan, koşul sağlanmazsa render edilmez.
+                if (!isFieldVisible(field, watched)) return null;
+                return (
+                  <div
+                    key={field.name}
+                    className={
+                      field.type === "checkbox" || field.type === "radio" || field.type === "file"
+                        ? "sm:col-span-2"
+                        : undefined
+                    }
+                  >
+                    <Field field={field} locale={locale} form={form} />
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
-      </div>
+          </fieldset>
+        );
+      })}
 
       {/* Honeypot — botlar için görünmez tuzak alan (gerçek kullanıcı doldurmaz). */}
       <div aria-hidden className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
