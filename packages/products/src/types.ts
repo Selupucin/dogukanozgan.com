@@ -55,8 +55,18 @@ export interface FieldValidation {
   maxLength?: number;
   /** Serbest regex (string'e uygulanır). */
   pattern?: string;
-  /** file: kabul edilen MIME/uzantı (ör. "image/*"). */
+  /**
+   * file: tarayıcı `accept` ipucu (ör. "image/jpeg,image/png,image/webp").
+   * YALNIZCA UX/ön-eleme içindir — gerçek tür doğrulaması SUNUCUDA imza (magic-byte)
+   * ile yapılır (docs/13 §K2). `image/*` yerine dar liste tercih edilir.
+   */
   accept?: string;
+  /**
+   * file: sunucuda kabul edilen kesin MIME beyaz listesi (docs/13 §K2). Verilirse
+   * doğrulama bu listeyle hizalanır; istemci `accept`'ten bağımsızdır. Ör.
+   * `["image/jpeg", "image/png", "image/webp"]`.
+   */
+  acceptMimes?: string[];
   /** file: azami boyut (MB). */
   maxSizeMb?: number;
 }

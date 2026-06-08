@@ -22,8 +22,11 @@ if (process.env.NODE_ENV !== "production") {
 // Prisma tarafından üretilen tipleri ve enum'ları yeniden dışa aktar.
 export * from "@prisma/client";
 
-// Supabase Storage (private bucket + imzalı URL) yardımcıları — YALNIZCA sunucu.
+// Vercel Blob depolama (yükleme + silme) yardımcıları — YALNIZCA sunucu.
 export * from "./storage";
+
+// Sunucu-tarafı dosya doğrulama (MIME + magic-byte) — docs/13 §K2. YALNIZCA sunucu.
+export * from "./file-validation";
 
 // KVKK veri silme / anonimleştirme yardımcıları (Aşama 3 admin çağırır).
 export * from "./kvkk";

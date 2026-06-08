@@ -9,6 +9,29 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // yalnızca UI string yönetimi için kullanılır; request config sabit locale döner.
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
+// Güvenlik HTTP başlıkları (docs/13 K1). Admin daha KATI: clickjacking tamamen kapalı
+// (DENY + frame-ancestors 'none'), arama motorlarına kapalı (noindex başlığı da). Fetch
+// direktifleri (script/style/img) ZORLANMAZ — Blob foto/inline kırılmasın.
+// TODO(doc): Nonce tabanlı script-src CSP ileride (docs/13 K1 takip).
+const securityHeaders = [
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains",
+  },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+  },
+  {
+    key: "Content-Security-Policy",
+    value: "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests",
+  },
+  { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -22,6 +45,9 @@ const nextConfig = {
       config.plugins = [...config.plugins, new PrismaPlugin()];
     }
     return config;
+  },
+  async headers() {
+    return [{ source: "/:path*", headers: securityHeaders }];
   },
 };
 

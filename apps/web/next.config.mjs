@@ -53,6 +53,29 @@ const legacyRedirects = [
   //   www/non-www farkları gerekirse Vercel domain ayarlarından yönetilecek.
 ];
 
+// Güvenlik HTTP başlıkları (docs/13 K1). Fetch direktiflerini (script/style/img-src)
+// ZORLAMAYIZ — inline JSON-LD, Next inline style ve analitik kırılmasın diye. Burada
+// yalnızca kırılma riski OLMAYAN, yüksek değerli başlıklar var: clickjacking (frame-ancestors
+// + X-Frame-Options), MIME-sniff (nosniff), HSTS, referrer, permissions, base-uri/object-src.
+// TODO(doc): Tam nonce tabanlı script-src CSP ileride eklenecek (docs/13 K1 takip).
+const securityHeaders = [
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains",
+  },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+  },
+  {
+    key: "Content-Security-Policy",
+    value: "base-uri 'self'; object-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests",
+  },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -70,6 +93,9 @@ const nextConfig = {
   },
   async redirects() {
     return legacyRedirects;
+  },
+  async headers() {
+    return [{ source: "/:path*", headers: securityHeaders }];
   },
 };
 

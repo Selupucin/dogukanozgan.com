@@ -21,6 +21,7 @@ import {
   prisma,
   uploadToStorage,
   isStorageConfigured,
+  validateUpload,
   Prisma,
   generateUniqueTrackingCode,
   createNotification,
@@ -44,6 +45,7 @@ export interface SubmitQuoteResult {
     | "validation"
     | "consentRequired"
     | "sensitiveConsentRequired"
+    | "invalidFile"
     | "server";
   /** validation hatalarında alan bazlı mesajlar (opsiyonel). */
   fieldErrors?: Record<string, string>;
@@ -117,6 +119,25 @@ export async function submitQuoteRequest(formData: FormData): Promise<SubmitQuot
       return { ok: false, error: "sensitiveConsentRequired" };
     }
 
+    // 4c) DOSYA TÜRÜ DOĞRULAMASI (docs/13 §K2) — KAYITTAN ÖNCE.
+    // Sunucuda KESİN: istemci atlasa bile geçersiz dosya tüm gönderimi reddeder.
+    // İstemcinin file.type'ına GÜVENİLMEZ; tür imzadan (magic-byte) belirlenir.
+    // Doğrulanmış MIME, Blob contentType'ı olarak kullanılmak üzere saklanır.
+    const validatedFiles: { parsed: ParsedFile; mime: string }[] = [];
+    for (const f of files) {
+      const result = await validateUpload(f.file, {
+        allowed: [...QUOTE_FILE_ALLOWED],
+        maxSizeMb: f.maxSizeMb,
+      });
+      if (!result.ok) {
+        // Net hata: yalnız JPG/PNG/WEBP kabul edilir (kullanıcı mesajı i18n'den;
+        // ham `reason` yalnız sunucu logu için, kullanıcıya gösterilmez).
+        console.warn(`[submit-quote] geçersiz dosya (${f.field}): ${result.reason}`);
+        return { ok: false, error: "invalidFile" };
+      }
+      validatedFiles.push({ parsed: f, mime: result.mime });
+    }
+
     // 5) Ortak alanları payload'dan AYIR (docs/04: ortak=sütun, gerisi=JSON).
     const { common, payload } = splitCommonFields(product, data);
 
@@ -146,14 +167,16 @@ export async function submitQuoteRequest(formData: FormData): Promise<SubmitQuot
 
     // 6) Dosya yükleme (trafik ruhsat foto vb.) → Vercel Blob + Asset (K25).
     // Blob token yoksa ZARİFÇE atla; teklif yine de kaydedilmiş olur (feature flag).
-    if (files.length > 0 && isStorageConfigured()) {
-      for (const f of files) {
+    // Dosyalar 4c'de zaten doğrulandı; contentType = İMZA-DOĞRULANMIŞ MIME (docs/13 §K2).
+    if (validatedFiles.length > 0 && isStorageConfigured()) {
+      for (const { parsed: f, mime } of validatedFiles) {
         try {
           const path = buildAssetPath(product.slug, quote.id, f.file.name);
           const uploaded = await uploadToStorage({
             path,
             body: await f.file.arrayBuffer(),
-            contentType: f.file.type || undefined,
+            // İstemcinin file.type'ı DEĞİL; doğrulanmış MIME (docs/13 §K2).
+            contentType: mime,
           });
           await prisma.asset.create({
             data: {
@@ -163,7 +186,8 @@ export async function submitQuoteRequest(formData: FormData): Promise<SubmitQuot
               path: uploaded.path,
               url: uploaded.url,
               kind: f.kind,
-              mimeType: f.file.type || null,
+              // İmza-doğrulanmış MIME saklanır (istemci beyanı değil).
+              mimeType: mime,
               sizeBytes: f.file.size,
             },
           });
@@ -215,7 +239,15 @@ interface ParsedFile {
   field: string;
   file: File;
   kind: string;
+  /** Alanın izin verdiği azami boyut (MB); doğrulamada kullanılır (docs/13 §K2). */
+  maxSizeMb: number;
 }
+
+// Teklif foto yüklemede izin verilen türler (docs/13 §K2): yalnız görseller.
+// Poliçe belgesi (PDF) admin tarafında ayrı doğrulanır.
+const QUOTE_FILE_ALLOWED = ["jpeg", "png", "webp"] as const;
+// Alan tanımında maxSizeMb yoksa kullanılacak güvenli üst sınır.
+const DEFAULT_MAX_SIZE_MB = 10;
 
 function parseFormData(
   formData: FormData,
@@ -237,7 +269,12 @@ function parseFormData(
 
     if (field.type === "file") {
       if (raw instanceof File && raw.size > 0) {
-        files.push({ field: field.name, file: raw, kind: assetKind(field) });
+        files.push({
+          field: field.name,
+          file: raw,
+          kind: assetKind(field),
+          maxSizeMb: field.validation?.maxSizeMb ?? DEFAULT_MAX_SIZE_MB,
+        });
         // Şema `file` alanını File | undefined bekler → değeri ilet.
         values[field.name] = raw;
       } else {

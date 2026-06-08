@@ -313,6 +313,7 @@
       "validation": "Lütfen formdaki işaretli alanları kontrol edin.",
       "consentRequired": "Devam etmek için KVKK aydınlatma onayını işaretlemelisiniz.",
       "sensitiveConsentRequired": "Sağlık verileriniz için ayrıca açık rıza vermeniz gerekir.",
+      "invalidFile": "Geçersiz dosya türü; yalnız JPG, PNG veya WEBP yükleyebilirsiniz.",
       "server": "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin."
     }
   },
@@ -323,7 +324,6 @@
     "policyLink": "Çerez Politikası"
   },
   "legal": {
-    "draftNotice": "Bu metin TASLAKTIR. Nihai içerik bir hukukçu / KVKK danışmanı tarafından onaylanmadan yayımlanmamalıdır.",
     "lastUpdated": "Son güncelleme",
     "kvkk": {
       "title": "KVKK Aydınlatma Metni",

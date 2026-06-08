@@ -25,6 +25,10 @@ const messages = {
   minLength: { tr: "Çok kısa", en: "Too short" },
   maxLength: { tr: "Çok uzun", en: "Too long" },
   fileSize: { tr: "Dosya boyutu çok büyük", en: "File is too large" },
+  fileType: {
+    tr: "Geçersiz dosya türü (yalnız JPG/PNG/WEBP)",
+    en: "Invalid file type (only JPG/PNG/WEBP)",
+  },
 } as const;
 
 function msg(key: keyof typeof messages, locale: Locale): string {
@@ -116,17 +120,25 @@ function fieldSchema(field: ProductField, locale: Locale): z.ZodTypeAny {
     }
 
     case "file": {
-      // Aşama 1: gerçek upload yok. Şema tarafında FileList/File opsiyonel tutulur;
-      // boyut kontrolü tarayıcıda çalışır. Gönderim Aşama 2'de Storage'a bağlanır.
-      // TODO(doc): Aşama 2 — Supabase Storage upload + zorunluluk netleşince güncellenir.
+      // İstemci tarafı: best-effort tür+boyut kontrolü (yalnız UX). KESİN koruma
+      // SUNUCUDADIR (magic-byte imza doğrulaması — docs/13 §K2). İstemci atlasa bile
+      // sunucu geçersiz dosyayı reddeder; burada amaç hızlı geri bildirim.
+      const acceptMimes = v.acceptMimes;
       const fileCheck = z.custom<File | undefined>(
         (val) => {
           if (val == null) return !field.required;
           if (!(val instanceof File)) return false;
           if (v.maxSizeMb && val.size > v.maxSizeMb * 1024 * 1024) return false;
+          // Tarayıcının verdiği MIME beyaz listede mi? (best-effort; sunucu yine doğrular)
+          if (acceptMimes && acceptMimes.length > 0) {
+            const declared = (val.type || "").toLowerCase().split(";")[0]!.trim();
+            if (declared && !acceptMimes.map((m) => m.toLowerCase()).includes(declared)) {
+              return false;
+            }
+          }
           return true;
         },
-        { message: msg("fileSize", locale) },
+        { message: msg("fileType", locale) },
       );
       return fileCheck.optional();
     }

@@ -256,7 +256,12 @@ const trafik: ProductDefinition = {
         tr: "Ruhsatınızın fotoğrafını yüklerseniz teklif süreci hızlanır.",
         en: "Uploading your registration photo speeds up the quote process.",
       },
-      validation: { accept: "image/*", maxSizeMb: 10 },
+      // docs/13 §K2: dar `accept` (image/* yerine) + sunucu MIME beyaz listesi.
+      validation: {
+        accept: "image/jpeg,image/png,image/webp",
+        acceptMimes: ["image/jpeg", "image/png", "image/webp"],
+        maxSizeMb: 10,
+      },
     },
     eposta,
   ],
@@ -689,7 +694,12 @@ const kasko: ProductDefinition = {
         tr: "Ruhsatınızın fotoğrafını yüklerseniz teklif süreci hızlanır.",
         en: "Uploading your registration photo speeds up the quote process.",
       },
-      validation: { accept: "image/*", maxSizeMb: 10 },
+      // docs/13 §K2: dar `accept` (image/* yerine) + sunucu MIME beyaz listesi.
+      validation: {
+        accept: "image/jpeg,image/png,image/webp",
+        acceptMimes: ["image/jpeg", "image/png", "image/webp"],
+        maxSizeMb: 10,
+      },
     },
     {
       name: "aracFoto",
@@ -700,7 +710,12 @@ const kasko: ProductDefinition = {
         tr: "Aracınızın fotoğrafı, doğru teklif için yardımcı olur.",
         en: "A photo of your vehicle helps us prepare an accurate quote.",
       },
-      validation: { accept: "image/*", maxSizeMb: 10 },
+      // docs/13 §K2: dar `accept` (image/* yerine) + sunucu MIME beyaz listesi.
+      validation: {
+        accept: "image/jpeg,image/png,image/webp",
+        acceptMimes: ["image/jpeg", "image/png", "image/webp"],
+        maxSizeMb: 10,
+      },
     },
     eposta,
   ],

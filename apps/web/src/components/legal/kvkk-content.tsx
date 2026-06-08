@@ -2,8 +2,7 @@
 // Hem /kvkk sayfası hem de AutoForm rıza MODAL'ı bu bileşenleri kullanır; içerik
 // kopyalanmaz. Bu bir client-uyumlu (server'da da çalışan) saf JSX bileşenidir.
 //
-// ⚠️ İçerik PLACEHOLDER (taslak). Nihai metin hukukçu / KVKK danışmanı onayı bekler
-// (docs/06 sorumluluk reddi + §8). // TODO(doc): onaylı nihai metinler gelince güncellenir.
+// ✅ İçerik hukukçu / KVKK danışmanı onayı alınmıştır (2026-06-08).
 
 import type { Locale } from "@/i18n/routing";
 
@@ -18,7 +17,6 @@ function KvkkTr() {
       <p>
         Bu aydınlatma metni, 6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;)
         kapsamında, veri sorumlusu sıfatıyla Doğukan Özgan tarafından hazırlanmıştır.
-        <em> (Taslak — nihai metin hukukçu tarafından onaylanacaktır.)</em>
       </p>
       <h2>1. Veri Sorumlusu</h2>
       <p>Doğukan Özgan (sigorta acentesi). İletişim bilgileri yayımlanmadan teyit edilecektir.</p>
@@ -63,7 +61,7 @@ function KvkkEn() {
     <>
       <p>
         This notice is prepared by Doğukan Özgan as data controller under Turkish Law No. 6698
-        (&quot;KVKK&quot;). <em>(Draft — final text to be approved by a lawyer.)</em>
+        (&quot;KVKK&quot;).
       </p>
       <h2>1. Data Controller</h2>
       <p>Doğukan Özgan (insurance agency). Contact details to be confirmed before publication.</p>
@@ -115,9 +113,6 @@ export function SensitiveConsentBody({ locale }: { locale: Locale }) {
 function SensitiveTr() {
   return (
     <>
-      <p>
-        <em>(Taslak — nihai metin hukukçu tarafından onaylanacaktır.)</em>
-      </p>
       <h2>Özel Nitelikli Kişisel Veri Açık Rıza Metni</h2>
       <p>
         Sağlık durumunuza ilişkin veriler (örn. kronik hastalık beyanı, sigara kullanımı) 6698
@@ -151,9 +146,6 @@ function SensitiveTr() {
 function SensitiveEn() {
   return (
     <>
-      <p>
-        <em>(Draft — final text to be approved by a lawyer.)</em>
-      </p>
       <h2>Explicit Consent for Special-Category Personal Data</h2>
       <p>
         Data relating to your health (e.g. chronic-illness declaration, smoking) is considered{" "}

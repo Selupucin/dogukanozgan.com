@@ -36,7 +36,14 @@ export interface UploadInput {
    * çalışma zamanında destekler).
    */
   body: ArrayBuffer | Uint8Array;
-  contentType?: string;
+  /**
+   * İçerik tipi (MIME). ZORUNLU ve İMZA-DOĞRULANMIŞ olmalıdır (docs/13 §K2):
+   * çağıran taraf önce `validateUpload` ile dosyayı doğrular ve dönen `mime` değerini
+   * BURAYA verir. İstemcinin beyan ettiği `file.type` ASLA doğrudan geçirilmemelidir.
+   * İmza doğrulaması burada DEĞİL çağıranlarda yapılır; storage yalnız temiz bir
+   * contentType'ı zorunlu kılar.
+   */
+  contentType: string;
 }
 
 export interface UploadResult {
@@ -59,13 +66,23 @@ export async function uploadToStorage(input: UploadInput): Promise<UploadResult>
     throw new StorageNotConfiguredError();
   }
 
+  // docs/13 §K2: contentType zorunlu ve temiz olmalı (imza-doğrulanmış MIME).
+  // Çağıran `validateUpload` çalıştırmadan/contentType vermeden buraya gelmemeli.
+  const contentType = (input.contentType || "").trim();
+  if (!contentType) {
+    throw new Error(
+      "uploadToStorage: contentType zorunludur (imza-doğrulanmış MIME). " +
+        "Önce validateUpload ile doğrulayın (docs/13 §K2).",
+    );
+  }
+
   const pathname = `${STORAGE_PREFIX}/${input.path}`;
   // Vercel Blob `put` Buffer/Blob/Stream kabul eder; ArrayBuffer/Uint8Array'i Buffer'a çevir.
   const bytes = input.body instanceof Uint8Array ? input.body : new Uint8Array(input.body);
   const result = await put(pathname, Buffer.from(bytes), {
     access: "public",
     addRandomSuffix: false,
-    contentType: input.contentType,
+    contentType,
     token: process.env.BLOB_READ_WRITE_TOKEN,
   });
 

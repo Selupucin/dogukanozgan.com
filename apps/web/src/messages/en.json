@@ -313,6 +313,7 @@
       "validation": "Please review the highlighted fields in the form.",
       "consentRequired": "You must accept the privacy (KVKK) notice to continue.",
       "sensitiveConsentRequired": "Explicit consent is required to process your health data.",
+      "invalidFile": "Invalid file type; only JPG, PNG or WEBP files are allowed.",
       "server": "An unexpected error occurred. Please try again."
     }
   },
@@ -323,7 +324,6 @@
     "policyLink": "Cookie Policy"
   },
   "legal": {
-    "draftNotice": "This text is a DRAFT. The final content must be approved by a lawyer / KVKK advisor before publication.",
     "lastUpdated": "Last updated",
     "kvkk": {
       "title": "Privacy (KVKK) Notice",

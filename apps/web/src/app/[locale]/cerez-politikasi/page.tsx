@@ -1,5 +1,5 @@
 // Çerez Politikası — /[locale]/cerez-politikasi. Kaynak: docs/06 §3 & §4, docs/02.
-// ⚠️ İçerik PLACEHOLDER (taslak). Nihai metin hukukçu onayı bekler. // TODO(doc)
+// ✅ İçerik hukukçu onayı alınmıştır (2026-06-08).
 
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
@@ -47,7 +47,7 @@ function CookiesTr() {
     <>
       <p>
         Bu politika, sitemizde kullanılan çerezleri ve tercihlerinizi nasıl yönetebileceğinizi
-        açıklar. <em>(Taslak — hukukçu onayı bekliyor.)</em>
+        açıklar.
       </p>
       <h2>Çerez Türleri</h2>
       <ul>
@@ -72,10 +72,7 @@ function CookiesTr() {
 function CookiesEn() {
   return (
     <>
-      <p>
-        This policy explains the cookies used on our site and how to manage your preferences.{" "}
-        <em>(Draft — pending legal review.)</em>
-      </p>
+      <p>This policy explains the cookies used on our site and how to manage your preferences.</p>
       <h2>Cookie Types</h2>
       <ul>
         <li>

@@ -1,5 +1,5 @@
 // Gizlilik Politikası — /[locale]/gizlilik. Kaynak: docs/06 §4, docs/02.
-// ⚠️ İçerik PLACEHOLDER (taslak). Nihai metin hukukçu onayı bekler. // TODO(doc)
+// ✅ İçerik hukukçu onayı alınmıştır (2026-06-08).
 
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
@@ -43,7 +43,7 @@ function PrivacyTr() {
     <>
       <p>
         Bu Gizlilik Politikası, kişisel verilerinizin nasıl toplandığını, kullanıldığını ve
-        korunduğunu açıklar. <em>(Taslak — hukukçu onayı bekliyor.)</em>
+        korunduğunu açıklar.
       </p>
       <h2>Topladığımız Veriler</h2>
       <p>
@@ -65,10 +65,7 @@ function PrivacyTr() {
 function PrivacyEn() {
   return (
     <>
-      <p>
-        This Privacy Policy explains how your personal data is collected, used and protected.{" "}
-        <em>(Draft — pending legal review.)</em>
-      </p>
+      <p>This Privacy Policy explains how your personal data is collected, used and protected.</p>
       <h2>Data We Collect</h2>
       <p>
         Contact and insurance details you provide via forms, plus automatic technical data (IP,

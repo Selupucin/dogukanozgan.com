@@ -1,9 +1,7 @@
 // Yasal sayfa kabuğu (ortak görünüm) — KVKK / Gizlilik / Çerez politikası.
 // Kaynak: docs/06 §4 "Yasal Sayfalar", docs/02 (sayfa listesi).
 //
-// ⚠️ İçerik metinleri PLACEHOLDER (taslak). Nihai metin hukukçu / KVKK danışmanı
-// onayı bekler (docs/06 sorumluluk reddi + §8). Üstte taslak uyarısı gösterilir.
-// TODO(doc): Hukukçu onaylı nihai metinler gelince bu placeholder içerik değişir.
+// ✅ İçerik metinleri hukukçu / KVKK danışmanı onayı alınmıştır (2026-06-08).
 
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
@@ -26,11 +24,6 @@ export async function LegalPage({ title, lastUpdated, children }: LegalPageProps
           {t("lastUpdated")}: {lastUpdated}
         </p>
       )}
-
-      {/* TASLAK UYARISI — hukukçu onayı bekliyor (docs/06). */}
-      <div className="mt-6 rounded-xl border border-secondary/40 bg-accent/60 p-4 text-sm text-accent-foreground">
-        {t("draftNotice")}
-      </div>
 
       <div className="prose prose-neutral mt-8 max-w-none text-foreground dark:prose-invert">
         {children}

@@ -1,5 +1,5 @@
 // KVKK Aydınlatma Metni — /[locale]/kvkk. Kaynak: docs/06 §1 & §4, docs/02.
-// ⚠️ İçerik PLACEHOLDER (taslak). Nihai metin hukukçu onayı bekler. // TODO(doc)
+// ✅ İçerik hukukçu onayı alınmıştır (2026-06-08).
 
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";

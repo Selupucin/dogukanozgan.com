@@ -16,6 +16,7 @@ import {
   attachPolicyDocument,
   uploadToStorage,
   isStorageConfigured,
+  validateUpload,
   type QuoteStatus,
 } from "@do/db";
 import { isEmailConfigured, sendPolicyDelivery } from "@do/email";
@@ -168,7 +169,7 @@ export interface PolicyDeliveryResult extends ActionResult {
   notice?: string;
 }
 
-const MAX_POLICY_BYTES = 15 * 1024 * 1024; // 15 MB
+const MAX_POLICY_MB = 15; // Poliçe belgesi azami boyut (MB). Boyut validateUpload'da uygulanır.
 
 /** Blob içindeki poliçe belgesi yolu (kind="police"). */
 function buildPolicyPath(quoteId: string, originalName: string): string {
@@ -193,8 +194,19 @@ export async function uploadAndSendPolicyAction(
   if (!(file instanceof File) || file.size === 0) {
     return { ok: false, error: "Belge seçilmedi." };
   }
-  if (file.size > MAX_POLICY_BYTES) {
-    return { ok: false, error: "Belge çok büyük (en fazla 15 MB)." };
+
+  // DOSYA TÜRÜ DOĞRULAMASI (docs/13 §K2) — boyut + içerik imzası (magic-byte).
+  // Poliçe belgesi: PDF veya görsel (JPG/PNG/WEBP). İstemcinin file.type'ına güvenilmez;
+  // tür imzadan belirlenir, geçersizse REDDEDİLİR.
+  const validation = await validateUpload(file, {
+    allowed: ["pdf", "jpeg", "png", "webp"],
+    maxSizeMb: MAX_POLICY_MB,
+  });
+  if (!validation.ok) {
+    if (validation.reason === "too-large") {
+      return { ok: false, error: `Belge çok büyük (en fazla ${MAX_POLICY_MB} MB).` };
+    }
+    return { ok: false, error: "Geçersiz dosya türü; yalnız PDF/JPG/PNG/WEBP yüklenebilir." };
   }
 
   if (!isStorageConfigured()) {
@@ -207,13 +219,13 @@ export async function uploadAndSendPolicyAction(
   });
   if (!quote) return { ok: false, error: "Teklif bulunamadı." };
 
-  // 1) Blob'a yükle.
+  // 1) Blob'a yükle. contentType = İMZA-DOĞRULANMIŞ MIME (docs/13 §K2), istemci beyanı değil.
   let uploaded: { url: string; path: string };
   try {
     uploaded = await uploadToStorage({
       path: buildPolicyPath(quoteId, file.name),
       body: await file.arrayBuffer(),
-      contentType: file.type || undefined,
+      contentType: validation.mime,
     });
   } catch (err) {
     console.error("[teklif-detay] poliçe yükleme hatası:", err);
@@ -224,7 +236,8 @@ export async function uploadAndSendPolicyAction(
   const attached = await attachPolicyDocument(quoteId, {
     url: uploaded.url,
     path: uploaded.path,
-    mimeType: file.type || null,
+    // İmza-doğrulanmış MIME saklanır.
+    mimeType: validation.mime,
     sizeBytes: file.size,
   });
   if (!attached) return { ok: false, error: "Belge teklife bağlanamadı." };
