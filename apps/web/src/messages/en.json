@@ -340,12 +340,19 @@
     "bes": {
       "title": "Pension (BES) Savings Calculator",
       "intro": "Estimate your savings including the state contribution based on your monthly payment and term.",
+      "modeLabel": "Calculation mode",
+      "modeMonthly": "Monthly Contribution",
+      "modeLump": "Lump Sum",
       "monthly": "Monthly contribution (TRY)",
+      "lumpSum": "Lump-sum investment (TRY)",
       "years": "Term (years)",
       "returnRate": "Estimated annual return (%)",
+      "inflationRate": "Inflation assumption (%)",
       "resultTotal": "Estimated total savings",
       "resultContributions": "Your principal paid",
-      "resultState": "State contribution (30%)"
+      "resultState": "State contribution (30%)",
+      "resultReal": "Real value (in today's money)",
+      "realHint": "In today's money after {years} years, assuming {inflation}% inflation."
     },
     "saglik": {
       "title": "Health Insurance Premium Estimate",
@@ -360,14 +367,27 @@
       "resultAnnual": "Estimated annual premium range"
     },
     "hayat": {
-      "title": "Life Insurance Premium Estimate",
-      "intro": "Estimate your premium based on coverage amount, term and age.",
+      "title": "Life Insurance Calculator",
+      "intro": "Two separate benefits: death cover for your loved ones, or tax-advantaged savings.",
+      "modeLabel": "Calculation mode",
+      "modeVefat": "Death Cover (Protection)",
+      "modeBirikim": "Savings & Tax Advantage",
+      "vefatLead": "Death cover is the financial security you leave your loved ones in an unexpected moment. The figures below are approximate; get a quote for the exact cover and premium.",
       "age": "Age",
       "coverage": "Coverage amount (TRY)",
       "years": "Term (years)",
       "smoker": "I am a smoker",
       "resultMonthly": "Estimated monthly premium range",
-      "resultAnnual": "Estimated annual premium range"
+      "resultAnnual": "Estimated annual premium range",
+      "birikimLead": "Savings-based life insurance provides both protection and investment; your premiums build up savings over the long term while you also benefit from a tax advantage. It is planned over a medium-to-long term of 5–12 years.",
+      "annualPremium": "Annual premium / savings (TRY)",
+      "taxBracket": "Your income tax bracket",
+      "termYears": "Term (years, 5–12)",
+      "resultAnnualAdvantage": "Estimated annual tax advantage",
+      "resultTotalAdvantage": "Total advantage over the term",
+      "goldTitle": "Value protection via gold / FX indexing",
+      "goldBody": "By placing your savings in gold- or FX-indexed products, you can aim to protect your money's purchasing power against inflation over the long term. We determine the suitable product and rates together.",
+      "vergiNotice": "The tax-advantage estimate relies on a simplified assumption; actual income-tax deduction rates and caps vary by legislation and your situation. Consult your accountant / the quote process for the exact amount."
     }
   }
 }

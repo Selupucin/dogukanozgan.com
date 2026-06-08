@@ -11,11 +11,14 @@ export {
   calculateBes,
   calculateSaglik,
   calculateHayat,
+  calculateHayatVergi,
   type BesInput,
   type BesResult,
   type SaglikInput,
   type HayatInput,
+  type HayatVergiInput,
+  type HayatVergiResult,
   type PremiumRange,
 } from "./formulas";
 
-export { BES, SAGLIK, HAYAT } from "./constants";
+export { BES, SAGLIK, HAYAT, HAYAT_VERGI } from "./constants";

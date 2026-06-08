@@ -24,13 +24,27 @@ function KvkkTr() {
       <p>Doğukan Özgan (sigorta acentesi). İletişim bilgileri yayımlanmadan teyit edilecektir.</p>
       <h2>2. İşlenen Kişisel Veriler</h2>
       <p>
-        Ad-soyad, telefon, e-posta, TC kimlik no, araç/plaka bilgisi, doğum tarihi ve ilgili
-        formlara göre sağlık verisi (özel nitelikli) gibi veriler işlenir.
+        Ad-soyad, telefon, e-posta, <strong>TC Kimlik Numarası</strong>, araç/plaka bilgisi, adres
+        ve bina bilgileri, doğum tarihi ve ilgili formlara göre sağlık verisi (özel nitelikli) gibi
+        veriler işlenir.
+      </p>
+      <p>
+        <strong>TC Kimlik Numarası</strong> (örneğin Konut ve Zorunlu Deprem Sigortası — DASK
+        formlarında) <strong>genel nitelikli</strong> bir kişisel veridir; özel nitelikli kişisel
+        veri <strong>değildir</strong> ve toplanması için ikinci/ayrı bir açık rıza gerekmez. Bu
+        veri yalnızca <strong>kimlik doğrulama ve poliçe düzenleme (sözleşmenin ifası)</strong>{" "}
+        amacıyla işlenir; güvenli şekilde saklanır ve gerekli yerlerde maskelenerek gösterilir.
       </p>
       <h2>3. İşleme Amaçları</h2>
-      <p>Teklif hazırlanması, sizinle iletişime geçilmesi ve sigorta hizmetinin sunulması.</p>
+      <p>
+        Teklif hazırlanması, sizinle iletişime geçilmesi, kimliğinizin doğrulanması, poliçenizin
+        düzenlenmesi ve sigorta hizmetinin sunulması.
+      </p>
       <h2>4. Hukuki Sebep</h2>
-      <p>Açık rıza ve sözleşmenin kurulması/ifası ile meşru menfaat.</p>
+      <p>
+        Açık rıza ve <strong>sözleşmenin kurulması/ifası</strong> ile meşru menfaat. TC Kimlik
+        Numarası bakımından hukuki sebep, sözleşmenin (poliçenin) kurulması ve ifasıdır.
+      </p>
       <h2>5. Aktarım</h2>
       <p>Veriler, teklif amacıyla yetkili sigorta şirketleriyle paylaşılabilir.</p>
       <h2>6. Saklama Süresi</h2>
@@ -55,13 +69,28 @@ function KvkkEn() {
       <p>Doğukan Özgan (insurance agency). Contact details to be confirmed before publication.</p>
       <h2>2. Personal Data Processed</h2>
       <p>
-        Name, phone, email, national ID, vehicle/plate data, date of birth and, depending on the
-        form, health data (special category).
+        Name, phone, email, <strong>national ID number</strong>, vehicle/plate data, address and
+        building details, date of birth and, depending on the form, health data (special category).
+      </p>
+      <p>
+        The <strong>national ID number</strong> (e.g. in the Home and Compulsory Earthquake (DASK)
+        insurance forms) is <strong>ordinary</strong> personal data; it is <strong>not</strong> a
+        special-category personal data and no second/separate explicit consent is required to
+        collect it. It is processed solely for{" "}
+        <strong>identity verification and issuing the policy (performance of the contract)</strong>;
+        it is stored securely and masked where displayed.
       </p>
       <h2>3. Purposes</h2>
-      <p>Preparing a quote, contacting you, and providing the insurance service.</p>
+      <p>
+        Preparing a quote, contacting you, verifying your identity, issuing your policy, and
+        providing the insurance service.
+      </p>
       <h2>4. Legal Basis</h2>
-      <p>Explicit consent, performance of a contract, and legitimate interest.</p>
+      <p>
+        Explicit consent, <strong>establishment/performance of a contract</strong>, and legitimate
+        interest. For the national ID number, the legal basis is the establishment and performance
+        of the contract (the policy).
+      </p>
       <h2>5. Transfers</h2>
       <p>Data may be shared with authorized insurance companies for quoting purposes.</p>
       <h2>6. Retention</h2>

@@ -116,6 +116,61 @@ const daireNo: ProductField = {
   validation: { maxLength: 20 },
 };
 
+/**
+ * TC Kimlik No — Konut + DASK'ta ZORUNLU (site sahibi kararı). docs/03 + docs/06:
+ * GENEL kişisel veridir (özel nitelikli DEĞİL → `sensitive` YOK). Hukuki sebep:
+ * sözleşmenin kurulması/ifası (poliçe düzenleme, kimlik doğrulama).
+ * Bölüm "detay" (Sigorta Bilgileri) altında, sigortalı bilgisi olarak gösterilir.
+ */
+const tcKimlikZorunlu: ProductField = {
+  name: "tcKimlik",
+  type: "tcKimlik",
+  required: true,
+  label: { tr: "TC Kimlik No", en: "ID Number" },
+  placeholder: { tr: "11 haneli", en: "11 digits" },
+  help: {
+    tr: "Poliçenizin düzenlenmesi ve kimlik doğrulaması için gereklidir.",
+    en: "Required to issue your policy and verify identity.",
+  },
+};
+
+/**
+ * Bina yaşı bandı (Konut/DASK ortak) — serbest yıl yerine net bantlar (site sahibi).
+ * payload anahtarı KARARLI: "binaYasi".
+ */
+const binaYasiBandi: ProductField = {
+  name: "binaYasi",
+  type: "select",
+  required: true,
+  label: { tr: "Bina yaşı", en: "Building age" },
+  options: [
+    { value: "0-5", label: { tr: "0–5 yıl", en: "0–5 years" } },
+    { value: "6-15", label: { tr: "6–15 yıl", en: "6–15 years" } },
+    { value: "16-30", label: { tr: "16–30 yıl", en: "16–30 years" } },
+    { value: "30+", label: { tr: "30+ yıl", en: "30+ years" } },
+  ],
+};
+
+/** Binanın toplam kat sayısı (Konut/DASK ortak). payload anahtarı KARARLI: "binaKatSayisi". */
+const binaKatSayisi: ProductField = {
+  name: "binaKatSayisi",
+  type: "number",
+  required: false,
+  label: { tr: "Bina kat sayısı", en: "Number of floors in building" },
+  placeholder: { tr: "Örn. 5", en: "e.g. 5" },
+  validation: { min: 1, max: 100 },
+};
+
+/** Dairenin bulunduğu kat (Konut/DASK ortak). payload anahtarı KARARLI: "bulunduguKat". */
+const bulunduguKat: ProductField = {
+  name: "bulunduguKat",
+  type: "number",
+  required: false,
+  label: { tr: "Bulunduğu kat", en: "Floor of the flat" },
+  placeholder: { tr: "Örn. 3", en: "e.g. 3" },
+  validation: { min: -5, max: 100 },
+};
+
 const adresTarifi: ProductField = {
   name: "adresTarifi",
   type: "text",
@@ -427,6 +482,8 @@ const konut: ProductDefinition = {
   fields: [
     adSoyad,
     telefon,
+    // docs/03 + site sahibi kararı: TC Kimlik No Konut'ta ZORUNLU (genel kişisel veri).
+    tcKimlikZorunlu,
     // docs/03: Zincirleme adres — İl → İlçe → Mahalle (il/ilçe zorunlu, mahalle ops.).
     il,
     ilceCascade,
@@ -454,19 +511,10 @@ const konut: ProductDefinition = {
         { value: "celik", label: { tr: "Çelik", en: "Steel" } },
       ],
     },
-    {
-      name: "binaYasi",
-      type: "number",
-      required: true,
-      label: { tr: "Bina yaşı / inşaat yılı", en: "Building age / construction year" },
-      validation: { min: 0 },
-    },
-    {
-      name: "kat",
-      type: "number",
-      required: false,
-      label: { tr: "Bulunduğu kat", en: "Floor" },
-    },
+    // Bina bilgileri (Konut/DASK ortak alanlar): yaş bandı + kat sayısı + bulunduğu kat.
+    binaYasiBandi,
+    binaKatSayisi,
+    bulunduguKat,
     {
       name: "mulkTipi",
       type: "radio",
@@ -510,6 +558,8 @@ const dask: ProductDefinition = {
   fields: [
     adSoyad,
     telefon,
+    // docs/03 + site sahibi kararı: TC Kimlik No DASK'ta ZORUNLU (genel kişisel veri).
+    tcKimlikZorunlu,
     // docs/03: Zincirleme adres — İl → İlçe → Mahalle (il/ilçe zorunlu, mahalle ops.).
     il,
     ilceCascade,
@@ -537,6 +587,8 @@ const dask: ProductDefinition = {
       label: { tr: "Brüt m²", en: "Gross m²" },
       validation: { min: 1, max: 2000 },
     },
+    // DASK tarifesi için inşa yılı önemli olduğundan korunur; bina yaşı bandı da
+    // (Konut ile tutarlı) eklenir. payload anahtarları KARARLI.
     {
       name: "binaInsaYili",
       type: "number",
@@ -544,19 +596,10 @@ const dask: ProductDefinition = {
       label: { tr: "Bina inşa yılı", en: "Year of construction" },
       validation: { min: 1900, max: 2100 },
     },
-    {
-      name: "katSayisi",
-      type: "number",
-      required: false,
-      label: { tr: "Bina kat sayısı", en: "Number of floors" },
-      validation: { min: 1, max: 100 },
-    },
-    {
-      name: "daireKati",
-      type: "number",
-      required: false,
-      label: { tr: "Dairenin bulunduğu kat", en: "Floor of the flat" },
-    },
+    // Bina bilgileri (Konut/DASK ortak): yaş bandı + kat sayısı + bulunduğu kat.
+    binaYasiBandi,
+    binaKatSayisi,
+    bulunduguKat,
     eposta,
   ],
 };

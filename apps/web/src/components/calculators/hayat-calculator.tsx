@@ -1,21 +1,32 @@
 "use client";
 
-// Hayat Sigortası Prim Tahmini — etkileşimli (girdi → anlık aralık).
+// Hayat Sigortası Hesaplayıcı — İKİ MOD (docs/03):
+//   Mod 1 — "Vefat Teminatı (Koruma)": MEVCUT yaklaşık prim tahmini (calculateHayat).
+//     ⚠️ Sayılar/katsayılar DEĞİŞTİRİLMEDİ; site sahibi gerçek Allianz/Fiba demo
+//     ekranlarıyla kalibre edecek (BEKLEMEDE). "Yaklaşık" uyarısı belirgin.
+//   Mod 2 — "Birikim & Vergi Avantajı": birikimli hayat anlatısı + tahmini vergi
+//     avantajı (calculateHayatVergi, YER TUTUCU GVK kuralları) + altın/döviz koruması
+//     bilgi kartı (sayısal projeksiyon YOK).
 // Mantık: @do/products/calculators (saf fonksiyon + constants.ts katsayıları).
-// docs/03: yaş / teminat / süre / sigara → kaba prim; "Tahmini" uyarısı ZORUNLU.
+// docs/03: "Tahmini değerdir" uyarısı ZORUNLU; para alanlarında binlik ayırıcı maske.
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { calculateHayat, HAYAT } from "@do/products/calculators";
+import { calculateHayat, calculateHayatVergi, HAYAT, HAYAT_VERGI } from "@do/products/calculators";
+import { Coins, Info } from "lucide-react";
 import type { Locale } from "@/components/auto-form/types-bridge";
 import {
   CalculatorShell,
   InputRow,
+  ModeTabs,
   ResultStat,
   EstimateNotice,
   NumberField,
+  formatTRY,
   formatRangeTRY,
 } from "./ui";
+
+type HayatMode = "vefat" | "birikim";
 
 export function HayatCalculator({
   locale,
@@ -23,6 +34,38 @@ export function HayatCalculator({
 }: {
   locale: Locale;
   /** Forma aktarılacak değerler (definitions.ts alan adlarıyla eşleşir). */
+  onUseValues?: (values: Record<string, unknown>) => void;
+}) {
+  const t = useTranslations("calculator");
+  const [mode, setMode] = useState<HayatMode>("vefat");
+
+  return (
+    <CalculatorShell titleKey="hayat.title" introKey="hayat.intro">
+      <ModeTabs<HayatMode>
+        ariaLabel={t("hayat.modeLabel")}
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: "vefat", label: t("hayat.modeVefat") },
+          { value: "birikim", label: t("hayat.modeBirikim") },
+        ]}
+      />
+
+      {mode === "vefat" ? (
+        <VefatMode locale={locale} onUseValues={onUseValues} />
+      ) : (
+        <BirikimMode locale={locale} />
+      )}
+    </CalculatorShell>
+  );
+}
+
+// ── Mod 1: Vefat Teminatı (Koruma) — MEVCUT hesaplama, kalibrasyon beklemede ───────
+function VefatMode({
+  locale,
+  onUseValues,
+}: {
+  locale: Locale;
   onUseValues?: (values: Record<string, unknown>) => void;
 }) {
   const t = useTranslations("calculator");
@@ -37,7 +80,11 @@ export function HayatCalculator({
   );
 
   return (
-    <CalculatorShell titleKey="hayat.title" introKey="hayat.intro">
+    <>
+      <p className="mb-5 rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm text-accent-foreground/90">
+        {t("hayat.vefatLead")}
+      </p>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <InputRow id="hayat-age" label={t("hayat.age")}>
           <NumberField
@@ -110,6 +157,105 @@ export function HayatCalculator({
           {t("useInForm")}
         </button>
       )}
-    </CalculatorShell>
+    </>
+  );
+}
+
+// ── Mod 2: Birikim & Vergi Avantajı (YENİ) — vergi avantajı + altın/döviz kartı ────
+function BirikimMode({ locale }: { locale: Locale }) {
+  const t = useTranslations("calculator");
+  const [annualPremium, setAnnualPremium] = useState<number>(HAYAT_VERGI.defaultAnnualPremium);
+  const [taxRatePct, setTaxRatePct] = useState<number>(
+    Math.round(HAYAT_VERGI.defaultTaxBracketRate * 100),
+  );
+  const [years, setYears] = useState<number>(HAYAT_VERGI.defaultYears);
+
+  const result = useMemo(
+    () => calculateHayatVergi({ annualPremium, taxBracketRate: taxRatePct / 100, years }),
+    [annualPremium, taxRatePct, years],
+  );
+
+  return (
+    <>
+      <p className="mb-5 text-sm text-accent-foreground/90">{t("hayat.birikimLead")}</p>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <InputRow id="hayat-premium" label={t("hayat.annualPremium")}>
+          <NumberField
+            id="hayat-premium"
+            thousands
+            min={HAYAT_VERGI.minAnnualPremium}
+            max={HAYAT_VERGI.maxAnnualPremium}
+            step={10000}
+            value={annualPremium}
+            fallback={HAYAT_VERGI.defaultAnnualPremium}
+            onChange={setAnnualPremium}
+            clearLabel={t("clear")}
+          />
+        </InputRow>
+
+        <InputRow id="hayat-bracket" label={t("hayat.taxBracket")}>
+          <select
+            id="hayat-bracket"
+            value={taxRatePct}
+            onChange={(e) => setTaxRatePct(Number(e.target.value))}
+            className="w-full min-h-[44px] rounded-xl border border-input bg-card px-4 py-2.5 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            {HAYAT_VERGI.taxBracketRates.map((r) => (
+              <option key={r} value={Math.round(r * 100)}>
+                %{Math.round(r * 100)}
+              </option>
+            ))}
+          </select>
+        </InputRow>
+
+        <InputRow id="hayat-vergi-years" label={t("hayat.termYears")}>
+          <NumberField
+            id="hayat-vergi-years"
+            min={HAYAT_VERGI.minYears}
+            max={HAYAT_VERGI.maxYears}
+            value={years}
+            fallback={HAYAT_VERGI.defaultYears}
+            onChange={setYears}
+            clearLabel={t("clear")}
+          />
+        </InputRow>
+      </div>
+
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <ResultStat
+          label={t("hayat.resultAnnualAdvantage")}
+          value={formatTRY(result.annualAdvantage, locale)}
+          accent="teal"
+        />
+        <ResultStat
+          label={t("hayat.resultTotalAdvantage")}
+          value={formatTRY(result.totalAdvantage, locale)}
+          accent="orange"
+        />
+      </div>
+
+      {/* Altın/Döviz koruması — kalitatif bilgi kartı (sayısal projeksiyon YOK). */}
+      <div className="mt-4 flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary/15 text-secondary">
+          <Coins className="h-5 w-5" aria-hidden />
+        </span>
+        <div>
+          <div className="font-heading text-base text-foreground">{t("hayat.goldTitle")}</div>
+          <p className="mt-1 text-sm text-accent-foreground/85">{t("hayat.goldBody")}</p>
+        </div>
+      </div>
+
+      <p
+        role="note"
+        className="mt-4 flex items-start gap-2 rounded-xl border border-secondary/40 bg-secondary/10 p-3 text-xs text-accent-foreground/90"
+      >
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-secondary" aria-hidden />
+        <span>
+          <strong className="font-semibold text-foreground">{t("estimateNoticeStrong")}</strong>{" "}
+          {t("hayat.vergiNotice")}
+        </span>
+      </p>
+    </>
   );
 }

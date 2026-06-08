@@ -15,8 +15,18 @@
 // ─────────────────────────────────────────────────────────────────────────────
 export const BES = {
   /** Devlet katkısı oranı. docs/03: %30. */
-  // TODO(doc): Güncel mevzuata göre teyit edilecek (oran değişebilir).
+  // TODO(doc): Güncel mevzuata göre teyit edilecek (oran değişebilir). Site sahibi notu:
+  // devlet katkısı oranı %30 KALIR (katkının kendi getirisi düşük olsa da oran budur).
   stateContributionRate: 0.3,
+
+  /**
+   * Devlet katkısının (yalnızca devlet katkısı kısmının) varsayılan getiri oranı.
+   * Site sahibi notu: "devlet katkısının getirisi ancak %10'larda" → bilgi amaçlı
+   * sabit. ⚠️ Şu an MODELE DAHİL DEĞİL (formülü karmaşıklaştırmamak için); ileride
+   * istenirse calculateBes içinde devlet katkısı bu oranla ayrı büyütülebilir.
+   */
+  // TODO(doc): Devlet katkısının ayrı getiri oranı modele dahil edilecek mi? (mali müşavir teyidi)
+  stateContributionReturnRate: 0.1,
 
   /**
    * Devlet katkısı yıllık üst sınırı (TL). Gerçek limit yıllık brüt asgari ücrete
@@ -26,22 +36,42 @@ export const BES = {
   annualStateContributionCap: 45000,
 
   /** Hesaplayıcıda varsayılan tahmini yıllık getiri oranı (%). Kullanıcı değiştirebilir. */
-  // TODO(doc): Gerçekçi varsayılan getiri beklentisi netleşecek.
-  defaultAnnualReturnRate: 0.3,
+  // TODO(doc): Gerçekçi varsayılan getiri beklentisi netleşecek. Site sahibi örnek varsayımı: %50.
+  defaultAnnualReturnRate: 0.5,
 
-  /** Getiri oranı slider/girdi sınırları (%). */
+  /** Getiri oranı slider/girdi sınırları (%). Üst sınır site sahibi örneğine göre %120. */
   minAnnualReturnRate: 0,
-  maxAnnualReturnRate: 1.0,
+  // TODO(doc): Üst getiri sınırı (%120) site sahibi örnek varsayımı; mevzuat/aktüeryal değer değil.
+  maxAnnualReturnRate: 1.2,
+
+  /**
+   * Enflasyon varsayımı (reel/bugünkü değer hesabı için). Kullanıcı değiştirebilir.
+   * Site sahibi örnek varsayımı: %32,5.
+   */
+  // TODO(doc): Enflasyon varsayımı örnek değerdir; resmî/gerçek oran değildir.
+  defaultInflationRate: 0.325,
+  minInflationRate: 0,
+  maxInflationRate: 2.0,
 
   /** Süre (yıl) girdi sınırları. */
   minYears: 1,
   maxYears: 40,
   defaultYears: 10,
 
-  /** Aylık katkı girdi sınırları (TL). */
+  /** Aylık katkı girdi sınırları (TL). Varsayılan site sahibi örneğine göre 7.500. */
   minMonthly: 100,
   maxMonthly: 1_000_000,
-  defaultMonthly: 1500,
+  // TODO(doc): Varsayılan aylık katkı (7.500) site sahibi örnek varsayımıdır.
+  defaultMonthly: 7500,
+
+  /**
+   * Toplu (tek seferlik) yatırım girdi sınırları (TL). Site sahibi notu: toplu
+   * yatırım modunda asgari giriş 1.000.000 TL.
+   */
+  // TODO(doc): Toplu yatırım alt sınırı (1.000.000) site sahibi örnek varsayımıdır.
+  minLumpSum: 1_000_000,
+  defaultLumpSum: 1_000_000,
+  maxLumpSum: 100_000_000,
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -113,6 +143,46 @@ export const HAYAT = {
   defaultCoverage: 500_000,
   minYears: 1,
   maxYears: 30,
+  defaultYears: 10,
+} as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HAYAT_VERGI — Birikimli hayat sigortası VERGİ AVANTAJI hesaplayıcısı sabitleri
+// (docs/03 Hayat — "Birikim & Vergi Avantajı" modu). Basit yer tutucu:
+//   yıllıkAvantaj ≈ indirilebilirPrim × gelirVergisiDilimiOranı
+//
+// ⚠️⚠️ Gerçek GVK (Gelir Vergisi Kanunu) bireysel sigorta/BES prim indirim kuralları,
+// indirilebilir tutar oranı ve üst sınırı BELİRSİZ → aşağıdaki değerler YER TUTUCU'dur.
+// Site sahibi gerçek mevzuat / mali müşavir teyidiyle YALNIZCA bu blok güncellenecek.
+// ─────────────────────────────────────────────────────────────────────────────
+export const HAYAT_VERGI = {
+  /**
+   * Ödenen primin vergiden indirilebilir kabul edilen oranı (yer tutucu).
+   * Şu an %100 (tamamı indirilebilir varsayımı) — basit tutmak için.
+   */
+  // TODO(doc): Gerçek GVK indirim oranı (indirilebilir prim oranı) teyit edilecek (mali müşavir).
+  deductibleRate: 1.0,
+
+  /**
+   * Yıllık indirilebilir prim ÜST SINIRI (TL). 0 → sınır YOK (yer tutucu).
+   * Gerçek mevzuatta brüt asgari ücrete endeksli bir tavan bulunur.
+   */
+  // TODO(doc): Yıllık indirim üst sınırı (asgari ücrete endeksli) teyit edilecek (mali müşavir).
+  annualDeductionCap: 0,
+
+  /** Gelir vergisi dilimi seçenekleri (oran). docs/03: %15 / %20 / %27 / %35 / %40. */
+  // TODO(doc): Güncel gelir vergisi tarifesi dilim oranları teyit edilecek.
+  taxBracketRates: [0.15, 0.2, 0.27, 0.35, 0.4] as const,
+  defaultTaxBracketRate: 0.2,
+
+  /** Birikim/prim tutarı girdi sınırları (TL, yıllık). */
+  minAnnualPremium: 0,
+  maxAnnualPremium: 10_000_000,
+  defaultAnnualPremium: 60_000,
+
+  /** Süre (yıl) girdi sınırları. docs/03: 5–12 yıl vurgusu. */
+  minYears: 5,
+  maxYears: 12,
   defaultYears: 10,
 } as const;
 

@@ -207,12 +207,12 @@ const bireyselEmeklilik: ProductContent = {
 
 const hayat: ProductContent = {
   intro: {
-    tr: "Hayat sigortası, beklenmedik bir durumda sevdiklerinizin maddi geleceğini güvence altına alır; kredi teminatından birikime kadar farklı amaçlara uyarlanabilir.",
-    en: "Life insurance secures the financial future of your loved ones in an unexpected event; it can be tailored from loan protection to savings.",
+    tr: "Hayat sigortası iki ayrı fayda sunar: beklenmedik bir durumda sevdiklerinize vefat teminatı (koruma) ve uzun vadede vergi avantajlı, altın/dövizle korunabilen bir birikim.",
+    en: "Life insurance offers two distinct benefits: death cover (protection) for your loved ones in an unexpected event, and long-term, tax-advantaged savings that can be protected with gold/FX.",
   },
   lead: {
-    tr: "Hayat sigortası, en zor anda sevdiklerinize bırakabileceğiniz en somut güvencedir. İster bir kredinin teminatı, ister ailenizin geleceği için bir koruma kalkanı olsun — teminat tutarını, süreyi ve amacı ihtiyacınıza göre birlikte kurgularız. Aşağıdaki hesaplayıcıyla yaşınıza ve teminatınıza göre tahmini primi önceden görebilirsiniz.",
-    en: "Life insurance is the most tangible security you can leave your loved ones in the hardest moment. Whether as collateral for a loan or a shield for your family's future, we shape the coverage amount, term and purpose around your needs. With the calculator below you can preview an estimated premium based on your age and coverage.",
+    tr: "Hayat sigortasının iki yüzü vardır. Birincisi vefat teminatı: en zor anda sevdiklerinize bırakabileceğiniz en somut güvence. İkincisi birikim: düzenli primlerinizle uzun vadede biriken, altın veya dövize endekslenerek korunabilen ve vergi avantajı sağlayan bir yatırım. Aşağıdaki hesaplayıcının iki modunda hem yaklaşık vefat teminatı primini hem de tahmini vergi avantajınızı görebilir, size en uygun kurguyu birlikte oluşturabiliriz.",
+    en: "Life insurance has two sides. First, death cover: the most tangible security you can leave your loved ones in the hardest moment. Second, savings: an investment that builds up over the long term through your regular premiums, can be protected by indexing to gold or FX, and offers a tax advantage. Using the two modes of the calculator below you can see both the approximate death-cover premium and your estimated tax advantage, and we build the right plan with you.",
   },
   coverage: [
     {
@@ -227,17 +227,24 @@ const hayat: ProductContent = {
   ],
   advantages: [
     {
-      title: { tr: "Amaca göre kurgu", en: "Designed by purpose" },
+      title: { tr: "Sevdiklerinize güvence", en: "Security for your loved ones" },
       body: {
-        tr: "Kredi, koruma veya birikim hedefinize göre teminat ve süreyi birlikte belirleriz.",
-        en: "We set coverage and term together based on your loan, protection or savings goal.",
+        tr: "Vefat teminatı ile beklenmedik bir durumda ailenizin maddi geleceğini koruma altına alırsınız.",
+        en: "With death cover you protect your family's financial future in an unexpected event.",
       },
     },
     {
-      title: { tr: "Tahmini prim", en: "Estimated premium" },
+      title: { tr: "Birikim + altın/döviz koruması", en: "Savings + gold/FX protection" },
       body: {
-        tr: "Hesaplayıcı ile yaş, teminat ve süreye göre yaklaşık primi önceden görün.",
-        en: "See an approximate premium upfront by age, coverage and term with the calculator.",
+        tr: "Birikimli planlarda primleriniz uzun vadede birikime dönüşür; altın veya dövize endeksleyerek değerini enflasyona karşı korumayı hedefleyebilirsiniz.",
+        en: "In savings plans your premiums turn into long-term savings; by indexing to gold or FX you can aim to protect their value against inflation.",
+      },
+    },
+    {
+      title: { tr: "Vergi avantajı", en: "Tax advantage" },
+      body: {
+        tr: "Birikimli hayat sigortası prim ödemeleri, mevzuat çerçevesinde vergi avantajı sağlayabilir; hesaplayıcının ikinci modunda tahmini avantajınızı görebilirsiniz.",
+        en: "Premiums for savings-based life insurance can provide a tax advantage within the legislation; you can see your estimated advantage in the second mode of the calculator.",
       },
     },
   ],

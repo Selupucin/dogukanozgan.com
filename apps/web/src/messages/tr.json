@@ -340,12 +340,19 @@
     "bes": {
       "title": "BES Birikim Hesaplayıcı",
       "intro": "Aylık ödemenize ve süreye göre devlet katkısı dahil yaklaşık birikiminizi hesaplayın.",
+      "modeLabel": "Hesaplama modu",
+      "modeMonthly": "Aylık Katkı",
+      "modeLump": "Toplu Yatırım",
       "monthly": "Aylık katkı (TL)",
+      "lumpSum": "Toplu yatırım (TL)",
       "years": "Süre (yıl)",
       "returnRate": "Tahmini yıllık getiri (%)",
+      "inflationRate": "Enflasyon varsayımı (%)",
       "resultTotal": "Tahmini toplam birikim",
       "resultContributions": "Yatırdığınız ana para",
-      "resultState": "Devlet katkısı (%30)"
+      "resultState": "Devlet katkısı (%30)",
+      "resultReal": "Reel getiri (bugünün parasıyla)",
+      "realHint": "{years} yıl sonra bugünün parasıyla, %{inflation} enflasyon varsayımıyla."
     },
     "saglik": {
       "title": "Sağlık Sigortası Prim Tahmini",
@@ -360,14 +367,27 @@
       "resultAnnual": "Tahmini yıllık prim aralığı"
     },
     "hayat": {
-      "title": "Hayat Sigortası Prim Tahmini",
-      "intro": "Teminat tutarı, süre ve yaşınıza göre yaklaşık primi hesaplayın.",
+      "title": "Hayat Sigortası Hesaplayıcı",
+      "intro": "İki ayrı fayda: sevdiklerinize vefat teminatı ya da vergi avantajlı birikim.",
+      "modeLabel": "Hesaplama modu",
+      "modeVefat": "Vefat Teminatı (Koruma)",
+      "modeBirikim": "Birikim & Vergi Avantajı",
+      "vefatLead": "Vefat teminatı, beklenmedik bir anda sevdiklerinize bırakacağınız maddi güvencedir. Aşağıdaki tutarlar yaklaşıktır; kesin teminat ve prim için teklif alın.",
       "age": "Yaş",
       "coverage": "Teminat tutarı (TL)",
       "years": "Süre (yıl)",
       "smoker": "Sigara kullanıyorum",
       "resultMonthly": "Tahmini aylık prim aralığı",
-      "resultAnnual": "Tahmini yıllık prim aralığı"
+      "resultAnnual": "Tahmini yıllık prim aralığı",
+      "birikimLead": "Birikimli hayat sigortası hem koruma hem de yatırım sağlar; ödediğiniz primlerle uzun vadede birikim oluştururken vergi avantajından da yararlanırsınız. 5–12 yıl gibi orta-uzun vadede planlanır.",
+      "annualPremium": "Yıllık prim / birikim (TL)",
+      "taxBracket": "Gelir vergisi diliminiz",
+      "termYears": "Süre (yıl, 5–12)",
+      "resultAnnualAdvantage": "Tahmini yıllık vergi avantajı",
+      "resultTotalAdvantage": "Süre boyunca toplam avantaj",
+      "goldTitle": "Altın / Dövize sabitleme ile değer koruması",
+      "goldBody": "Birikiminizi altın veya dövize endeksli ürünlerle değerlendirerek, uzun vadede paranızın alım gücünü enflasyona karşı korumayı hedefleyebilirsiniz. Uygun ürün ve oranları birlikte belirleriz.",
+      "vergiNotice": "Vergi avantajı tahmini, basitleştirilmiş bir varsayıma dayanır; gerçek gelir vergisi indirim oranları ve üst sınırları mevzuata ve durumunuza göre değişir. Kesin tutar için mali müşavirinize / teklif sürecine danışın."
     }
   }
 }

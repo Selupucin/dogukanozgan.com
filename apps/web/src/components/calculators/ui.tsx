@@ -180,6 +180,62 @@ export function NumberField({
   );
 }
 
+/**
+ * Erişilebilir mod/sekme seçici (ARIA tablist). Hesaplayıcı içinde iki mantığı
+ * (ör. BES "Aylık Katkı" / "Toplu Yatırım", Hayat "Vefat" / "Birikim") ayırmak için.
+ * Klavye: ←/→ ile gezinme; her sekme ≥44px dokunma hedefi (docs/09 erişilebilirlik).
+ */
+export function ModeTabs<T extends string>({
+  ariaLabel,
+  value,
+  options,
+  onChange,
+}: {
+  ariaLabel: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (next: T) => void;
+}) {
+  function onKeyDown(e: React.KeyboardEvent<HTMLButtonElement>) {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    e.preventDefault();
+    const idx = options.findIndex((o) => o.value === value);
+    const dir = e.key === "ArrowRight" ? 1 : -1;
+    const next = options[(idx + dir + options.length) % options.length];
+    if (next) onChange(next.value);
+  }
+  return (
+    <div
+      role="tablist"
+      aria-label={ariaLabel}
+      className="mb-6 flex flex-wrap gap-2 rounded-pill border border-border bg-card p-1"
+    >
+      {options.map((o) => {
+        const active = o.value === value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            tabIndex={active ? 0 : -1}
+            onClick={() => onChange(o.value)}
+            onKeyDown={onKeyDown}
+            className={cn(
+              "min-h-[44px] flex-1 rounded-pill px-4 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              active
+                ? "bg-secondary text-secondary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /** Tek bir vurgulu sonuç satırı (büyük rakam). */
 export function ResultStat({
   label,

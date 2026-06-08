@@ -11,7 +11,7 @@
 // Çıktılar TAHMİNİ'dir; sonuç ekranlarında docs/03 gereği "Tahmini değerdir, kesin
 // teklif için form doldurun" uyarısı ZORUNLU gösterilir.
 
-import { BES, SAGLIK, HAYAT } from "./constants";
+import { BES, SAGLIK, HAYAT, HAYAT_VERGI } from "./constants";
 
 /** Negatif/NaN'ı 0'a sabitleyen güvenli yardımcı. */
 function safe(n: number): number {
@@ -38,37 +38,61 @@ export interface BesInput {
   years: number;
   /** Tahmini yıllık getiri oranı (ondalık, ör. 0.30 = %30). Verilmezse varsayılan. */
   annualReturnRate?: number;
+  /**
+   * Opsiyonel toplu (tek seferlik) başlangıç yatırımı (TL). Verilirse başlangıçta
+   * yatırılmış kabul edilir ve tüm süre boyunca bileşik büyür. docs/03 (BES toplu mod).
+   */
+  lumpSum?: number;
+  /**
+   * Opsiyonel enflasyon varsayımı (ondalık) — reel/bugünkü değer hesabı için.
+   * Verilmezse constants.BES.defaultInflationRate kullanılır.
+   */
+  inflationRate?: number;
 }
 
 export interface BesResult {
-  /** Toplam yatırılan ana para (devlet katkısı hariç). */
+  /** Toplam yatırılan ana para (devlet katkısı hariç; varsa toplu yatırım dahil). */
   totalContributions: number;
   /** Eklenen toplam devlet katkısı (üst sınır uygulanmış). */
   stateContribution: number;
-  /** Tahmini toplam birikim (katkı + devlet katkısı + bileşik getiri). */
+  /** Tahmini toplam birikim (katkı + devlet katkısı + toplu yatırım + bileşik getiri). */
   estimatedTotal: number;
+  /**
+   * Enflasyondan arındırılmış bugünkü değer (reel):
+   * estimatedTotal / (1 + inflationRate)^years. Tahminidir.
+   */
+  realValue: number;
 }
 
 /**
  * BES birikim tahmini. YER TUTUCU formül (katsayılar constants.BES).
  * Bileşik getiri aylık bazda uygulanır; her ay (katkı + devlet katkısı payı) yatırılıp
  * kalan ay sayısı kadar büyütülür (annuity mantığı, basitleştirilmiş).
+ * Opsiyonel toplu yatırım başlangıçta yatırılıp tüm süre bileşik büyür.
  */
 export function calculateBes(input: BesInput): BesResult {
   const monthly = safe(input.monthlyContribution);
   const years = safe(input.years);
+  const lumpSum = safe(input.lumpSum ?? 0);
   const annualReturn = clamp(
     input.annualReturnRate ?? BES.defaultAnnualReturnRate,
     BES.minAnnualReturnRate,
     BES.maxAnnualReturnRate,
   );
+  const inflationRate = clamp(
+    input.inflationRate ?? BES.defaultInflationRate,
+    BES.minInflationRate,
+    BES.maxInflationRate,
+  );
 
   const months = Math.round(years * 12);
   const monthlyRate = annualReturn / 12;
 
-  const totalContributions = monthly * 12 * years;
+  // Toplam yatırılan ana para = aylık katkı toplamı + (varsa) toplu yatırım.
+  const totalContributions = monthly * 12 * years + lumpSum;
 
-  // Devlet katkısı: toplam katkının %30'u, ancak YILLIK üst sınıra tabi.
+  // Devlet katkısı: AYLIK katkı toplamının %30'u, YILLIK üst sınıra tabi.
+  // (Toplu yatırım devlet katkısına dahil edilmez — yer tutucu basitleştirme.)
   const rawAnnualState = monthly * 12 * BES.stateContributionRate;
   const cappedAnnualState = Math.min(rawAnnualState, BES.annualStateContributionCap);
   const stateContribution = cappedAnnualState * years;
@@ -85,10 +109,20 @@ export function calculateBes(input: BesInput): BesResult {
     estimatedTotal = monthlyDeposit * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
   }
 
+  // Toplu yatırım: başlangıçta yatırılıp tüm süre boyunca bileşik büyür.
+  if (lumpSum > 0) {
+    estimatedTotal += lumpSum * Math.pow(1 + monthlyRate, months);
+  }
+
+  // Reel (bugünkü) değer: enflasyondan arındırılmış. Tahminidir.
+  const realValue =
+    years > 0 ? estimatedTotal / Math.pow(1 + inflationRate, years) : estimatedTotal;
+
   return {
     totalContributions: Math.round(totalContributions),
     stateContribution: Math.round(stateContribution),
     estimatedTotal: Math.round(estimatedTotal),
+    realValue: Math.round(realValue),
   };
 }
 
@@ -184,6 +218,55 @@ export function calculateHayat(input: HayatInput): PremiumRange {
 
   const monthly = annual / 12;
   return buildRange(monthly, HAYAT.rangeSpread);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HAYAT — Birikimli hayat sigortası VERGİ AVANTAJI tahmini
+// docs/03 Hayat "Birikim & Vergi Avantajı" modu. YER TUTUCU (katsayılar HAYAT_VERGI).
+//   yıllıkAvantaj ≈ indirilebilirPrim × gelirVergisiDilimiOranı
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface HayatVergiInput {
+  /** Yıllık ödenen prim / birikim tutarı (TL). */
+  annualPremium: number;
+  /** Gelir vergisi dilimi oranı (ondalık, ör. 0.20 = %20). */
+  taxBracketRate: number;
+  /** Süre (yıl). docs/03: 5–12 yıl. */
+  years: number;
+}
+
+export interface HayatVergiResult {
+  /** İndirilebilir kabul edilen yıllık prim (oran/üst sınır uygulanmış, TL). */
+  deductiblePremium: number;
+  /** Tahmini yıllık vergi avantajı (TL). */
+  annualAdvantage: number;
+  /** Süre boyunca tahmini toplam vergi avantajı (TL). */
+  totalAdvantage: number;
+}
+
+/**
+ * Birikimli hayat sigortası tahmini vergi avantajı. YER TUTUCU (HAYAT_VERGI).
+ * Gerçek GVK indirim kuralları/limitleri belirsiz → basit oran çarpımı kullanılır.
+ */
+export function calculateHayatVergi(input: HayatVergiInput): HayatVergiResult {
+  const annualPremium = safe(input.annualPremium);
+  const taxRate = clamp(safe(input.taxBracketRate), 0, 1);
+  const years = clamp(safe(input.years), HAYAT_VERGI.minYears, HAYAT_VERGI.maxYears);
+
+  // İndirilebilir prim = prim × indirim oranı; (varsa) yıllık üst sınıra tabi.
+  let deductiblePremium = annualPremium * HAYAT_VERGI.deductibleRate;
+  if (HAYAT_VERGI.annualDeductionCap > 0) {
+    deductiblePremium = Math.min(deductiblePremium, HAYAT_VERGI.annualDeductionCap);
+  }
+
+  const annualAdvantage = deductiblePremium * taxRate;
+  const totalAdvantage = annualAdvantage * years;
+
+  return {
+    deductiblePremium: Math.round(deductiblePremium),
+    annualAdvantage: Math.round(annualAdvantage),
+    totalAdvantage: Math.round(totalAdvantage),
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
