@@ -121,11 +121,17 @@ export interface ProductField {
   captureGuide?: boolean;
   /**
    * Form bölümü (docs/03 "Form bölümleri"). Alanlar başlıklı bölümlere gruplanır:
-   *  - "iletisim": Ad Soyad / Telefon / E-posta gibi iletişim bilgileri ("İletişim").
+   *  - "kisi": Kişi bilgileri (Ad Soyad + TC Kimlik No) — "Kişi Bilgileri".
+   *  - "iletisim": Telefon + E-posta — "İletişim".
    *  - "detay": Ürüne özel bilgiler ("Sigorta Bilgileri").
-   * Verilmezse alan "detay" bölümünde sayılır. Bölüm sırası: iletisim → detay.
+   * Verilmezse alan "detay" bölümünde sayılır.
+   *
+   * 2 adımlı (wizard) formda (docs/09 form UX):
+   *  - Adım 1 ("Sigorta Bilgileri"): "detay" bölümü alanları.
+   *  - Adım 2 ("İletişim Bilgileri"): "kisi" + "iletisim" alt başlıkları (+ KVKK rıza).
+   * Bölüm sırası adım 2 içinde: kisi → iletisim.
    */
-  section?: "iletisim" | "detay";
+  section?: "kisi" | "iletisim" | "detay";
 }
 
 /**

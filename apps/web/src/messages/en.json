@@ -274,8 +274,18 @@
     "submit": "Send Quote Request",
     "submitting": "Sending…",
     "sections": {
+      "kisi": "Personal Information",
       "iletisim": "Contact",
       "detay": "Insurance Details"
+    },
+    "steps": {
+      "progressLabel": "Form progress (2 steps)",
+      "step1Short": "Insurance Details",
+      "step2Short": "Contact Information",
+      "step1Title": "Insurance Details",
+      "step2Title": "Contact Information",
+      "next": "Continue",
+      "back": "Back"
     },
     "submitAnother": "Send another request",
     "successTitle": "Your request was received",

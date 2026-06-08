@@ -13,23 +13,31 @@ export type ProductLocale = keyof LocalizedSlug; // "tr" | "en"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Ortak alanlar (docs/03 "Ortak Kurallar — Tüm Formlarda")
-// Ad Soyad + Telefon zorunlu, E-posta opsiyonel.
+// Ad Soyad + Telefon zorunlu, E-posta zorunlu (K30).
 // NOT: KVKK rıza kutusu(ları) form alanı OLARAK tutulmaz; AutoForm bileşeni
 // üründeki `sensitive` bayrağına göre rıza kutularını otomatik ekler (docs/03/06).
+//
+// Form bölümleri (docs/03 + docs/09 2 adımlı form) — MERKEZİ atama (tek yerden):
+//  - "kisi"     → Kişi Bilgileri  : Ad Soyad + (varsa) TC Kimlik No.
+//  - "iletisim" → İletişim        : Telefon + E-posta.
+//  - "detay"    → Sigorta Bilgileri: ürüne özel kalan tüm alanlar (varsayılan).
+// Bu üç ortak alanın bölümü burada bir kez tanımlanır; ürünler bu nesneleri
+// referansla kullandığından tek değişiklikle tüm 9 üründe tutarlı kalır.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// İLETİŞİM bölümü (docs/03 "Form bölümleri"): Ad Soyad + Telefon + E-posta "İletişim"
-// başlığı altında gruplanır. section: "iletisim" → AutoForm bunları en üstte toplar.
+// KİŞİ bölümü: Ad Soyad (tüm ürünlerde ortak). TC Kimlik No olan ürünlerde TC de
+// bu bölüme girer (bkz. tcKimlikZorunlu + Trafik inline TC alanı).
 const adSoyad: ProductField = {
   name: "adSoyad",
   type: "text",
   required: true,
-  section: "iletisim",
+  section: "kisi",
   label: { tr: "Ad Soyad", en: "Full Name" },
   placeholder: { tr: "Adınız ve soyadınız", en: "Your full name" },
   validation: { minLength: 2, maxLength: 80 },
 };
 
+// İLETİŞİM bölümü: Telefon + E-posta.
 const telefon: ProductField = {
   name: "telefon",
   type: "tel",
@@ -45,7 +53,8 @@ const eposta: ProductField = {
   name: "eposta",
   type: "email",
   required: true,
-  section: "iletisim",
+  section: "iletisim", // İletişim bölümü (Telefon ile birlikte) — docs/03/09 2 adımlı form
+
   label: { tr: "E-posta", en: "Email" },
   placeholder: { tr: "ornek@eposta.com", en: "you@example.com" },
 };
@@ -120,12 +129,14 @@ const daireNo: ProductField = {
  * TC Kimlik No — Konut + DASK'ta ZORUNLU (site sahibi kararı). docs/03 + docs/06:
  * GENEL kişisel veridir (özel nitelikli DEĞİL → `sensitive` YOK). Hukuki sebep:
  * sözleşmenin kurulması/ifası (poliçe düzenleme, kimlik doğrulama).
- * Bölüm "detay" (Sigorta Bilgileri) altında, sigortalı bilgisi olarak gösterilir.
+ * Bölüm "kisi" (Kişi Bilgileri) altında, Ad Soyad ile birlikte sigortalı kimliği
+ * olarak gösterilir (docs/03/09 2 adımlı form).
  */
 const tcKimlikZorunlu: ProductField = {
   name: "tcKimlik",
   type: "tcKimlik",
   required: true,
+  section: "kisi",
   label: { tr: "TC Kimlik No", en: "ID Number" },
   placeholder: { tr: "11 haneli", en: "11 digits" },
   help: {
@@ -208,6 +219,7 @@ const trafik: ProductDefinition = {
       name: "tcKimlik",
       type: "tcKimlik",
       required: true,
+      section: "kisi", // Kişi Bilgileri (Ad Soyad ile birlikte) — docs/03/09
       label: { tr: "TC Kimlik No", en: "ID Number" },
       placeholder: { tr: "11 haneli", en: "11 digits" },
     },

@@ -274,8 +274,18 @@
     "submit": "Teklif Talebi Gönder",
     "submitting": "Gönderiliyor…",
     "sections": {
+      "kisi": "Kişi Bilgileri",
       "iletisim": "İletişim",
       "detay": "Sigorta Bilgileri"
+    },
+    "steps": {
+      "progressLabel": "Form ilerlemesi (2 adımdan oluşur)",
+      "step1Short": "Sigorta Bilgileri",
+      "step2Short": "İletişim Bilgileri",
+      "step1Title": "Sigorta Bilgileri",
+      "step2Title": "İletişim Bilgileri",
+      "next": "Devam",
+      "back": "Geri"
     },
     "submitAnother": "Yeni talep gönder",
     "successTitle": "Talebiniz alındı",
