@@ -3,7 +3,7 @@
 // Bildirimler (K29) burada server'da çekilir; DB yoksa zarifçe boş gösterilir.
 
 import Link from "next/link";
-import { listNotifications, unreadNotificationCount } from "@do/db";
+import { listNotifications, unreadNotificationCount, logError } from "@do/db";
 import { signOutAction } from "@/app/actions";
 import { buttonClass } from "@/components/ui";
 import { NotificationBell, type BellNotification } from "@/components/notification-bell";
@@ -24,7 +24,7 @@ export async function AppHeader({ email }: { email?: string | null }) {
     ]);
   } catch (err) {
     // DB yoksa çan boş kalır; sayfa çökmeyle uğraşmaz (Aşama 7 DB bağlanınca dolacak).
-    console.error("[app-header] bildirim çekme hatası:", err);
+    logError("[app-header] bildirim çekme hatası:", err);
   }
 
   return (

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { isStorageConfigured } from "@do/db";
+import { isStorageConfigured, logError } from "@do/db";
 import { isEmailConfigured } from "@do/email";
 import { getQuote } from "@/lib/quotes";
 import { describePayload } from "@/lib/payload";
@@ -22,13 +22,15 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 /**
- * K25: Vercel Blob — Asset.url doğrudan (tahmin-edilemez token) kullanılır; imzalı URL
- * üretmeye gerek yok. URL'ler YALNIZCA bu kimlik-doğrulamalı admin ekranında gösterilir
- * (docs/06 §5b artık-risk notu).
+ * docs/13 §Y1: Ham blob URL (Asset.url) admin HTML'ine GÖMÜLMEZ. Vercel Blob yalnız
+ * `access:"public"` desteklediğinden URL imzasızdır; bunun yerine her dosya auth-gated
+ * proxy üzerinden gösterilir → `/dosya/<assetId>` (apps/admin/src/app/dosya/[assetId]).
+ * Proxy oturum kontrolü yapar ve içeriği sunucuda stream eder (docs/06 §5b güncel).
  */
 function buildAssetViews(assets: { id: string; url: string; kind: string }[]) {
   return {
-    items: assets.map((a) => ({ id: a.id, url: a.url, kind: a.kind })),
+    // src/href ham blob URL değil, auth-gated proxy rotasıdır.
+    items: assets.map((a) => ({ id: a.id, src: `/dosya/${a.id}`, kind: a.kind })),
     configured: assets.length === 0 || assets.some((a) => Boolean(a.url)),
   };
 }
@@ -41,7 +43,7 @@ export default async function TeklifDetayPage({ params }: { params: Promise<{ id
   try {
     quote = await getQuote(id);
   } catch (err) {
-    console.error("[teklif-detay] veri çekme hatası:", err);
+    logError("[teklif-detay] veri çekme hatası:", err);
     dbError = true;
   }
 
@@ -179,38 +181,33 @@ export default async function TeklifDetayPage({ params }: { params: Promise<{ id
                 <p className="text-sm text-muted-foreground">Yüklenen dosya yok.</p>
               ) : !storageConfigured ? (
                 <p className="text-sm text-muted-foreground">
-                  {quote.assets.length} dosya kayıtlı ancak Storage yapılandırması (Supabase) eksik
-                  — imzalı URL üretilemiyor (Aşama 6).
+                  {quote.assets.length} dosya kayıtlı ancak depolama (Vercel Blob) yapılandırması
+                  eksik — dosya görüntülenemiyor.
                 </p>
               ) : (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {assets.map((a) => (
                     <a
                       key={a.id}
-                      href={a.url || "#"}
+                      href={a.src}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group flex flex-col gap-1 rounded-lg border border-border p-2 hover:border-primary"
                     >
-                      {a.url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={a.url}
-                          alt={a.kind}
-                          className="aspect-square w-full rounded-md object-cover"
-                        />
-                      ) : (
-                        <div className="flex aspect-square w-full items-center justify-center rounded-md bg-muted text-xs text-muted-foreground">
-                          Görüntülenemedi
-                        </div>
-                      )}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={a.src}
+                        alt={a.kind}
+                        className="aspect-square w-full rounded-md object-cover"
+                      />
                       <span className="text-xs capitalize text-muted-foreground">{a.kind}</span>
                     </a>
                   ))}
                 </div>
               )}
               <p className="mt-3 text-xs text-muted-foreground">
-                Dosyalar gizli (private) saklanır; bağlantılar kısa ömürlü imzalı URL&apos;dir.
+                Dosyalar yalnız bu yetkili panelde, oturum doğrulamalı bir proxy üzerinden
+                görüntülenir; ham depolama bağlantısı tarayıcıya verilmez (docs/06, docs/13 §Y1).
               </p>
             </CardContent>
           </Card>

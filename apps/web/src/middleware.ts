@@ -9,7 +9,9 @@ export const config = {
   // metadata route'larını (favicon/OG/apple/manifest/robots/sitemap) hariç tut.
   // Aksi halde next-intl bu kök asset route'larını /tr/... olarak 307 yönlendirir
   // ve favicon/OG görselleri kırılır.
+  // `police-indir` (docs/13 §Y1): locale-bağımsız imzalı poliçe indirme route'u — hariç
+  // tutulur, aksi halde /tr/police-indir'e 307 yönlenir ve token'lı link kırılır.
   matcher: [
-    "/((?!api|_next|_vercel|icon|apple-icon|opengraph-image|twitter-image|manifest\\.webmanifest|sitemap\\.xml|robots\\.txt|.*\\..*).*)",
+    "/((?!api|police-indir|_next|_vercel|icon|apple-icon|opengraph-image|twitter-image|manifest\\.webmanifest|sitemap\\.xml|robots\\.txt|.*\\..*).*)",
   ],
 };

@@ -16,6 +16,7 @@
 //   geçebilir ama sayaç asla "kaybolmaz" → spam caydırıcılığı korunur.
 
 import { prisma } from "./index";
+import { logError } from "./log-error";
 
 export interface CheckRateLimitOptions {
   /** Sayaç anahtarı: "kapsam:ip[:kimlik]" (örn. "login:1.2.3.4:a@b.com"). */
@@ -88,7 +89,7 @@ export async function checkRateLimit(opts: CheckRateLimitOptions): Promise<RateL
     return { allowed: true, remaining: Math.max(0, limit - 1) };
   } catch (err) {
     // fail-safe: DB hatası meşru kullanıcıyı kilitlemesin (özellikle login). Logla + izin ver.
-    console.error("[rate-limit] DB error, allowing request (fail-safe):", err);
+    logError("[rate-limit] DB error, allowing request (fail-safe):", err);
     return { allowed: true, remaining: limit };
   }
 }
@@ -100,6 +101,6 @@ export async function resetRateLimit(key: string): Promise<void> {
   try {
     await prisma.rateLimit.deleteMany({ where: { key } });
   } catch (err) {
-    console.error("[rate-limit] reset failed (ignored):", err);
+    logError("[rate-limit] reset failed (ignored):", err);
   }
 }

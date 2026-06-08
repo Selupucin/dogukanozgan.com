@@ -5,7 +5,7 @@
 // action'larında oturum kontrolü").
 
 import { revalidatePath } from "next/cache";
-import { markNotificationRead, markAllNotificationsRead } from "@do/db";
+import { markNotificationRead, markAllNotificationsRead, isValidObjectId } from "@do/db";
 import { auth, signOut } from "@/auth";
 
 export async function signOutAction() {
@@ -21,6 +21,8 @@ async function requireAuth() {
 /** Tek bir bildirimi okundu işaretler (çana tıklayınca). */
 export async function markNotificationReadAction(id: string): Promise<void> {
   await requireAuth();
+  // ObjectId guard (docs/13 §O1) — geçersiz id'de Prisma'ya gitme.
+  if (!isValidObjectId(id)) return;
   await markNotificationRead(id);
   revalidatePath("/", "layout");
 }

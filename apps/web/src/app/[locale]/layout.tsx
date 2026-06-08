@@ -5,10 +5,12 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Fraunces, Hanken_Grotesk } from "next/font/google";
 import { routing } from "@/i18n/routing";
-import { localizedAlternates } from "@/lib/seo";
+import { localizedAlternates, jsonLdHtml } from "@/lib/seo";
 import { ThemeProvider } from "@/components/theme-provider";
 import { CookieConsent } from "@/components/cookie-consent";
 import { Analytics } from "@/components/analytics";
+import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteShell } from "@/components/layout/site-shell";
 import { contact, siteUrl, brandName } from "@/lib/site";
 import "../globals.css";
@@ -111,15 +113,21 @@ export default async function LocaleLayout({
       <body className={`${fraunces.variable} ${hanken.variable}`}>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdHtml(orgJsonLd) }}
         />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <NextIntlClientProvider>
             <SiteShell locale={loc}>{children}</SiteShell>
             <CookieConsent />
+            {/* Onay-kapılı analitik (Plausible/GA4 — KVKK §3). */}
             <Analytics />
           </NextIntlClientProvider>
         </ThemeProvider>
+        {/* Vercel Web Analytics + Speed Insights: çerezsiz, anonim, cross-site izleme
+            yok. Kişisel veri toplamadığından onay kapısına girmez; doğrudan yüklenir
+            (docs/06 §3, docs/07 analitik). */}
+        <VercelAnalytics />
+        <SpeedInsights />
       </body>
     </html>
   );

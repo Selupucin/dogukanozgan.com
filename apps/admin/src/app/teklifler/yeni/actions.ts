@@ -6,7 +6,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createManualQuote } from "@do/db";
+import { createManualQuote, logError } from "@do/db";
 import { getProduct } from "@do/products";
 import { auth } from "@/auth";
 
@@ -73,7 +73,7 @@ export async function createManualQuoteAction(formData: FormData): Promise<Manua
     });
     id = quote.id;
   } catch (err) {
-    console.error("[teklifler/yeni] manuel kayıt hatası:", err);
+    logError("[teklifler/yeni] manuel kayıt hatası:", err);
     return { ok: false, error: "Kayıt oluşturulamadı (DB bağlantısı?)." };
   }
 

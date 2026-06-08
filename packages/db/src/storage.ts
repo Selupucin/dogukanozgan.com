@@ -2,18 +2,24 @@
 // Kaynak: docs/04 "Dosya Depolama Notu (Vercel Blob)", docs/06 §5b + §6
 // (token sadece sunucuda).
 //
-// TASARIM:
-// - Ruhsat/araç fotoğrafları KİŞİSEL VERİDİR. Vercel Blob URL'leri tahmin-edilemez
-//   rastgele token içerir AMA "public-stil"dir (imzalı/süreli değildir). Bu nedenle
-//   bu URL'ler YALNIZCA kimlik doğrulanmış admin ekranında gösterilir, indekslenmez ve
-//   işlem sonrası silinebilir (docs/06 §5b artık-risk notu).
-// - Yükleme web app'ten (server action), görüntüleme admin'den yapılır; ikisi de aynı
+// TASARIM (docs/13 §Y1 güncel):
+// - Ruhsat/araç fotoğrafları + poliçe belgesi KİŞİSEL/ÖZEL NİTELİKLİ VERİDİR. Vercel Blob
+//   yalnız `access:"public"` modunu destekler (private read GA değil) → blob PRIVATE
+//   YAPILAMAZ. URL tahmin-edilemez token içerse de imzasız/süresizdir.
+// - BU NEDENLE: ham blob URL'i (Asset.url) İSTEMCİYE HİÇ İFŞA EDİLMEZ. Erişim sunucu-tarafı
+//   KONTROLLÜ ROTALARLA verilir:
+//     • Müşteri (poliçe): kısa ömürlü İMZALI/SÜRELİ link → /police-indir?token=... (web)
+//       (token: file-access.ts → signFileToken/verifyFileToken).
+//     • Admin (her dosya): AUTH-GATED proxy → /dosya/<assetId> (admin).
+//   Her iki rota da blob içeriğini SUNUCUDA `fetchBlobContent` ile çekip STREAM eder;
+//   ham blob URL'i yanıta/HTML'e/redirect'e ASLA sızmaz (docs/06 §5b güncel).
+// - Yükleme web app'ten (server action), görüntüleme kontrollü rotalardan; ikisi de aynı
 //   Blob store'a `BLOB_READ_WRITE_TOKEN` ile bağlanır.
 // - `@vercel/blob` paketi kullanılır (`put` / `del`). Env yoksa zarifçe devre dışı
 //   kalır (feature flag).
 //
-// ⚠️ GÜVENLİK: BLOB_READ_WRITE_TOKEN YALNIZCA sunucuda kullanılır. Bu modül hiçbir
-// zaman istemci bileşenine import EDİLMEMELİDİR ("server-only" sınırı).
+// ⚠️ GÜVENLİK: BLOB_READ_WRITE_TOKEN + Asset.url YALNIZCA sunucuda kullanılır. Bu modül
+// hiçbir zaman istemci bileşenine import EDİLMEMELİDİR ("server-only" sınırı).
 
 import { put, del } from "@vercel/blob";
 
@@ -58,8 +64,10 @@ export interface UploadResult {
  * (çağıran taraf feature-flag ile bunu zarifçe yakalamalı).
  *
  * Not: `addRandomSuffix: false` — yükleme yolları çağıran tarafça zaten benzersiz
- * üretilir (`buildAssetPath`). `access: "public"` Blob'un tek erişim modudur; URL
- * yine de tahmin-edilemez token içerir (docs/06 §5b notu geçerli).
+ * üretilir (`buildAssetPath`). `access: "public"` Blob'un TEK erişim modudur (private
+ * read desteklenmez); URL tahmin-edilemez token içerir AMA imzasız/süresizdir → bu yüzden
+ * ham URL istemciye ifşa EDİLMEZ, erişim kontrollü proxy/imzalı link ile verilir
+ * (docs/13 §Y1, docs/06 §5b — `fetchBlobContent` + file-access.ts).
  */
 export async function uploadToStorage(input: UploadInput): Promise<UploadResult> {
   if (!isStorageConfigured()) {
@@ -102,6 +110,34 @@ export async function deleteFromStorage(urlsOrPaths: string[]): Promise<void> {
   }
 
   await del(targets, { token: process.env.BLOB_READ_WRITE_TOKEN });
+}
+
+export interface BlobContent {
+  /** Ham içerik (stream'e/Response'a verilebilir). */
+  body: ArrayBuffer;
+  /** Blob'un servis ettiği içerik tipi (yoksa application/octet-stream). */
+  contentType: string;
+}
+
+/**
+ * Bir blob'un içeriğini SUNUCUDA çeker (docs/13 §Y1 kontrollü proxy/indirme için).
+ *
+ * `url` HAM blob URL'idir (Asset.url) ve YALNIZCA SUNUCUDA kullanılır — bu fonksiyonun
+ * dönüşü istemciye STREAM edilir, ham URL asla istemciye/HTML'e/redirect'e sızdırılmaz.
+ * Çağıran rotalar (admin /dosya/[assetId], web /police-indir) erişim kontrolünü (auth /
+ * imzalı token) KENDİLERİ yapar; bu fonksiyon yalnız içeriği getirir.
+ *
+ * İçerik bulunamaz/erişilemezse hata fırlatır (çağıran 404/502'ye çevirir).
+ */
+export async function fetchBlobContent(url: string): Promise<BlobContent> {
+  // Not: cache devre dışı — Next çağıran rotalar zaten `force-dynamic`/`no-store`.
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`fetchBlobContent: blob fetch failed (${res.status}).`);
+  }
+  const contentType = res.headers.get("content-type") || "application/octet-stream";
+  const body = await res.arrayBuffer();
+  return { body, contentType };
 }
 
 /** Storage yapılandırılmamışken fırlatılır — feature-flag ile ayırt edilebilir. */

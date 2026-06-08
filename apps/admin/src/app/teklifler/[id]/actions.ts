@@ -17,6 +17,9 @@ import {
   uploadToStorage,
   isStorageConfigured,
   validateUpload,
+  signFileToken,
+  isValidObjectId,
+  logError,
   type QuoteStatus,
 } from "@do/db";
 import { isEmailConfigured, sendPolicyDelivery } from "@do/email";
@@ -54,6 +57,9 @@ export async function updateStatusAction(
   policy?: { start?: string | null; end?: string | null },
 ): Promise<ActionResult> {
   await requireAuth();
+
+  // ObjectId guard (docs/13 §O1) — geçersizse Prisma "Malformed ObjectID" fırlatmasın.
+  if (!isValidObjectId(quoteId)) return { ok: false, error: "Geçersiz teklif." };
 
   if (!QUOTE_STATUSES.includes(next as QuoteStatus)) {
     return { ok: false, error: "Geçersiz durum." };
@@ -111,6 +117,8 @@ export async function setPolicyDatesAction(
 ): Promise<ActionResult> {
   await requireAuth();
 
+  if (!isValidObjectId(quoteId)) return { ok: false, error: "Geçersiz teklif." };
+
   const start = parseDate(startStr);
   const end = parseDate(endStr);
   if (!start || !end) return { ok: false, error: "Geçerli başlangıç ve bitiş tarihi girin." };
@@ -127,6 +135,8 @@ export async function setPolicyDatesAction(
 /** Zaman damgalı not ekler (Note modeli). */
 export async function addNoteAction(quoteId: string, body: string): Promise<ActionResult> {
   await requireAuth();
+
+  if (!isValidObjectId(quoteId)) return { ok: false, error: "Geçersiz teklif." };
 
   const text = body.trim();
   if (!text) return { ok: false, error: "Not boş olamaz." };
@@ -147,14 +157,18 @@ export async function addNoteAction(quoteId: string, body: string): Promise<Acti
 /** KVKK: teklifi ve ilişkili veriyi KALICI siler (kvkk.ts util). */
 export async function deleteQuoteAction(quoteId: string): Promise<void> {
   await requireAuth();
-  await deleteQuoteRequest(quoteId);
-  revalidatePath("/teklifler");
+  // ObjectId guard (docs/13 §O1) — geçersiz id'de Prisma'ya gitme, sadece listeye dön.
+  if (isValidObjectId(quoteId)) {
+    await deleteQuoteRequest(quoteId);
+    revalidatePath("/teklifler");
+  }
   redirect("/teklifler");
 }
 
 /** KVKK: teklifi anonimleştirir (kişisel veri maskelenir, istatistik kalır). */
 export async function anonymizeQuoteAction(quoteId: string): Promise<ActionResult> {
   await requireAuth();
+  if (!isValidObjectId(quoteId)) return { ok: false, error: "Geçersiz teklif." };
   const result = await anonymizeQuoteRequest(quoteId);
   if (!result) return { ok: false, error: "Teklif bulunamadı." };
   revalidatePath(`/teklifler/${quoteId}`);
@@ -171,11 +185,26 @@ export interface PolicyDeliveryResult extends ActionResult {
 
 const MAX_POLICY_MB = 15; // Poliçe belgesi azami boyut (MB). Boyut validateUpload'da uygulanır.
 
+// Poliçe indirme linki geçerlilik süresi (docs/13 §Y1). 30 gün — müşterinin maile
+// makul sürede erişimi için; süre dolunca yeni link talep eder.
+const POLICY_LINK_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
 /** Blob içindeki poliçe belgesi yolu (kind="police"). */
 function buildPolicyPath(quoteId: string, originalName: string): string {
   const safe = originalName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-60);
   const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   return `police/${quoteId}/${unique}-${safe}`;
+}
+
+/**
+ * Müşteriye gidecek İMZALI/SÜRELİ poliçe indirme linki (docs/13 §Y1). Ham blob URL
+ * yerine web sitesindeki /police-indir rotasına token taşır. Site URL'i
+ * NEXT_PUBLIC_SITE_URL (web). Token: signFileToken (HMAC, süreli).
+ */
+function buildPolicyDownloadUrl(assetId: string): string {
+  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://dogukanozgan.com").replace(/\/+$/, "");
+  const token = signFileToken({ assetId, expiresAt: Date.now() + POLICY_LINK_TTL_MS });
+  return `${base}/police-indir?token=${encodeURIComponent(token)}`;
 }
 
 /**
@@ -189,6 +218,8 @@ export async function uploadAndSendPolicyAction(
   formData: FormData,
 ): Promise<PolicyDeliveryResult> {
   await requireAuth();
+
+  if (!isValidObjectId(quoteId)) return { ok: false, error: "Geçersiz teklif." };
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
@@ -228,7 +259,7 @@ export async function uploadAndSendPolicyAction(
       contentType: validation.mime,
     });
   } catch (err) {
-    console.error("[teklif-detay] poliçe yükleme hatası:", err);
+    logError("[teklif-detay] poliçe yükleme hatası:", err);
     return { ok: false, error: "Belge yüklenemedi." };
   }
 
@@ -243,6 +274,9 @@ export async function uploadAndSendPolicyAction(
   if (!attached) return { ok: false, error: "Belge teklife bağlanamadı." };
 
   revalidatePath(`/teklifler/${quoteId}`);
+
+  // İmzalı/süreli indirme linki (docs/13 §Y1) — ham blob URL maile KONULMAZ.
+  const policyUrl = buildPolicyDownloadUrl(attached.assetId);
 
   // 3) Müşteriye "Poliçe Teslim" maili (varsa). E-posta yoksa/yapılandırma yoksa atla.
   if (!quote.email) {
@@ -259,7 +293,8 @@ export async function uploadAndSendPolicyAction(
   const sent = await sendPolicyDelivery({
     to: quote.email,
     productName: productLabel(quote.product),
-    policyUrl: uploaded.url,
+    // İmzalı/süreli link (docs/13 §Y1) — ham public blob URL DEĞİL.
+    policyUrl,
     locale: quote.locale,
   });
 

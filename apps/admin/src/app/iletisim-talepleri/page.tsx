@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import type { ContactStatus } from "@do/db";
+import { logError, type ContactStatus } from "@do/db";
 import {
   listContactRequests,
   getContactSummary,
@@ -50,7 +50,7 @@ export default async function IletisimTalepleriPage({
   try {
     [items, summary] = await Promise.all([listContactRequests(filters), getContactSummary()]);
   } catch (err) {
-    console.error("[iletisim-talepleri] veri çekme hatası:", err);
+    logError("[iletisim-talepleri] veri çekme hatası:", err);
     dbError = true;
   }
 

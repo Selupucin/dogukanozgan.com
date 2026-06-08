@@ -18,9 +18,11 @@ yönetim uygulaması. Tamamı `noindex` + `robots: disallow`. Kaynak: `docs/05`,
 
 `apps/admin/.env.example` dosyasını `.env.local` olarak kopyalayın. En kritikleri:
 
-- `DATABASE_URL` / `DIRECT_URL` — `apps/web` ile AYNI Supabase.
-- `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` — imzalı URL (fotoğraf görüntüleme).
-- `AUTH_SECRET` — oturum çerezi şifreleme. Üret: `openssl rand -base64 32`.
+- `DATABASE_URL` — `apps/web` ile AYNI MongoDB Atlas (Prisma `mongodb` provider).
+- `BLOB_READ_WRITE_TOKEN` — `apps/web` ile AYNI Vercel Blob store. Dosyalar auth-gated
+  proxy (`/dosya/<assetId>`) ile sunucuda stream edilir; ham URL HTML'e gömülmez (docs/13 §Y1).
+- `AUTH_SECRET` — oturum çerezi şifreleme + poliçe indirme linki imzalama (web ile AYNI
+  değer; docs/13 §Y1). Üret: `openssl rand -base64 32`.
 
 ## İlk admin kullanıcıyı oluşturma (Aşama 6 — gerçek DB bağlanınca)
 

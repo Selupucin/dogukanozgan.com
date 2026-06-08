@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import type { QuoteStatus } from "@do/db";
+import { logError, type QuoteStatus } from "@do/db";
 import { listQuotes, getSummary, type QuoteListItem } from "@/lib/quotes";
 import {
   STATUS_LABELS,
@@ -73,7 +73,7 @@ export default async function TekliflerPage({
   try {
     [quotes, summary] = await Promise.all([listQuotes(filters), getSummary()]);
   } catch (err) {
-    console.error("[teklifler] veri çekme hatası:", err);
+    logError("[teklifler] veri çekme hatası:", err);
     dbError = true;
   }
 
@@ -112,7 +112,7 @@ export default async function TekliflerPage({
         {dbError ? (
           <EmptyState
             title="Veritabanına ulaşılamadı"
-            description="Bağlantı yapılandırması (DATABASE_URL) eksik veya hatalı olabilir. Aşama 6'da gerçek Supabase bağlanınca liste dolacaktır."
+            description="Bağlantı yapılandırması (DATABASE_URL) eksik veya hatalı olabilir. Aşama 6'da gerçek MongoDB Atlas bağlanınca liste dolacaktır."
           />
         ) : quotes.length === 0 ? (
           <EmptyState

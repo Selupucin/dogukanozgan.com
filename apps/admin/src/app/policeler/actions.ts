@@ -4,7 +4,7 @@
 // GÜVENLİK: oturum kontrolü (docs/05).
 
 import { revalidatePath } from "next/cache";
-import { notifyExpiringPolicies } from "@do/db";
+import { notifyExpiringPolicies, logError } from "@do/db";
 import { auth } from "@/auth";
 
 async function requireAuth() {
@@ -31,7 +31,7 @@ export async function notifyExpiringAction(days = 30): Promise<NotifyResult> {
     revalidatePath("/", "layout");
     return { ok: true, created };
   } catch (err) {
-    console.error("[policeler] bildirim üretimi hatası:", err);
+    logError("[policeler] bildirim üretimi hatası:", err);
     return { ok: false, error: "Bildirim üretilemedi." };
   }
 }

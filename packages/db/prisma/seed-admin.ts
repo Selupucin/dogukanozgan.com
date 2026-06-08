@@ -9,9 +9,9 @@
 // - Kullanıcı varsa şifresi günceller (idempotent), yoksa oluşturur.
 //
 // NOT: DB bağlantısı (DATABASE_URL) olmadan çalışmaz — Aşama 3'te kod yazıldı,
-// çalıştırma gerçek Supabase bağlanınca (Aşama 6) yapılacak.
+// çalıştırma gerçek MongoDB Atlas bağlanınca (Aşama 6) yapılacak.
 
-import { prisma, hashPassword } from "../src/index";
+import { prisma, hashPassword, logError } from "../src/index";
 
 async function main() {
   const email = (process.env.ADMIN_EMAIL ?? "").trim().toLowerCase();
@@ -40,7 +40,7 @@ async function main() {
 
 main()
   .catch((err) => {
-    console.error("✗ Seed başarısız:", err);
+    logError("✗ Seed başarısız:", err);
     process.exit(1);
   })
   .finally(async () => {

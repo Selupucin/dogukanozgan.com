@@ -5,11 +5,13 @@
 // (silme talebi geldiğinde veya saklama süresi dolduğunda). Veri sorumlusu KVKK
 // gereği: süre dolunca veya talep üzerine kişisel veriyi SİLER veya ANONİMLEŞTİRİR.
 //
-// ⚠️ Bu modül service-role storage erişimi de kullanır → YALNIZCA sunucu tarafı.
+// ⚠️ Bu modül Vercel Blob (BLOB_READ_WRITE_TOKEN) silme erişimi de kullanır →
+// YALNIZCA sunucu tarafı.
 // TODO(doc): Saklama süresi (ay/yıl) hukukçu ile netleşince RETENTION_DAYS doldurulur.
 
 import { prisma } from "./index";
 import { deleteFromStorage, isStorageConfigured } from "./storage";
+import { logError } from "./log-error";
 
 /**
  * Saklama süresi (gün). docs/06 §7: süre hukukçu ile belirlenecek → şimdilik null
@@ -39,7 +41,7 @@ export async function deleteQuoteRequest(quoteId: string): Promise<string | null
     } catch (err) {
       // Storage silme başarısız olsa bile DB kaydını silmeye devam ederiz;
       // yetim dosyalar periyodik temizlikle ele alınır. // TODO(doc): temizlik job'ı.
-      console.error("[kvkk] storage delete failed, continuing:", err);
+      logError("[kvkk] storage delete failed, continuing:", err);
     }
   }
 
@@ -65,7 +67,7 @@ export async function anonymizeQuoteRequest(quoteId: string): Promise<string | n
     try {
       await deleteFromStorage(paths);
     } catch (err) {
-      console.error("[kvkk] storage delete failed during anonymize:", err);
+      logError("[kvkk] storage delete failed during anonymize:", err);
     }
   }
 

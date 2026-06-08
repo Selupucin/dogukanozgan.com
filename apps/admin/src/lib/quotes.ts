@@ -3,7 +3,7 @@
 //
 // ⚠️ Gerçek DB henüz yok → bu sorgular derlenir ama çalışma zamanı testi Aşama 6'da.
 
-import { prisma, type Prisma, type QuoteStatus } from "@do/db";
+import { prisma, isValidObjectId, type Prisma, type QuoteStatus } from "@do/db";
 
 export interface QuoteFilters {
   product?: string;
@@ -88,7 +88,8 @@ export async function getSummary(): Promise<QuoteSummary> {
 export async function getQuote(id: string) {
   // MongoDB ObjectId 24 hex hane olmalı; değilse Prisma "Malformed ObjectID" fırlatır
   // ve sayfa yanıltıcı "DB'ye ulaşılamadı" gösterir. Geçersizse null → notFound.
-  if (!/^[a-f0-9]{24}$/i.test(id)) return null;
+  // Merkezi yardımcı (docs/13 §O1 — tekrar eden regex yerine).
+  if (!isValidObjectId(id)) return null;
   return prisma.quoteRequest.findUnique({
     where: { id },
     include: {

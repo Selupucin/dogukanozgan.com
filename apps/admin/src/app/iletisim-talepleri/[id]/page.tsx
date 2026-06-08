@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { logError } from "@do/db";
 import { getContactRequest } from "@/lib/contact-requests";
 import { CONTACT_STATUS_LABELS, CONTACT_STATUS_BADGE_CLASS } from "@/lib/contact-crm";
 import { formatDateTime, telHref, whatsappHref, mailtoHref } from "@/lib/contact";
@@ -23,7 +24,7 @@ export default async function IletisimDetayPage({ params }: { params: Promise<{ 
   try {
     contact = await getContactRequest(id);
   } catch (err) {
-    console.error("[iletisim-detay] veri çekme hatası:", err);
+    logError("[iletisim-detay] veri çekme hatası:", err);
     dbError = true;
   }
 

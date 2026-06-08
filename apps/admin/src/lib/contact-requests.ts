@@ -3,7 +3,7 @@
 //
 // ⚠️ Gerçek DB henüz yok → bu sorgular derlenir ama çalışma zamanı testi DB bağlanınca.
 
-import { prisma, type Prisma, type ContactStatus } from "@do/db";
+import { prisma, isValidObjectId, type Prisma, type ContactStatus } from "@do/db";
 
 export interface ContactFilters {
   status?: ContactStatus;
@@ -73,6 +73,8 @@ export async function getContactSummary(): Promise<ContactSummary> {
 
 /** Tek iletişim talebi detayı. */
 export async function getContactRequest(id: string) {
+  // ObjectId guard (docs/13 §O1) — geçersizse Prisma "Malformed ObjectID" fırlatmasın.
+  if (!isValidObjectId(id)) return null;
   return prisma.contactRequest.findUnique({ where: { id } });
 }
 

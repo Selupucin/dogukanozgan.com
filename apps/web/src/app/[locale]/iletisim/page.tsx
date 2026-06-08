@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react";
 import { routing, type Locale } from "@/i18n/routing";
-import { localizedAlternates } from "@/lib/seo";
+import { localizedAlternates, jsonLdHtml } from "@/lib/seo";
 import { contact, mapEmbedUrl, mapLinkUrl, siteUrl, brandName } from "@/lib/site";
 import { ContactForm } from "@/components/contact-form";
 
@@ -79,10 +79,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }} />
 
       <header className="max-w-2xl">
         <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-primary">

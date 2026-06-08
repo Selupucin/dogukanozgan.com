@@ -14,6 +14,18 @@ import { routing, type Locale, type AppPathname, type StaticPathname } from "@/i
 type ParamsByLocale = Partial<Record<Locale, Record<string, string>>>;
 
 /**
+ * JSON-LD'yi `<script type="application/ld+json">` içine GÜVENLE basmak için
+ * serialize eder (docs/13 §O3). `dangerouslySetInnerHTML` ile basılan JSON
+ * çıktısında `</script>` veya `<!--` gibi diziler script bağlamını kapatıp
+ * XSS'e yol açabilir. `<` karakterini `<` olarak kaçışlamak bunu engeller
+ * (JSON sözdizimini bozmaz; tarayıcı yine geçerli JSON görür). Veri sabit/güvenilir
+ * olsa bile defansif olarak TÜM JSON-LD basımları bundan geçirilir.
+ */
+export function jsonLdHtml(obj: unknown): string {
+  return JSON.stringify(obj).replace(/</g, "\\u003c");
+}
+
+/**
  * Bir kanonik pathname için canonical (aktif locale) + hreflang (tüm locale +
  * x-default) alternates bloğu üretir.
  *

@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { localizedAlternates } from "@/lib/seo";
+import { localizedAlternates, jsonLdHtml } from "@/lib/seo";
 import { siteUrl } from "@/lib/site";
 import { getProductContent } from "@/lib/product-content";
 import { ProductIcon } from "@/components/product-icon";
@@ -262,12 +262,12 @@ export default async function ProductPage({
     <main>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(serviceLd) }}
       />
       {faqLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqLd) }}
         />
       )}
 

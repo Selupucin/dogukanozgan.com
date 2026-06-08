@@ -10,7 +10,7 @@ import { getAllProducts, getLocalizedSlug } from "@do/products";
 import { ArrowRight, Calculator, Scale, Gift, HeartHandshake } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { localizedAlternates } from "@/lib/seo";
+import { localizedAlternates, jsonLdHtml } from "@/lib/seo";
 import { ProductIcon } from "@/components/product-icon";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { buildFaqJsonLd } from "@/lib/faq";
@@ -64,7 +64,7 @@ export default async function PlansPage({ params }: { params: Promise<{ locale: 
     <main>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqJsonLd) }}
       />
 
       {/* ===== GİRİŞ ===== */}

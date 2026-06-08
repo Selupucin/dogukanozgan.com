@@ -7,7 +7,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { prisma, type ContactStatus } from "@do/db";
+import { prisma, isValidObjectId, type ContactStatus } from "@do/db";
 import { auth } from "@/auth";
 import { canContactTransition, CONTACT_STATUSES } from "@/lib/contact-crm";
 
@@ -25,6 +25,9 @@ export interface ActionResult {
 /** İletişim talebi durumunu değiştirir (docs/12 K31 akışına göre geçiş doğrulanır). */
 export async function updateContactStatusAction(id: string, next: string): Promise<ActionResult> {
   await requireAuth();
+
+  // ObjectId guard (docs/13 §O1).
+  if (!isValidObjectId(id)) return { ok: false, error: "Geçersiz talep." };
 
   if (!CONTACT_STATUSES.includes(next as ContactStatus)) {
     return { ok: false, error: "Geçersiz durum." };
@@ -54,7 +57,10 @@ export async function updateContactStatusAction(id: string, next: string): Promi
 /** KVKK: iletişim talebini KALICI siler. */
 export async function deleteContactAction(id: string): Promise<void> {
   await requireAuth();
-  await prisma.contactRequest.delete({ where: { id } });
-  revalidatePath("/iletisim-talepleri");
+  // ObjectId guard (docs/13 §O1) — geçersiz id'de Prisma'ya gitme, sadece listeye dön.
+  if (isValidObjectId(id)) {
+    await prisma.contactRequest.delete({ where: { id } });
+    revalidatePath("/iletisim-talepleri");
+  }
   redirect("/iletisim-talepleri");
 }

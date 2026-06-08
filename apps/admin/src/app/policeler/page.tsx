@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { QuoteRequest } from "@do/db";
-import { getExpiringPolicies } from "@do/db";
+import { getExpiringPolicies, logError } from "@do/db";
 import {
   listRecentPolicies,
   daysUntil,
@@ -36,7 +36,7 @@ export default async function PolicelerPage() {
       listRecentPolicies(20),
     ]);
   } catch (err) {
-    console.error("[policeler] veri çekme hatası:", err);
+    logError("[policeler] veri çekme hatası:", err);
     dbError = true;
   }
 

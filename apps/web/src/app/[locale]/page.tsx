@@ -12,6 +12,7 @@ import { ProductIcon } from "@/components/product-icon";
 import { HeroQuoteCard } from "@/components/home/hero-quote-card";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { buildFaqJsonLd } from "@/lib/faq";
+import { jsonLdHtml } from "@/lib/seo";
 import { contact, partnerCompanies } from "@/lib/site";
 
 type Locale = (typeof routing.locales)[number];
@@ -49,7 +50,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqJsonLd) }}
       />
 
       {/* ===== HERO ===== */}

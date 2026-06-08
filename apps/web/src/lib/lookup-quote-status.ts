@@ -9,6 +9,7 @@
 
 import { headers } from "next/headers";
 import { getQuoteStatusByCode, checkRateLimit, getClientIp, type QuoteStatusInfo } from "@do/db";
+import { logError } from "@/lib/log-error";
 
 export interface LookupStatusResult {
   ok: boolean;
@@ -43,7 +44,8 @@ export async function lookupQuoteStatus(code: string): Promise<LookupStatusResul
     }
     return { ok: true, status };
   } catch (err) {
-    console.error("[lookup-quote-status] unexpected error:", err);
+    // PII-güvenli log (docs/13 §D3): ham hata loglanmaz.
+    logError("[lookup-quote-status] unexpected error:", err);
     return { ok: false, error: "server" };
   }
 }

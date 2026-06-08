@@ -12,9 +12,9 @@
 //     da zorunlu (sunucuda da). Yoksa REDDET.
 //  5) QuoteRequest oluştur: ortak alanlar sütun, ürüne özel alanlar `payload` JSON.
 //     Rıza kanıtı (consentAt/Ip/UserAgent) kaydedilir.
-//  6) Dosyaları private bucket'a yükle + Asset kaydı (Supabase yoksa zarifçe atla).
+//  6) Dosyaları özel depolamaya yükle + Asset kaydı (Vercel Blob yoksa zarifçe atla).
 //
-// ⚠️ Gizli anahtarlar (service role) yalnızca burada/@do/db'de, asla istemcide.
+// ⚠️ Gizli anahtarlar (DB / Vercel Blob token'ı) yalnızca burada/@do/db'de, asla istemcide.
 
 import { headers } from "next/headers";
 import {
@@ -33,6 +33,7 @@ import { getProduct } from "@do/products";
 import { getProvinces, getDistricts } from "@do/products/locations";
 import type { ProductDefinition, ProductField } from "@do/products";
 import { buildFormSchema } from "@/components/auto-form/schema";
+import { logError } from "@/lib/log-error";
 import { routing } from "@/i18n/routing";
 
 type Locale = (typeof routing.locales)[number];
@@ -200,7 +201,8 @@ export async function submitQuoteRequest(formData: FormData): Promise<SubmitQuot
           });
         } catch (err) {
           // Tek dosya hatası tüm gönderimi düşürmesin; teklif zaten kayıtlı.
-          console.error("[submit-quote] asset upload failed:", err);
+          // PII-güvenli log (docs/13 §D3): ham hata/payload loglanmaz.
+          logError("[submit-quote] asset upload failed:", err);
         }
       }
     }
@@ -214,7 +216,7 @@ export async function submitQuoteRequest(formData: FormData): Promise<SubmitQuot
         relatedId: quote.id,
       });
     } catch (err) {
-      console.error("[submit-quote] notification create failed:", err);
+      logError("[submit-quote] notification create failed:", err);
     }
 
     // 8) Müşteriye "Teklif Alındı" e-postası + takip kodu (K30) — flag'li; e-posta
@@ -229,13 +231,13 @@ export async function submitQuoteRequest(formData: FormData): Promise<SubmitQuot
           locale,
         });
       } catch (err) {
-        console.error("[submit-quote] sendQuoteReceived failed:", err);
+        logError("[submit-quote] sendQuoteReceived failed:", err);
       }
     }
 
     return { ok: true, quoteId: quote.id, trackingCode };
   } catch (err) {
-    console.error("[submit-quote] unexpected error:", err);
+    logError("[submit-quote] unexpected error:", err);
     return { ok: false, error: "server" };
   }
 }

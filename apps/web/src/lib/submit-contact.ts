@@ -14,6 +14,7 @@
 import { headers } from "next/headers";
 import { z } from "zod";
 import { createContactRequest, checkRateLimit, getClientIp } from "@do/db";
+import { logError } from "@/lib/log-error";
 
 export interface SubmitContactResult {
   ok: boolean;
@@ -111,7 +112,8 @@ export async function submitContactRequest(formData: FormData): Promise<SubmitCo
 
     return { ok: true, contactId: contact.id };
   } catch (err) {
-    console.error("[submit-contact] unexpected error:", err);
+    // PII-güvenli log (docs/13 §D3): ham hata/payload loglanmaz.
+    logError("[submit-contact] unexpected error:", err);
     return { ok: false, error: "server" };
   }
 }

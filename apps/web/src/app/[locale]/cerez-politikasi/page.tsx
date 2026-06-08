@@ -58,6 +58,11 @@ function CookiesTr() {
           <strong>Analitik/işlevsel çerezler:</strong> Yalnızca açık onayınızla çalışır.
         </li>
       </ul>
+      <p>
+        Site, çerez kullanmayan anonim performans ve trafik ölçümü (Vercel Analytics &amp; Speed
+        Insights) kullanır. Bu ölçüm çerez yerleştirmez, kişisel veri toplamaz ve siteler arası
+        takip yapmaz; bu nedenle onayınız olmadan çalışabilir.
+      </p>
       <h2>Onay Yönetimi</h2>
       <p>
         İlk ziyarette gösterilen banner üzerinden tercihinizi belirleyebilirsiniz. Zorunlu olmayan
@@ -82,6 +87,11 @@ function CookiesEn() {
           <strong>Analytics/functional:</strong> Run only with your explicit consent.
         </li>
       </ul>
+      <p>
+        The site uses cookieless, anonymous performance and traffic measurement (Vercel Analytics
+        &amp; Speed Insights). This measurement sets no cookies, collects no personal data and does
+        no cross-site tracking; it may therefore run without your consent.
+      </p>
       <h2>Consent Management</h2>
       <p>
         You can set your preference via the banner shown on your first visit. Non-essential cookies

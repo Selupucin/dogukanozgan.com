@@ -25,6 +25,10 @@ export * from "@prisma/client";
 // Vercel Blob depolama (yükleme + silme) yardımcıları — YALNIZCA sunucu.
 export * from "./storage";
 
+// Dosya erişim imzası (HMAC süreli token) — docs/13 §Y1. Ham blob URL'i ifşa etmeden
+// müşteriye süreli poliçe indirme linki verir. YALNIZCA sunucu.
+export * from "./file-access";
+
 // Sunucu-tarafı dosya doğrulama (MIME + magic-byte) — docs/13 §K2. YALNIZCA sunucu.
 export * from "./file-validation";
 
@@ -52,3 +56,9 @@ export * from "./rate-limit";
 
 // Güvenilir istemci IP çıkarımı (Vercel başlığı tercihli) — docs/13 §D1.
 export * from "./client-ip";
+
+// MongoDB ObjectId doğrulama (Prisma "Malformed ObjectID" önleme) — docs/13 §O1.
+export * from "./object-id";
+
+// PII-güvenli sunucu hata logu (ham err yerine kısa özet) — docs/13 §D3.
+export * from "./log-error";

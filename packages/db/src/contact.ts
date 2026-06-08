@@ -6,6 +6,7 @@
 
 import { prisma, type ContactRequest } from "./index";
 import { createNotification } from "./notifications";
+import { logError } from "./log-error";
 
 export interface CreateContactRequestInput {
   fullName: string;
@@ -55,7 +56,7 @@ export async function createContactRequest(
       relatedId: contact.id,
     });
   } catch (err) {
-    console.error("[contact] notification create failed, continuing:", err);
+    logError("[contact] notification create failed, continuing:", err);
   }
 
   return contact;

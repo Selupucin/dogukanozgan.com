@@ -8,13 +8,24 @@
 
 import type { NextAuthConfig } from "next-auth";
 
+// Secret açıkça bağlanır: Auth.js v5 normalde AUTH_SECRET'i otomatik okur; burada
+// hem AUTH_SECRET hem (v4 adı) NEXTAUTH_SECRET kabul edilerek isim karışıklığı önlenir.
+// docs/13 §O2 — FAIL-FAST: production'da secret yoksa modül yüklenirken NET hata ver
+// (sessiz fallback ile imzasız/zayıf oturum üretilmesini engelle). Dev'de sessiz geçilir
+// (Auth.js dev'de geçici bir secret türetebilir).
+const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+if (!secret && process.env.NODE_ENV === "production") {
+  throw new Error(
+    "AUTH_SECRET zorunludur (production). AUTH_SECRET veya NEXTAUTH_SECRET tanımlayın " +
+      "(`openssl rand -base64 32`). docs/13 §O2.",
+  );
+}
+
 export const authConfig: NextAuthConfig = {
   session: { strategy: "jwt" },
   trustHost: true,
-  // Secret açıkça bağlanır: Auth.js v5 normalde AUTH_SECRET'i otomatik okur; burada
-  // hem AUTH_SECRET hem (v4 adı) NEXTAUTH_SECRET kabul edilerek isim karışıklığı önlenir.
   // Bu ayar hem middleware (auth.config) hem auth.ts (spread) tarafından kullanılır.
-  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  secret,
   pages: {
     signIn: "/login",
   },
