@@ -41,18 +41,8 @@ import {
   PENDING_COOKIE,
   TRUSTED_DEVICE_COOKIE,
 } from "@/lib/login-crypto";
-
-/** UI state — `step` hangi adımın gösterileceğini söyler. */
-export interface LoginState {
-  step: "credentials" | "otp";
-  error?: string;
-  /** Adım 2'de bilgilendirme (kod gönderildi / yeniden gönderildi). */
-  info?: string;
-  /** Adım 2'de gösterilecek maskeli e-posta (kullanıcıya hangi adrese gittiğini hatırlatır). */
-  maskedEmail?: string;
-}
-
-export const INITIAL_LOGIN_STATE: LoginState = { step: "credentials" };
+// ⚠️ Tip/başlangıç değeri ayrı dosyada — "use server" dosyası NESNE export edemez (Next.js).
+import type { LoginState } from "./state";
 
 // Rate-limit pencereleri (docs/13 §Y2 — Adım 1 şifre denemesi: 5/15dk).
 const LOGIN_RATE_LIMIT = { limit: 5, windowMs: 15 * 60 * 1000 };

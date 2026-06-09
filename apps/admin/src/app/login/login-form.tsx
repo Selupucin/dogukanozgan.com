@@ -8,14 +8,8 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import {
-  startLogin,
-  verifyLogin,
-  resendCode,
-  cancelLogin,
-  INITIAL_LOGIN_STATE,
-  type LoginState,
-} from "./actions";
+import { startLogin, verifyLogin, resendCode, cancelLogin } from "./actions";
+import { INITIAL_LOGIN_STATE, type LoginState } from "./state";
 import { buttonClass } from "@/components/ui";
 
 const inputClass =
