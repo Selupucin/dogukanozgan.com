@@ -213,10 +213,11 @@
   },
   "faqPage": {
     "metaTitle": "Frequently Asked Questions",
-    "metaDescription": "Frequently asked questions and answers about insurance quotes, the companies we work with, data security, policy renewal and the claim process.",
+    "metaDescription": "Frequently asked questions and answers about insurance quotes, the companies we work with, data security, payment and cancellation, plus traffic, kasko, health, private pension (BES), life, home, DASK, travel and corporate insurance.",
     "eyebrow": "FAQ",
     "heading": "Frequently asked questions",
-    "intro": "If there's anything else on your mind, you can always reach us by phone or WhatsApp.",
+    "intro": "We've grouped the questions under a General heading and by insurance type. If you can't find what you're looking for, you can always reach us by phone or WhatsApp.",
+    "categoryNavLabel": "Question categories",
     "ctaTitle": "Didn't find the answer to your question?",
     "ctaBody": "Reach out to us directly and we'll help with your specific needs.",
     "ctaButton": "Get in Touch"

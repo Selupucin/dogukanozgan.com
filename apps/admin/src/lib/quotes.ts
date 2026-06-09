@@ -4,6 +4,18 @@
 // ⚠️ Gerçek DB henüz yok → bu sorgular derlenir ama çalışma zamanı testi Aşama 6'da.
 
 import { prisma, isValidObjectId, type Prisma, type QuoteStatus } from "@do/db";
+// Sıralama/sayfa boyutu sabit ve tipleri prisma'sız ayrı dosyada (client bileşeni de kullanır).
+import {
+  type QuoteSort,
+  PAGE_SIZES,
+  type PageSize,
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_SORT,
+} from "./quote-list-options";
+
+// Geriye uyum: page.tsx bunları "@/lib/quotes"'ten import ediyor → re-export.
+export { PAGE_SIZES, DEFAULT_PAGE_SIZE, DEFAULT_SORT };
+export type { QuoteSort, PageSize };
 
 export interface QuoteFilters {
   product?: string;
@@ -41,11 +53,38 @@ function buildWhere(filters: QuoteFilters): Prisma.QuoteRequestWhereInput {
   return where;
 }
 
-/** Filtrelenmiş teklif listesi (en yeni üstte). */
-export async function listQuotes(filters: QuoteFilters) {
+/** `sort` değerini Prisma orderBy koşuluna çevirir. */
+function buildOrderBy(sort: QuoteSort): Prisma.QuoteRequestOrderByWithRelationInput {
+  switch (sort) {
+    case "date_asc":
+      return { createdAt: "asc" };
+    case "name_asc":
+      return { fullName: "asc" };
+    case "name_desc":
+      return { fullName: "desc" };
+    case "date_desc":
+    default:
+      return { createdAt: "desc" };
+  }
+}
+
+export interface QuoteListOptions {
+  /** Sıralama (varsayılan: tarih, yeni→eski). */
+  sort?: QuoteSort;
+  /** Atlanacak kayıt sayısı (sayfalandırma). */
+  skip?: number;
+  /** Alınacak kayıt sayısı (sayfa boyutu). */
+  take?: number;
+}
+
+/** Filtrelenmiş teklif listesi (sayfalandırma + sıralama; varsayılan en yeni üstte). */
+export async function listQuotes(filters: QuoteFilters, options: QuoteListOptions = {}) {
+  const { sort = DEFAULT_SORT, skip, take } = options;
   return prisma.quoteRequest.findMany({
     where: buildWhere(filters),
-    orderBy: { createdAt: "desc" },
+    orderBy: buildOrderBy(sort),
+    skip,
+    take,
     select: {
       id: true,
       product: true,
@@ -57,6 +96,11 @@ export async function listQuotes(filters: QuoteFilters) {
       _count: { select: { notes: true, assets: true } },
     },
   });
+}
+
+/** Filtreyle eşleşen toplam kayıt sayısı (sayfa sayısı hesabı için). */
+export async function countQuotes(filters: QuoteFilters) {
+  return prisma.quoteRequest.count({ where: buildWhere(filters) });
 }
 
 export interface QuoteSummary {

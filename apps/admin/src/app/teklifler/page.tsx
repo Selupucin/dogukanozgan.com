@@ -1,7 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { logError, type QuoteStatus } from "@do/db";
-import { listQuotes, getSummary, type QuoteListItem } from "@/lib/quotes";
+import {
+  listQuotes,
+  countQuotes,
+  getSummary,
+  PAGE_SIZES,
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_SORT,
+  type QuoteListItem,
+  type QuoteSort,
+  type PageSize,
+} from "@/lib/quotes";
 import {
   STATUS_LABELS,
   STATUS_BADGE_CLASS,
@@ -12,6 +22,7 @@ import {
 import { formatDate, telHref, whatsappHref } from "@/lib/contact";
 import { Badge, Card, buttonClass } from "@/components/ui";
 import { Filters } from "./filters";
+import { PaginationBar } from "./pagination";
 import { QuoteRowDelete } from "./quote-row-delete";
 
 export const metadata: Metadata = {
@@ -28,12 +39,34 @@ interface SearchParams {
   from?: string;
   to?: string;
   q?: string;
+  page?: string;
+  pageSize?: string;
+  sort?: string;
 }
 
 function parseStatus(value?: string): QuoteStatus | undefined {
   return value && QUOTE_STATUSES.includes(value as QuoteStatus)
     ? (value as QuoteStatus)
     : undefined;
+}
+
+const SORT_VALUES: QuoteSort[] = ["date_desc", "date_asc", "name_asc", "name_desc"];
+
+// Sıralama doğrulaması — izinli set dışı değer varsayılana iner.
+function parseSort(value?: string): QuoteSort {
+  return value && SORT_VALUES.includes(value as QuoteSort) ? (value as QuoteSort) : DEFAULT_SORT;
+}
+
+// Sayfa boyutu doğrulaması (güvenlik/limit) — izinli set dışı değer 25'e iner.
+function parsePageSize(value?: string): PageSize {
+  const n = Number(value);
+  return (PAGE_SIZES as readonly number[]).includes(n) ? (n as PageSize) : DEFAULT_PAGE_SIZE;
+}
+
+// Sayfa numarası doğrulaması — geçersiz/negatif değer 1'e iner.
+function parsePage(value?: string): number {
+  const n = Number(value);
+  return Number.isInteger(n) && n >= 1 ? n : 1;
 }
 
 function endOfDay(value?: string): Date | undefined {
@@ -67,16 +100,34 @@ export default async function TekliflerPage({
     search: sp.q || undefined,
   };
 
+  // Sıralama + sayfalandırma — tümü sunucuda doğrulanır (istemciye güvenilmez).
+  const sort = parseSort(sp.sort);
+  const pageSize = parsePageSize(sp.pageSize);
+  const requestedPage = parsePage(sp.page);
+
   // Veri çekimi — DB yoksa hata yakalanır, boş/uyarı durumu gösterilir.
+  // Özet kartları (getSummary) tüm kayıtlar üzerinden; sayfadan/filtreden bağımsız.
   let quotes: QuoteListItem[] = [];
   let summary = { total: 0, yeni: 0, buHafta: 0, donusum: 0 };
+  let total = 0;
   let dbError = false;
   try {
-    [quotes, summary] = await Promise.all([listQuotes(filters), getSummary()]);
+    [total, summary] = await Promise.all([countQuotes(filters), getSummary()]);
+    // Sayfa, toplam kayda göre sınırlanır (filtre değişince taşan sayfa son sayfaya iner).
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const page = Math.min(requestedPage, totalPages);
+    quotes = await listQuotes(filters, {
+      sort,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
   } catch (err) {
     logError("[teklifler] veri çekme hatası:", err);
     dbError = true;
   }
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const page = Math.min(requestedPage, totalPages);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-8">
@@ -121,7 +172,23 @@ export default async function TekliflerPage({
             description="Seçili filtrelerle eşleşen teklif talebi yok."
           />
         ) : (
-          <QuotesTable quotes={quotes} />
+          <div className="flex flex-col gap-4">
+            <PaginationBar
+              sort={sort}
+              pageSize={pageSize}
+              page={page}
+              totalPages={totalPages}
+              total={total}
+            />
+            <QuotesTable quotes={quotes} />
+            <PaginationBar
+              sort={sort}
+              pageSize={pageSize}
+              page={page}
+              totalPages={totalPages}
+              total={total}
+            />
+          </div>
         )}
       </div>
     </main>

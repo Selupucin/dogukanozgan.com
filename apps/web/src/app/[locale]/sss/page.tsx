@@ -1,6 +1,7 @@
-// SSS — /[locale]/sss (docs/02 "SSS"). Sıkça sorulan sorular (açılır-kapanır).
+// SSS — /[locale]/sss (docs/02 "SSS"). Sıkça sorulan sorular, KATEGORİLİ
+// (Genel + ürünler) açılır-kapanır listeler.
 // Tek kaynak: lib/faq.ts. SEO: tekil title/meta + hreflang/canonical +
-// FAQPage JSON-LD (docs/07 — "akordeon" zengin sonuç).
+// FAQPage JSON-LD (docs/07 — "akordeon" zengin sonuç; TÜM sorular düzleştirilir).
 
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -8,8 +9,8 @@ import { ArrowRight, MessageCircle } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { localizedAlternates, jsonLdHtml } from "@/lib/seo";
-import { FaqAccordion } from "@/components/faq-accordion";
-import { buildFaqJsonLd } from "@/lib/faq";
+import { FaqCategories } from "@/components/faq-categories";
+import { buildFaqJsonLd, faqCategories, getAllFaqItems } from "@/lib/faq";
 import { contact } from "@/lib/site";
 
 type Locale = (typeof routing.locales)[number];
@@ -39,7 +40,8 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
   const t = await getTranslations("faqPage");
   const tc = await getTranslations("common");
 
-  const faqJsonLd = buildFaqJsonLd(loc);
+  // FAQPage JSON-LD — TÜM kategorilerdeki sorular düzleştirilir (docs/07).
+  const faqJsonLd = buildFaqJsonLd(loc, getAllFaqItems());
   const waHref = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
     tc("whatsappPrefill"),
   )}`;
@@ -61,8 +63,21 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
         <p className="mt-4 text-lg text-muted-foreground">{t("intro")}</p>
       </header>
 
+      {/* Kategori hızlı erişim — sayfa içi anchor'larla gruplara atlama */}
+      <nav aria-label={t("categoryNavLabel")} className="mt-8 flex flex-wrap gap-2">
+        {faqCategories.map((category) => (
+          <a
+            key={category.id}
+            href={`#${category.id}`}
+            className="rounded-full border border-border bg-card px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition hover:border-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            {category.title[loc]}
+          </a>
+        ))}
+      </nav>
+
       <div className="mt-10">
-        <FaqAccordion locale={loc} />
+        <FaqCategories locale={loc} />
       </div>
 
       {/* İletişim CTA — soru yanıtsız kalırsa doğrudan ulaşım */}

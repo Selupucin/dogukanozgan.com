@@ -213,10 +213,11 @@
   },
   "faqPage": {
     "metaTitle": "Sıkça Sorulan Sorular",
-    "metaDescription": "Sigorta teklifi, çalıştığım şirketler, veri güvenliği, poliçe yenileme ve hasar süreci hakkında sıkça sorulan sorular ve yanıtları.",
+    "metaDescription": "Sigorta teklifi, çalışılan şirketler, veri güvenliği, ödeme ve iptal süreçlerinin yanı sıra trafik, kasko, sağlık, BES, hayat, konut, DASK, seyahat ve kurumsal sigorta hakkında sıkça sorulan sorular ve yanıtları.",
     "eyebrow": "Sıkça Sorulanlar",
     "heading": "Sıkça sorulan sorular",
-    "intro": "Aklınıza takılan başka bir şey olursa telefon veya WhatsApp ile bize her zaman ulaşabilirsiniz.",
+    "intro": "Sorularınızı Genel başlığı ve sigorta türlerine göre kategorilere ayırdık. Aradığınızı bulamazsanız telefon veya WhatsApp ile bize her zaman ulaşabilirsiniz.",
+    "categoryNavLabel": "Soru kategorileri",
     "ctaTitle": "Sorunuza yanıt bulamadınız mı?",
     "ctaBody": "Doğrudan bize ulaşın, ihtiyacınıza özel destek sağlayalım.",
     "ctaButton": "İletişime Geç"

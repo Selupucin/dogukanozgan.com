@@ -93,31 +93,28 @@ function RadioControl({
           className={cn(
             "group inline-flex w-fit cursor-pointer items-center gap-2.5 rounded-pill border border-input bg-card px-4 py-2 text-sm transition-colors",
             "hover:border-secondary/60 has-[:checked]:border-secondary has-[:checked]:bg-accent",
-            "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-1 has-[:focus-visible]:ring-offset-background",
+            // Yalnız klavye odağında ince teal halka (fare tıklamasında kopuk kare kalmaz).
+            "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-secondary/50",
           )}
         >
-          <span className="relative inline-flex shrink-0 items-center justify-center">
+          {/* ÖNEMLİ: dış halka + iç nokta, input'un KARDEŞİ olmalı — `peer-checked:` yalnız
+              sonraki KARDEŞE uygulanır. Daha önce nokta çemberin İÇİNE yuvalanmıştı → peer-checked
+              ona ulaşmıyor, hiçbir radyoda dolmuyordu. İkisi de artık input'un doğrudan kardeşi. */}
+          <span className="relative inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center">
             <input type="radio" value={o.value} {...register(name)} className="peer sr-only" />
-            {/* Dış halka: seçilmemiş = ince kenar; seçili = belirgin teal (kalın) halka.
-                Zemin DAİMA bg-card (nötr) kalır → iç teal nokta kart zeminiyle KONTRAST yapar,
-                "boş daire" izlenimi oluşmaz (washed bg-secondary/10 KALDIRILDI). docs/09. */}
+            {/* Dış halka (kardeş): seçili = teal; nötr bg-card zemin. */}
             <span
               aria-hidden
               className={cn(
-                "flex h-[18px] w-[18px] items-center justify-center rounded-full border-2 border-input bg-card transition-colors",
-                "peer-checked:border-[2.5px] peer-checked:border-secondary",
-                "group-hover:border-secondary/70",
+                "absolute inset-0 rounded-full border-2 border-input bg-card transition-colors",
+                "peer-checked:border-secondary group-hover:border-secondary/70",
               )}
-            >
-              {/* İç nokta: seçili durumda net DOLU teal — büyük (~10px) + TAM OPAK, nötr kart
-                  zemini üzerinde belirgin → klasik dolu radyo görünümü. Seçilmemiş = nokta yok. */}
-              <span
-                className={cn(
-                  "h-[10px] w-[10px] scale-0 rounded-full bg-secondary opacity-0 transition-all duration-150",
-                  "peer-checked:scale-100 peer-checked:opacity-100",
-                )}
-              />
-            </span>
+            />
+            {/* İç DOLU nokta (kardeş): seçilince görünür, net teal — klasik dolu radyo. */}
+            <span
+              aria-hidden
+              className="relative h-[10px] w-[10px] rounded-full bg-secondary opacity-0 transition-opacity peer-checked:opacity-100"
+            />
           </span>
           {/* Seçili pill zaten bg-accent + teal kenar alır (has-[:checked]); metni de
               kalınlaştırarak kontrastı artır. */}
