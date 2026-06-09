@@ -516,8 +516,8 @@ const kurumsal: ProductContent = {
     en: "A corporate agreement lets you manage all your company's insurance needs from a single point on favourable terms — from employee health and life cover to your fleet's auto policies and workplace insurance.",
   },
   lead: {
-    tr: "Bir şirketi büyüten, çalışanları ve işini güvende hissetmesidir. Kurumsal anlaşmayla; ekibinizin sağlık ve hayat güvencesini, araç filonuzu ve iş yerinizi tek bir muhatapla, toplu ölçeğin getirdiği avantajlı koşullarla planlarız. İhtiyacınızı birlikte dinler, 20'den fazla şirketin tekliflerini firmanız için karşılaştırır, size özel bir çözüm kurgularız. Birkaç bilgiyi bırakın; kurumsal teklifiniz için sizi arayalım.",
-    en: "What grows a company is people and a business that feel secure. With a corporate agreement we plan your team's health and life cover, your vehicle fleet and your workplace through a single point of contact, on the favourable terms that scale brings. We listen to your needs, compare 20+ companies' offers for your firm and build a tailored solution. Leave a few details and we'll call you for your corporate quote.",
+    tr: "Bir şirketi asıl büyüten, çalışanlarının ve işinin güvende olmasıdır. Kurumsal anlaşmayla ekibinizin sağlık ve hayat güvencesini, araç filonuzu ve iş yerinizi tek bir muhatapla, toplu ölçeğin getirdiği avantajlı koşullarla planlıyoruz. Önce ihtiyacınızı dinliyor, 20'den fazla şirketin teklifini firmanız için karşılaştırıyor ve size özel bir çözüm kuruyoruz. Birkaç bilgi bırakın; kurumsal teklifiniz için sizi arayalım.",
+    en: "What truly grows a company is knowing its people and its business are secure. With a corporate agreement we plan your team's health and life cover, your vehicle fleet and your workplace through a single point of contact, on the favourable terms that scale brings. We listen to your needs first, compare 20+ companies' offers for your firm and build a tailored solution. Leave a few details and we'll call you for your corporate quote.",
   },
   coverage: [
     {

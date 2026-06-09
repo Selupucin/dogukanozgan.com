@@ -36,7 +36,11 @@ export async function generateMetadata({
   if (!product) return {};
   const t = await getTranslations({ locale, namespace: "quotePage" });
 
-  const title = `${product.name[loc]} — ${t("metaSuffix")}`;
+  // ÇİFT MARKALAMA YOK (docs/07): kök layout title.template "%s — Doğukan Özgan"
+  // markayı ekler. Title yalnız "Ürün + Teklifi" olur → "Trafik Sigortası Teklifi —
+  // Doğukan Özgan" (marka tek kez). OG şablon uygulamadığından markayı elle ekleriz.
+  const title = t("titleSuffix", { product: product.name[loc] });
+  const ogTitle = `${title} — Doğukan Özgan`;
   return {
     title,
     description: t("metaDescription", { product: product.name[loc] }),
@@ -45,7 +49,7 @@ export async function generateMetadata({
       tr: { slug: product.slugs.tr },
       en: { slug: product.slugs.en },
     }),
-    openGraph: { title, type: "website" },
+    openGraph: { title: ogTitle, type: "website" },
   };
 }
 

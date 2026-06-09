@@ -53,7 +53,7 @@ function CheckboxControl({
           type="checkbox"
           aria-describedby={describedBy}
           {...register(name)}
-          className="peer sr-only"
+          className="peer sr-only outline-none"
         />
         <span
           aria-hidden
@@ -101,7 +101,12 @@ function RadioControl({
               sonraki KARDEŞE uygulanır. Daha önce nokta çemberin İÇİNE yuvalanmıştı → peer-checked
               ona ulaşmıyor, hiçbir radyoda dolmuyordu. İkisi de artık input'un doğrudan kardeşi. */}
           <span className="relative inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center">
-            <input type="radio" value={o.value} {...register(name)} className="peer sr-only" />
+            <input
+              type="radio"
+              value={o.value}
+              {...register(name)}
+              className="peer sr-only outline-none"
+            />
             {/* Dış halka (kardeş): seçili = teal; nötr bg-card zemin. */}
             <span
               aria-hidden

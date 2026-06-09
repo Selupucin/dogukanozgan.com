@@ -2,7 +2,8 @@
 // Zengin landing: giriş + neden acente + ürün kartları + nasıl çalışır + güven şeridi +
 // kısa SSS + kapanış CTA (docs/02 güncel "Planlar (liste)" + docs/09 tasarım dili).
 // Kartlar definitions.ts'ten üretilir; her kart ürün TANIM sayfasına gider.
-// SEO: tekil title/meta + hreflang + FAQPage JSON-LD (docs/07).
+// SEO: tekil title/meta + hreflang (docs/07). FAQPage JSON-LD BURADA YOK — mükerrerliği
+// önlemek için yapısal SSS verisi yalnız anasayfa + /sss'te (D2); burada görsel akordeon.
 
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -10,10 +11,9 @@ import { getAllProducts, getLocalizedSlug } from "@do/products";
 import { ArrowRight, Calculator, Scale, Gift, HeartHandshake } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { localizedAlternates, jsonLdHtml } from "@/lib/seo";
+import { localizedAlternates } from "@/lib/seo";
 import { ProductIcon } from "@/components/product-icon";
 import { FaqAccordion } from "@/components/faq-accordion";
-import { buildFaqJsonLd } from "@/lib/faq";
 import { getProductContent } from "@/lib/product-content";
 import { partnerCompanies } from "@/lib/site";
 
@@ -44,7 +44,6 @@ export default async function PlansPage({ params }: { params: Promise<{ locale: 
   const loc = locale as Locale;
   const t = await getTranslations("plans");
   const products = getAllProducts();
-  const faqJsonLd = buildFaqJsonLd(loc);
 
   const why = [
     { icon: Scale, title: t("why1Title"), body: t("why1Body") },
@@ -62,10 +61,9 @@ export default async function PlansPage({ params }: { params: Promise<{ locale: 
 
   return (
     <main>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqJsonLd) }}
-      />
+      {/* FAQPage JSON-LD KALDIRILDI (docs/07 D2): aynı FAQPage yapısal verisi anasayfada
+          ve /sss'te var; mükerrer yapısal veriyi önlemek için burada YALNIZ görsel
+          akordeon gösterilir (yapısal veri yok). */}
 
       {/* ===== GİRİŞ ===== */}
       <section className="relative overflow-hidden border-b border-border">

@@ -15,15 +15,24 @@ export function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ code?: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const { code } = await searchParams;
   const t = await getTranslations({ locale, namespace: "quoteStatus" });
+
+  // Takip-kodu varyantları (?code=…) İNDEKSLENMESİN (docs/07): her kod ayrı URL üretir,
+  // arama sonucunda mükerrer/ince içerik oluşturur. Parametreli sayfa noindex/follow;
+  // canonical/alternates HER ZAMAN parametresiz yola işaret eder (aşağıda), böylece
+  // parametresiz sayfa index'te kalır.
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
     alternates: localizedAlternates(locale as Locale, "/teklif-durumu"),
+    ...(code ? { robots: { index: false, follow: true } } : {}),
   };
 }
 

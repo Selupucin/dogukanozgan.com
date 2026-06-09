@@ -1,2 +1,9 @@
 /* apps/admin — global stiller. Tasarım token'ları @do/ui'den gelir. */
 @import "@do/ui/styles.css";
+
+/* Kullanıcı isteği: bileşenin KENDİ efekti dışında istenmeyen outline/border OLMASIN.
+   Fare/dokunma odağında tarayıcı varsayılan outline'ı kaldırılır; klavye odağı (focus-visible)
+   bileşenlerin kendi focus halkasıyla gösterilir (erişilebilirlik korunur). */
+*:focus:not(:focus-visible) {
+  outline: none;
+}

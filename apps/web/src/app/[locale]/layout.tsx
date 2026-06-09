@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -35,6 +35,17 @@ const hanken = Hanken_Grotesk({
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
+
+// Viewport + theme-color (docs/07 SEO/PWA, docs/09 palet): tarayıcı UI rengi temaya
+// göre değişir — açıkta krem (#f7f2e9), koyuda navy (#10243a). responsive viewport.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f7f2e9" },
+    { media: "(prefers-color-scheme: dark)", color: "#10243a" },
+  ],
+};
 
 // Locale-bazlı kök metadata (docs/07): başlık şablonu, OG, hreflang temeli.
 export async function generateMetadata({

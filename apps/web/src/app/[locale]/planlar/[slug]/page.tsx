@@ -46,9 +46,12 @@ export async function generateMetadata({
   const loc = locale as Locale;
   const product = getProductByLocalizedSlug(loc, slug);
   if (!product) return {};
-  const t = await getTranslations({ locale, namespace: "plans" });
 
-  const title = `${product.name[loc]} — ${t("brandSuffix")}`;
+  // ÇİFT MARKALAMA YOK (docs/07): kök layout title.template zaten "%s — Doğukan Özgan"
+  // markasını ekler. Title olarak SADECE ürün adı verilir → "Trafik Sigortası — Doğukan
+  // Özgan" (marka tek kez). OG/Twitter şablon uygulamadığından markayı elle ekleriz.
+  const title = product.name[loc];
+  const ogTitle = `${title} — Doğukan Özgan`;
   // hreflang/canonical: tanım sayfası (her locale KENDİ yerel slug'ı) — docs/07.
   return {
     title,
@@ -57,7 +60,7 @@ export async function generateMetadata({
       tr: { slug: product.slugs.tr },
       en: { slug: product.slugs.en },
     }),
-    openGraph: { title, description: product.description[loc], type: "website" },
+    openGraph: { title: ogTitle, description: product.description[loc], type: "website" },
   };
 }
 
