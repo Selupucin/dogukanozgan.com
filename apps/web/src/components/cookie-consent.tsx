@@ -1,65 +1,54 @@
-"use client";
-
-// Çerez onay banner'ı (KVKK). Kaynak: docs/06 §3, docs/02 "Global Bileşenler".
+// Çerez onay banner'ı (KVKK). Kaynak: docs/06 §3, docs/02 "Global Bileşenler", docs/07.
 //
-// DAVRANIŞ:
-// - İlk ziyarette gösterilir (tercih kaydedilmemişse).
-// - "Tümünü kabul et" / "Yalnızca zorunlu" seçenekleri tercihi localStorage'a yazar.
-// - Zorunlu OLMAYAN çerezler (analitik vb.) onaydan ÖNCE çalışmaz (docs/06 §3).
-// - Tercih `writeConsent` ile yazılır → `Analytics` bileşeni olayı dinler ve
-//   YALNIZCA "all" onayında analitik script'i yükler (bkz. lib/consent.ts,
-//   components/analytics.tsx).
+// PERFORMANS / LCP DÜZELTMESİ:
+// Eskiden banner bir client bileşeniydi; hidrasyon + localStorage okumasından SONRA
+// mount oluyordu → geç boyanıyor ve LCP'yi ~860ms geciktiriyordu (PageSpeed). Artık:
+//   - Banner markup'ı SUNUCUDA, statik HTML içinde GELİR (hidrasyon beklenmez) →
+//     ilk boyamada hazır, "öğe oluşturma gecikmesi" ~0. Sayfalar STATİK kalır
+//     (cookies()/headers() KULLANILMAZ → SSG/CDN cache korunur, ki bu da LCP'yi
+//     hızlandırır).
+//   - Tercih bir ÇEREZE saklanır. Daha önce onay vermiş kullanıcıda banner'ı boyamadan
+//     ÖNCE gizlemek için, banner'dan hemen önce küçük bir SENKRON inline script çereze
+//     bakar; tercih varsa kabı `hidden` yapar (paint-öncesi → yanıp sönme/CLS yok).
+//
+// CLS: Banner `position: fixed` + alt köşede → belge akışını itmez; gösterilmesi/
+// gizlenmesi layout shift YARATMAZ (CLS 0 korunur).
+//
+// DAVRANIŞ (değişmedi): "Tümünü kabul et" / "Yalnızca zorunlu" tercihi kaydeder;
+// zorunlu OLMAYAN çerezler (analitik) yalnız "all" onayında çalışır (lib/consent.ts,
+// components/analytics.tsx). Butonlar küçük bir istemci adasında (cookie-consent-actions).
 
-import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { readConsent, writeConsent, type ConsentValue } from "@/lib/consent";
+import { CONSENT_STORAGE_KEY } from "@/lib/consent";
+import { CookieConsentActions } from "./cookie-consent-actions";
 
-export function CookieConsent() {
-  const t = useTranslations("cookie");
-  const [visible, setVisible] = useState(false);
+// Paint-öncesi inline script: çerezde "all"/"essential" varsa banner kabını gizle.
+// Statik string olduğundan SSG'yi bozmaz; senkron çalışır → boyamadan önce karar verilir.
+const HIDE_IF_CONSENTED = `(function(){try{var m=document.cookie.match(/(?:^|; )${CONSENT_STORAGE_KEY}=([^;]+)/);var v=m&&decodeURIComponent(m[1]);if(v==='all'||v==='essential'){var b=document.getElementById('cookie-consent-banner');if(b)b.hidden=true;}}catch(e){}})();`;
 
-  useEffect(() => {
-    // Tercih kaydedilmemişse banner'ı göster.
-    if (readConsent() === null) setVisible(true);
-  }, []);
-
-  function choose(value: ConsentValue) {
-    writeConsent(value);
-    setVisible(false);
-  }
-
-  if (!visible) return null;
+export async function CookieConsent() {
+  const t = await getTranslations("cookie");
 
   return (
-    <div
-      role="dialog"
-      aria-live="polite"
-      aria-label={t("policyLink")}
-      className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-3xl rounded-[var(--radius)] border border-border bg-card p-4 shadow-lg sm:p-5"
-    >
-      <p className="text-sm text-muted-foreground">
-        {t("message")}{" "}
-        <Link href="/cerez-politikasi" className="font-medium text-secondary underline">
-          {t("policyLink")}
-        </Link>
-      </p>
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
-        <button
-          type="button"
-          onClick={() => choose("essential")}
-          className="rounded-pill border border-input px-4 py-2 text-sm font-medium transition hover:bg-muted"
-        >
-          {t("reject")}
-        </button>
-        <button
-          type="button"
-          onClick={() => choose("all")}
-          className="rounded-pill bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:-translate-y-0.5"
-        >
-          {t("accept")}
-        </button>
+    <>
+      <div
+        id="cookie-consent-banner"
+        data-cookie-banner
+        role="dialog"
+        aria-live="polite"
+        aria-label={t("policyLink")}
+        className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-3xl rounded-[var(--radius)] border border-border bg-card p-4 shadow-lg sm:p-5"
+      >
+        <p className="text-sm text-muted-foreground">
+          {t("message")}{" "}
+          <Link href="/cerez-politikasi" className="font-medium text-secondary underline">
+            {t("policyLink")}
+          </Link>
+        </p>
+        <CookieConsentActions />
       </div>
-    </div>
+      <script dangerouslySetInnerHTML={{ __html: HIDE_IF_CONSENTED }} />
+    </>
   );
 }

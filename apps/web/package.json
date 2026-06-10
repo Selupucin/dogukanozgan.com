@@ -11,6 +11,11 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
   },
+  "browserslist": [
+    "last 2 years",
+    "not dead",
+    "not op_mini all"
+  ],
   "dependencies": {
     "@do/db": "workspace:*",
     "@do/email": "workspace:*",
