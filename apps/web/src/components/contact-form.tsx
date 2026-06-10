@@ -18,6 +18,7 @@ import { CheckCircle2, AlertTriangle, MessageCircle } from "lucide-react";
 import { z } from "zod";
 import { cn } from "@do/ui";
 import { contact } from "@/lib/site";
+import { formatPhone } from "@/lib/masks";
 import { submitContactRequest, type SubmitContactResult } from "@/lib/submit-contact";
 import { track } from "@/lib/track";
 import { ConsentField } from "@/components/auto-form/consent-field";
@@ -130,6 +131,10 @@ export function ContactForm() {
 
   const errors = form.formState.errors;
 
+  // Telefon alanı için canlı maske (teklif formuyla aynı formatPhone — tek kaynak).
+  // register'ın onChange'ini sarmalayıp değeri biçimleyerek RHF'e geçiriyoruz.
+  const phoneField = form.register("phone");
+
   return (
     <div className="rounded-[var(--radius)] border border-border bg-card p-6 sm:p-8">
       <h2 className="font-heading text-xl text-foreground">{t("formTitle")}</h2>
@@ -159,7 +164,12 @@ export function ContactForm() {
             <input
               id="cf-phone"
               type="tel"
-              {...form.register("phone")}
+              inputMode="numeric"
+              {...phoneField}
+              onChange={(e) => {
+                e.target.value = formatPhone(e.target.value);
+                void phoneField.onChange(e);
+              }}
               placeholder={t("formPhonePlaceholder")}
               className={fieldClass}
               autoComplete="tel"
