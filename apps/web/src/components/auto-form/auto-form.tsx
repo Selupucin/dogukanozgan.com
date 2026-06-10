@@ -28,6 +28,7 @@ import { ConsentField } from "./consent-field";
 import { QuoteSuccess } from "./quote-success";
 import { KvkkBody, SensitiveConsentBody } from "@/components/legal/kvkk-content";
 import { submitQuoteRequest, type SubmitQuoteResult } from "@/lib/submit-quote";
+import { track } from "@/lib/track";
 
 interface AutoFormProps {
   product: ProductDefinition;
@@ -143,6 +144,10 @@ export function AutoForm({ product, locale, defaultValues }: AutoFormProps) {
     const result = await submitQuoteRequest(fd);
 
     if (result.ok) {
+      // GA4: teklif başarıyla gönderildi. sigorta_turu = ürünün kanonik TR slug'ı
+      // (product.slug, ör. "trafik" / "saglik" / "bireysel-emeklilik"). Yalnız GERÇEK
+      // başarıda; hata/yeniden render'da tetiklenmez (bu dal sadece result.ok'ta çalışır).
+      track("teklif_al", { sigorta_turu: product.slug });
       setTrackingCode(result.trackingCode ?? null);
       setSubmitted(true);
       return;

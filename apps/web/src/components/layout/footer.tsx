@@ -8,6 +8,7 @@ import { InstagramIcon, LinkedinIcon, FacebookIcon } from "@/components/social-i
 import { getAllProducts, getLocalizedSlug } from "@do/products";
 import { routing } from "@/i18n/routing";
 import { ShieldMark } from "@/components/wordmark";
+import { TrackLink } from "@/components/track-link";
 import { contact, social, mapLinkUrl, brandName } from "@/lib/site";
 
 type Locale = (typeof routing.locales)[number];
@@ -98,9 +99,14 @@ export async function Footer({ locale }: { locale: Locale }) {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
-                <a href={`tel:${contact.phoneE164}`} className="transition hover:text-white">
+                <TrackLink
+                  event="iletisim_arama"
+                  eventParams={{ kanal: "telefon" }}
+                  href={`tel:${contact.phoneE164}`}
+                  className="transition hover:text-white"
+                >
                   {contact.phoneDisplay}
-                </a>
+                </TrackLink>
               </li>
               <li className="flex items-start gap-2.5">
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />

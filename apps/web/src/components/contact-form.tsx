@@ -19,6 +19,7 @@ import { z } from "zod";
 import { cn } from "@do/ui";
 import { contact } from "@/lib/site";
 import { submitContactRequest, type SubmitContactResult } from "@/lib/submit-contact";
+import { track } from "@/lib/track";
 import { ConsentField } from "@/components/auto-form/consent-field";
 import { KvkkBody } from "@/components/legal/kvkk-content";
 import type { Locale } from "@/i18n/routing";
@@ -75,6 +76,8 @@ export function ContactForm() {
     const result = await submitContactRequest(fd);
 
     if (result.ok) {
+      // GA4: iletişim formu başarıyla gönderildi (yalnız GERÇEK başarıda, 1 kez).
+      track("iletisim_formu");
       setSubmitted(true);
       return;
     }
@@ -262,6 +265,7 @@ export function ContactForm() {
           href={buildWaHref()}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => track("iletisim_arama", { kanal: "whatsapp" })}
           className="inline-flex w-full items-center justify-center gap-2 rounded-full border-[1.5px] border-secondary/40 px-6 py-3 text-sm font-bold text-secondary transition hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <MessageCircle className="h-5 w-5" aria-hidden />

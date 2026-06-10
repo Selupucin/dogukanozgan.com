@@ -10,6 +10,7 @@ import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { localizedAlternates, jsonLdHtml } from "@/lib/seo";
 import { FaqCategories } from "@/components/faq-categories";
+import { TrackLink } from "@/components/track-link";
 import { buildFaqJsonLd, faqCategories, getAllFaqItems } from "@/lib/faq";
 import { contact } from "@/lib/site";
 
@@ -92,7 +93,9 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
             {t("ctaButton")}
             <ArrowRight className="h-5 w-5" aria-hidden />
           </Link>
-          <a
+          <TrackLink
+            event="iletisim_arama"
+            eventParams={{ kanal: "whatsapp" }}
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
@@ -100,7 +103,7 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
           >
             <MessageCircle className="h-5 w-5" aria-hidden />
             WhatsApp
-          </a>
+          </TrackLink>
         </div>
       </div>
     </main>

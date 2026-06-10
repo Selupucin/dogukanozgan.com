@@ -8,6 +8,7 @@ import { routing, type Locale } from "@/i18n/routing";
 import { localizedAlternates, jsonLdHtml } from "@/lib/seo";
 import { contact, mapEmbedUrl, mapLinkUrl, siteUrl, brandName, social } from "@/lib/site";
 import { ContactForm } from "@/components/contact-form";
+import { TrackLink } from "@/components/track-link";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -70,6 +71,8 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       title: t("phoneTitle"),
       value: contact.phoneDisplay,
       href: `tel:${contact.phoneE164}`,
+      // GA4: bu kart tıklanınca "iletisim_arama" (kanal: telefon).
+      kanal: "telefon" as const,
     },
     {
       icon: MessageCircle,
@@ -77,6 +80,8 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       value: contact.phoneDisplay,
       href: waHref,
       external: true,
+      // GA4: bu kart tıklanınca "iletisim_arama" (kanal: whatsapp).
+      kanal: "whatsapp" as const,
     },
     {
       icon: Mail,
@@ -101,20 +106,37 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       </header>
 
       <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-3">
-        {cards.map((c) => (
-          <a
-            key={c.title}
-            href={c.href}
-            {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-            className="group flex flex-col gap-2 rounded-[var(--radius)] border border-border bg-card p-6 transition hover:-translate-y-1 hover:shadow-[0_18px_50px_-22px_hsl(210_56%_15%/0.45)]"
-          >
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-              <c.icon className="h-5 w-5" aria-hidden />
-            </span>
-            <span className="mt-1 text-sm font-bold text-muted-foreground">{c.title}</span>
-            <span className="break-words font-heading text-lg text-foreground">{c.value}</span>
-          </a>
-        ))}
+        {cards.map((c) => {
+          const cardClass =
+            "group flex flex-col gap-2 rounded-[var(--radius)] border border-border bg-card p-6 transition hover:-translate-y-1 hover:shadow-[0_18px_50px_-22px_hsl(210_56%_15%/0.45)]";
+          const externalProps = c.external ? { target: "_blank", rel: "noopener noreferrer" } : {};
+          const inner = (
+            <>
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+                <c.icon className="h-5 w-5" aria-hidden />
+              </span>
+              <span className="mt-1 text-sm font-bold text-muted-foreground">{c.title}</span>
+              <span className="break-words font-heading text-lg text-foreground">{c.value}</span>
+            </>
+          );
+          // Telefon/WhatsApp kartı → GA4 "iletisim_arama" izlenir; e-posta kartı düz <a>.
+          return c.kanal ? (
+            <TrackLink
+              key={c.title}
+              event="iletisim_arama"
+              eventParams={{ kanal: c.kanal }}
+              href={c.href}
+              {...externalProps}
+              className={cardClass}
+            >
+              {inner}
+            </TrackLink>
+          ) : (
+            <a key={c.title} href={c.href} {...externalProps} className={cardClass}>
+              {inner}
+            </a>
+          );
+        })}
       </div>
 
       <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">

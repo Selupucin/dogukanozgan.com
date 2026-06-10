@@ -4,6 +4,7 @@
 import { getTranslations } from "next-intl/server";
 import { Phone, ShieldCheck, LifeBuoy } from "lucide-react";
 import { contact } from "@/lib/site";
+import { TrackLink } from "@/components/track-link";
 
 export async function TopBar() {
   const t = await getTranslations("topbar");
@@ -21,17 +22,21 @@ export async function TopBar() {
           {t("trust")}
         </span>
         <span className="flex items-center gap-4">
-          <a
+          <TrackLink
+            event="iletisim_arama"
+            eventParams={{ kanal: "telefon" }}
             href={`tel:${contact.phoneE164}`}
             className="inline-flex items-center gap-1.5 transition hover:text-background"
           >
             <Phone className="h-3.5 w-3.5" aria-hidden />
             {contact.phoneDisplay}
-          </a>
+          </TrackLink>
           <span aria-hidden className="text-background/30">
             ·
           </span>
-          <a
+          <TrackLink
+            event="iletisim_arama"
+            eventParams={{ kanal: "whatsapp" }}
             href={claimWaHref}
             target="_blank"
             rel="noopener noreferrer"
@@ -39,7 +44,7 @@ export async function TopBar() {
           >
             <LifeBuoy className="h-3.5 w-3.5" aria-hidden />
             {t("claim")}
-          </a>
+          </TrackLink>
         </span>
       </div>
     </div>

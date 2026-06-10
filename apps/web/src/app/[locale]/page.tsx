@@ -10,6 +10,7 @@ import { routing } from "@/i18n/routing";
 import { getAllProducts, getLocalizedSlug } from "@do/products";
 import { ProductIcon } from "@/components/product-icon";
 import { HeroQuoteCard } from "@/components/home/hero-quote-card";
+import { TrackLink } from "@/components/track-link";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { buildFaqJsonLd } from "@/lib/faq";
 import { jsonLdHtml } from "@/lib/seo";
@@ -86,7 +87,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 {t("heroCtaPrimary")}
                 <ArrowRight className="h-5 w-5" aria-hidden />
               </Link>
-              <a
+              <TrackLink
+                event="iletisim_arama"
+                eventParams={{ kanal: "whatsapp" }}
                 href={waHref}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -94,7 +97,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               >
                 <MessageCircle className="h-5 w-5" aria-hidden />
                 {t("heroCtaWhatsapp")}
-              </a>
+              </TrackLink>
             </div>
             <dl className="reveal reveal-5 mt-10 flex flex-wrap gap-x-10 gap-y-5">
               {stats.map((s) => (
@@ -248,7 +251,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               {tc("getQuote")}
               <ArrowRight className="h-5 w-5" aria-hidden />
             </Link>
-            <a
+            <TrackLink
+              event="iletisim_arama"
+              eventParams={{ kanal: "whatsapp" }}
               href={waHref}
               target="_blank"
               rel="noopener noreferrer"
@@ -256,7 +261,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             >
               <MessageCircle className="h-5 w-5" aria-hidden />
               {t("heroCtaWhatsapp")}
-            </a>
+            </TrackLink>
           </div>
         </div>
       </section>
