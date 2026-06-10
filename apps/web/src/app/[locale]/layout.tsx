@@ -12,7 +12,7 @@ import { Analytics } from "@/components/analytics";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteShell } from "@/components/layout/site-shell";
-import { contact, siteUrl, brandName, social, mapLinkUrl } from "@/lib/site";
+import { contact, siteUrl, brandName, social, mapLinkUrl, openingHours } from "@/lib/site";
 import "../globals.css";
 
 type Locale = (typeof routing.locales)[number];
@@ -126,6 +126,13 @@ export default async function LocaleLayout({
       "@type": "GeoCoordinates",
       latitude: contact.geo.lat,
       longitude: contact.geo.lng,
+    },
+    // Çalışma saatleri (docs/07 yerel SEO — sitedeki "Hafta içi 09:00–18:00" ile birebir).
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: openingHours.dayOfWeek,
+      opens: openingHours.opens,
+      closes: openingHours.closes,
     },
     hasMap: mapLinkUrl,
     // docs/07: sosyal profilleri marka-entity ile ilişkilendir (sameAs → yerel SEO).

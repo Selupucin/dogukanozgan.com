@@ -6,7 +6,15 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react";
 import { routing, type Locale } from "@/i18n/routing";
 import { localizedAlternates, jsonLdHtml } from "@/lib/seo";
-import { contact, mapEmbedUrl, mapLinkUrl, siteUrl, brandName, social } from "@/lib/site";
+import {
+  contact,
+  mapEmbedUrl,
+  mapLinkUrl,
+  siteUrl,
+  brandName,
+  social,
+  openingHours,
+} from "@/lib/site";
 import { ContactForm } from "@/components/contact-form";
 import { TrackLink } from "@/components/track-link";
 
@@ -59,6 +67,13 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       "@type": "GeoCoordinates",
       latitude: contact.geo.lat,
       longitude: contact.geo.lng,
+    },
+    // Çalışma saatleri (docs/07 yerel SEO — sitedeki "Hafta içi 09:00–18:00" ile birebir).
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: openingHours.dayOfWeek,
+      opens: openingHours.opens,
+      closes: openingHours.closes,
     },
     hasMap: mapLinkUrl,
     // docs/07: marka-entity sosyal profilleri (sameAs → yerel SEO).

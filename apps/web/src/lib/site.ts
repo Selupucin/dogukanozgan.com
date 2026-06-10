@@ -34,6 +34,14 @@ export const mapEmbedUrl =
 /** "Haritada Aç / Yol tarifi" — Doğukan'ın paylaştığı resmi işletme konum linki. */
 export const mapLinkUrl = "https://maps.app.goo.gl/jjxuS7UgeYc7ECrn9";
 
+/** Çalışma saatleri (sitedeki "Hafta içi 09:00–18:00" ile birebir) — JSON-LD
+ *  openingHoursSpecification kaynağı. Hafta içi = Pzt–Cuma. */
+export const openingHours = {
+  dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  opens: "09:00",
+  closes: "18:00",
+} as const;
+
 /**
  * Anlaşmalı sigorta şirketleri (güven şeridi — docs/09).
  * Doğukan'ın GERÇEK anlaşmalı şirket listesi (2026-06-08).
