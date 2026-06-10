@@ -6,7 +6,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react";
 import { routing, type Locale } from "@/i18n/routing";
 import { localizedAlternates, jsonLdHtml } from "@/lib/seo";
-import { contact, mapEmbedUrl, mapLinkUrl, siteUrl, brandName } from "@/lib/site";
+import { contact, mapEmbedUrl, mapLinkUrl, siteUrl, brandName, social } from "@/lib/site";
 import { ContactForm } from "@/components/contact-form";
 
 export function generateStaticParams() {
@@ -53,6 +53,8 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       postalCode: contact.address.postalCode,
       addressCountry: contact.address.country,
     },
+    // docs/07: marka-entity sosyal profilleri (sameAs → yerel SEO).
+    sameAs: [social.instagram, social.facebook, social.linkedin],
   };
 
   const cards = [

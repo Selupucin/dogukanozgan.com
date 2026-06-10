@@ -3,8 +3,7 @@
 // docs/09 (anlaşmalı şirket güven şeridi).
 //
 // ⚠️ YER TUTUCULAR: Aşağıdaki bazı değerler docs'ta "🔧 netleşecek" işaretli.
-// TODO(doc): Gerçek anlaşmalı sigorta şirketleri listesi (docs/09), sosyal medya
-// hesapları ve harita koordinatları (docs/02) Doğukan'dan gelince güncellenecek.
+// TODO(doc): Harita koordinatları/Place ID (docs/02) Doğukan'dan gelince güncellenecek.
 
 /** Birincil iletişim kanalları (docs/02 — teyit edilmiş bilgiler). */
 export const contact = {
@@ -64,13 +63,13 @@ export const partnerCompanies: string[] = [
 ];
 
 /**
- * Sosyal medya linkleri (footer). ⚠️ YER TUTUCU (# placeholder).
- * TODO(doc): Gerçek sosyal medya hesapları gelince href güncellenecek (docs/07).
+ * Sosyal medya linkleri (footer + JSON-LD sameAs). Gerçek hesaplar (2026-06-10).
+ * docs/07: marka-entity sosyal profilleri sameAs ile Google'a bildirilir.
  */
 export const social = {
-  instagram: "#",
-  linkedin: "#",
-  facebook: "#",
+  instagram: "https://www.instagram.com/mdgksigortacim/",
+  linkedin: "https://www.linkedin.com/in/dogukan-%C3%B6zgan-214508207/",
+  facebook: "https://www.facebook.com/profile.php?id=61584745201761",
 } as const;
 
 /** Kuruluş/marka. */

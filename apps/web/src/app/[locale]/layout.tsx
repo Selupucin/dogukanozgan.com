@@ -12,7 +12,7 @@ import { Analytics } from "@/components/analytics";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteShell } from "@/components/layout/site-shell";
-import { contact, siteUrl, brandName } from "@/lib/site";
+import { contact, siteUrl, brandName, social } from "@/lib/site";
 import "../globals.css";
 
 type Locale = (typeof routing.locales)[number];
@@ -121,6 +121,8 @@ export default async function LocaleLayout({
     },
     areaServed: "TR",
     priceRange: "$$",
+    // docs/07: sosyal profilleri marka-entity ile ilişkilendir (sameAs → yerel SEO).
+    sameAs: [social.instagram, social.facebook, social.linkedin],
   };
 
   return (

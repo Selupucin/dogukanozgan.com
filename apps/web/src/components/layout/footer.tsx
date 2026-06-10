@@ -40,13 +40,13 @@ export async function Footer({ locale }: { locale: Locale }) {
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed">{t("about")}</p>
             <div className="mt-5 flex gap-3">
-              <SocialLink href={social.instagram} label="Instagram">
+              <SocialLink href={social.instagram} label={t("followOn", { network: "Instagram" })}>
                 <InstagramIcon className="h-4 w-4" />
               </SocialLink>
-              <SocialLink href={social.linkedin} label="LinkedIn">
+              <SocialLink href={social.linkedin} label={t("followOn", { network: "LinkedIn" })}>
                 <LinkedinIcon className="h-4 w-4" />
               </SocialLink>
-              <SocialLink href={social.facebook} label="Facebook">
+              <SocialLink href={social.facebook} label={t("followOn", { network: "Facebook" })}>
                 <FacebookIcon className="h-4 w-4" />
               </SocialLink>
             </div>

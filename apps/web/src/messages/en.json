@@ -258,6 +258,7 @@
     "branches": "Branches",
     "corporate": "Corporate",
     "viewOnMap": "View on Map",
+    "followOn": "Follow on {network}",
     "rights": "All rights reserved.",
     "agencyNote": "Under the assurance of Akplan Sigorta · KVKK-compliant data processing",
     "links": {
