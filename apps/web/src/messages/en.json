@@ -125,6 +125,69 @@
     "backToInfo": "Back to product info",
     "calcToQuote": "Get a quote with these values"
   },
+  "saglikCompare": {
+    "eyebrow": "TSS or ÖSS?",
+    "title": "Complementary (TSS) vs. Private (ÖSS) health insurance",
+    "intro": "Both products give you access to private hospitals; the differences come down to your budget, your SGK status and the coverage you expect. The comparison below helps you decide.",
+    "tssTitle": "Complementary Health (TSS)",
+    "tssBody": "Lets people with SGK get treated at SGK-contracted private hospitals without paying the price difference; it complements your SGK. It is the affordable option.",
+    "tssFor": "Best for: those who actively use their SGK and want budget-friendly private hospital access.",
+    "ossTitle": "Private Health (ÖSS)",
+    "ossBody": "Comprehensive insurance covering inpatient and outpatient treatment within policy limits, independent of SGK; it offers a wide hospital network, high limits and optional add-ons (maternity, dental, abroad).",
+    "ossFor": "Best for: those who want a wide network, upper-tier hospitals, high limits or abroad coverage.",
+    "tableTitle": "Comparison table",
+    "colCriterion": "Criterion",
+    "colTss": "Complementary (TSS)",
+    "colOss": "Private (ÖSS)",
+    "rows": [
+      {
+        "criterion": "SGK requirement",
+        "tss": "Required (active SGK)",
+        "oss": "Not required"
+      },
+      {
+        "criterion": "Eligible hospitals",
+        "tss": "Only SGK-contracted private hospitals",
+        "oss": "All contracted private hospitals, with or without SGK (wider network)"
+      },
+      {
+        "criterion": "Abroad coverage",
+        "tss": "None",
+        "oss": "Can be added optionally"
+      },
+      {
+        "criterion": "Payment at the hospital",
+        "tss": "Only the statutory examination co-payment",
+        "oss": "Depends on the policy (e.g. 20% of the bill as co-payment)"
+      },
+      {
+        "criterion": "Add-ons (maternity/dental/check-up)",
+        "tss": "Limited",
+        "oss": "Extensive"
+      },
+      {
+        "criterion": "Coverage limit",
+        "tss": "Limited to the SGK framework",
+        "oss": "High (some policies near unlimited)"
+      },
+      {
+        "criterion": "Premium / price",
+        "tss": "Affordable",
+        "oss": "Higher"
+      }
+    ],
+    "guideTitle": "Quick decision guide",
+    "guide": [
+      "If you have SGK and want an affordable solution → Complementary (TSS)",
+      "If you want a wide hospital network, upper-tier hospitals or high limits → Private (ÖSS)",
+      "If you want abroad coverage → Private (ÖSS)",
+      "If you do not have SGK → Private (ÖSS)",
+      "If you want broad coverage such as maternity, dental or check-up → Private (ÖSS)"
+    ],
+    "noteTitle": "Good to know",
+    "note1": "Age limits, co-payment amounts and waiting periods vary by company and policy.",
+    "note2": "TSS is valid only at SGK-contracted private hospitals; it is not valid abroad."
+  },
   "quotePage": {
     "titleSuffix": "{product} Quote",
     "metaDescription": "Get a free quote for {product} in minutes. Leave your details and we'll compare the most suitable policy and get back to you.",
@@ -372,9 +435,14 @@
     },
     "saglik": {
       "title": "Health Insurance Premium Estimate",
-      "intro": "See an approximate monthly/annual premium range based on your age and coverage.",
+      "intro": "Choose a policy type; see an approximate monthly/annual premium range based on your age and coverage.",
+      "typeLabel": "Policy type",
+      "tabTss": "Complementary (TSS)",
+      "tabOss": "Private (ÖSS)",
+      "tssNote": "Complementary (TSS) requires active SGK coverage; it is an affordable option that complements your SGK.",
+      "ossNote": "Private (ÖSS) health insurance does not require SGK; it offers a wide hospital network and high limits.",
+      "abroad": "Abroad coverage (optional)",
       "age": "Age",
-      "sgk": "I have SGK coverage (Complementary / TSS)",
       "coverage": "Coverage",
       "coverageIndividual": "Individual",
       "coverageFamily": "Family",

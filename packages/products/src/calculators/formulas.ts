@@ -128,18 +128,28 @@ export function calculateBes(input: BesInput): BesResult {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SAĞLIK — Prim tahmin aralığı
-// docs/03: yaş / cinsiyet / SGK (TSS/Özel) / kapsam (bireysel/aile) → kaba aralık.
+// docs/03 §2: yaş / poliçe türü (TSS tamamlayıcı / ÖSS özel) / kapsam (bireysel/aile)
+//   + ÖSS'ye opsiyonel yurt dışı teminatı → kaba aylık aralık.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface SaglikInput {
   /** Yaş. */
   age: number;
-  /** SGK'lı mı? true → TSS (tamamlayıcı, daha ucuz), false → Özel. */
-  hasSgk: boolean;
+  /**
+   * Poliçe türü: "tss" → Tamamlayıcı (ekonomik, SGK'lı), "oss" → Özel (yüksek, geniş ağ).
+   * docs/03 §2 (Sağlık TSS/ÖSS ayrımı).
+   */
+  type: "tss" | "oss";
   /** Kapsam. */
   coverage: "bireysel" | "aile";
   /** Aile ise kişi sayısı (kendisi dahil). bireysel ise yok sayılır. */
   peopleCount?: number;
+  /**
+   * Yalnızca ÖSS için isteğe bağlı yurt dışı teminatı. true ise prim
+   * SAGLIK.ossAbroadFactor ile yükselir. TSS'de yok sayılır (TSS yurt dışı kapsamaz).
+   * docs/03 §2.
+   */
+  abroad?: boolean;
 }
 
 export interface PremiumRange {
@@ -165,8 +175,13 @@ export function calculateSaglik(input: SaglikInput): PremiumRange {
   const yearsOver18 = Math.max(0, age - 18);
   base *= 1 + yearsOver18 * SAGLIK.perYearOver18Factor;
 
-  // TSS (SGK'lı) indirimi.
-  if (input.hasSgk) base *= SAGLIK.tssDiscountFactor;
+  // Poliçe türü: TSS (tamamlayıcı) ekonomik → indirim; ÖSS (özel) tam taban.
+  if (input.type === "tss") {
+    base *= SAGLIK.tssDiscountFactor;
+  } else if (input.abroad) {
+    // ÖSS yurt dışı teminatı eklendiyse prim yükselir (TSS'de yurt dışı YOK).
+    base *= SAGLIK.ossAbroadFactor;
+  }
 
   // Aile kapsamı: ek kişiler.
   if (input.coverage === "aile") {

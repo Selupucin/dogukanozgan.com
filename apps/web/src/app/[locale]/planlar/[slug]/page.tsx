@@ -27,6 +27,7 @@ import { getProductContent } from "@/lib/product-content";
 import { ProductIcon } from "@/components/product-icon";
 import { CalculatorSection } from "@/components/calculators/calculator-section";
 import { FaqAccordion } from "@/components/faq-accordion";
+import { SaglikComparison } from "@/components/saglik-comparison";
 
 type Locale = (typeof routing.locales)[number];
 
@@ -263,10 +264,23 @@ export default async function ProductPage({
       </section>
     ) : null;
 
+  // Sağlık'a özel: TSS vs ÖSS açıklama + karşılaştırma + karar rehberi (docs/03 §2).
+  // Tanıtım paragrafından (lead) sonra, kapsamdan önce gösterilir; hesaplayıcı zaten
+  // en üstte olduğundan kullanıcı önce hesaplar, sonra iki ürünü karşılaştırır.
+  const saglikCompareBlock = product.slug === "saglik" ? <SaglikComparison /> : null;
+
   // Bölüm sırası: hesaplayıcı varsa → hesaplayıcı önce, sonra tanıtım/açıklamalar.
   // Yoksa → tanıtım (lead) önce, ardından açıklamalar (mevcut düzen).
   const bodySections = product.hasCalculator
-    ? [calculatorBlock, leadBlock, coverageBlock, advantagesBlock, whyBlock, faqBlock]
+    ? [
+        calculatorBlock,
+        leadBlock,
+        saglikCompareBlock,
+        coverageBlock,
+        advantagesBlock,
+        whyBlock,
+        faqBlock,
+      ]
     : [leadBlock, coverageBlock, advantagesBlock, whyBlock, faqBlock];
 
   return (

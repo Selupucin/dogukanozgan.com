@@ -125,6 +125,69 @@
     "backToInfo": "Ürün bilgisine dön",
     "calcToQuote": "Bu değerlerle teklif al"
   },
+  "saglikCompare": {
+    "eyebrow": "TSS mi, ÖSS mi?",
+    "title": "Tamamlayıcı (TSS) ile Özel (ÖSS) sağlık sigortası",
+    "intro": "İki ürün de özel hastane erişimi sağlar; farkları bütçenize, SGK durumunuza ve beklediğiniz kapsama göre belirginleşir. Aşağıdaki karşılaştırma karar vermenize yardımcı olur.",
+    "tssTitle": "Tamamlayıcı Sağlık (TSS)",
+    "tssBody": "SGK'lı kişilerin, SGK anlaşmalı özel hastanelerde fark ücreti ödemeden tedavi olmasını sağlar; SGK'nızı tamamlar. Ekonomik bir seçenektir.",
+    "tssFor": "Kimler için: SGK'sını aktif kullanan, bütçe dostu özel hastane erişimi isteyenler.",
+    "ossTitle": "Özel Sağlık (ÖSS)",
+    "ossBody": "Yatarak ve ayakta tedaviyi poliçe limitlerinde karşılayan, SGK'dan bağımsız; geniş hastane ağı, yüksek limit ve isteğe bağlı ek teminatlar (doğum, diş, yurt dışı) sunan kapsamlı bir sigortadır.",
+    "ossFor": "Kimler için: Geniş ağ, üst segment hastane, yüksek limit veya yurt dışı kapsamı isteyenler.",
+    "tableTitle": "Karşılaştırma tablosu",
+    "colCriterion": "Kriter",
+    "colTss": "Tamamlayıcı (TSS)",
+    "colOss": "Özel (ÖSS)",
+    "rows": [
+      {
+        "criterion": "SGK zorunluluğu",
+        "tss": "Var (aktif SGK şart)",
+        "oss": "Yok"
+      },
+      {
+        "criterion": "Geçerli hastaneler",
+        "tss": "Sadece SGK anlaşmalı özel hastaneler",
+        "oss": "SGK'lı ve SGK'sız tüm anlaşmalı özel hastaneler (daha geniş ağ)"
+      },
+      {
+        "criterion": "Yurt dışı teminatı",
+        "tss": "Yok",
+        "oss": "İsteğe göre eklenebilir"
+      },
+      {
+        "criterion": "Hastanede ödeme",
+        "tss": "Sadece yasal muayene katılım payı",
+        "oss": "Poliçeye göre (ör. faturanın %20'si katılım payı)"
+      },
+      {
+        "criterion": "Ek teminatlar (doğum/diş/check-up)",
+        "tss": "Sınırlı",
+        "oss": "Geniş"
+      },
+      {
+        "criterion": "Teminat limiti",
+        "tss": "SGK çerçevesiyle sınırlı",
+        "oss": "Yüksek (bazı poliçeler sınırsıza yakın)"
+      },
+      {
+        "criterion": "Prim / fiyat",
+        "tss": "Ekonomik",
+        "oss": "Yüksek"
+      }
+    ],
+    "guideTitle": "Kısa karar rehberi",
+    "guide": [
+      "SGK'lı ve ekonomik bir çözüm istiyorsanız → Tamamlayıcı (TSS)",
+      "Geniş hastane ağı, üst segment hastane veya yüksek limit istiyorsanız → Özel (ÖSS)",
+      "Yurt dışı kapsamı istiyorsanız → Özel (ÖSS)",
+      "SGK'nız yoksa → Özel (ÖSS)",
+      "Doğum, diş, check-up gibi geniş kapsam istiyorsanız → Özel (ÖSS)"
+    ],
+    "noteTitle": "Bilmeniz gerekenler",
+    "note1": "Yaş sınırı, katılım payı tutarı ve bekleme süreleri şirkete ve poliçeye göre değişir.",
+    "note2": "TSS yalnızca SGK anlaşmalı özel hastanelerde geçerlidir; yurt dışında geçerli değildir."
+  },
   "quotePage": {
     "titleSuffix": "{product} Teklifi",
     "metaDescription": "{product} için birkaç dakikada ücretsiz teklif alın. Bilgilerinizi bırakın, en uygun poliçeyi karşılaştırıp en kısa sürede size dönelim.",
@@ -372,9 +435,14 @@
     },
     "saglik": {
       "title": "Sağlık Sigortası Prim Tahmini",
-      "intro": "Yaş ve kapsamınıza göre yaklaşık aylık/yıllık prim aralığını görün.",
+      "intro": "Poliçe türünü seçin; yaş ve kapsamınıza göre yaklaşık aylık/yıllık prim aralığını görün.",
+      "typeLabel": "Poliçe türü",
+      "tabTss": "Tamamlayıcı (TSS)",
+      "tabOss": "Özel (ÖSS)",
+      "tssNote": "Tamamlayıcı (TSS) için aktif SGK gereklidir; SGK'nızı tamamlayan ekonomik bir seçenektir.",
+      "ossNote": "Özel (ÖSS) sağlık sigortasında SGK şartı yoktur; geniş hastane ağı ve yüksek limit sunar.",
+      "abroad": "Yurt dışı teminatı (isteğe bağlı)",
       "age": "Yaş",
-      "sgk": "SGK'lıyım (Tamamlayıcı / TSS)",
       "coverage": "Kapsam",
       "coverageIndividual": "Bireysel",
       "coverageFamily": "Aile",

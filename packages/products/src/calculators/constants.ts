@@ -76,7 +76,8 @@ export const BES = {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SAĞLIK — Prim tahmin hesaplayıcısı sabitleri
-// docs/03: yaş / cinsiyet / SGK (TSS/Özel) / kapsam (bireysel/aile) → kaba aylık aralık.
+// docs/03 §2: yaş / poliçe türü (TSS / ÖSS) / kapsam (bireysel/aile)
+//   + ÖSS opsiyonel yurt dışı teminatı → kaba aylık aralık.
 // ─────────────────────────────────────────────────────────────────────────────
 export const SAGLIK = {
   /** Kaba aylık taban prim (TL) — tahmini. */
@@ -90,9 +91,16 @@ export const SAGLIK = {
   // TODO(doc): Gerçek yaş-prim eğrisi (yaş bandı tablosu) ile değiştirilecek.
   perYearOver18Factor: 0.03, // 18 yaş üstü her yıl için +%3
 
-  /** TSS (SGK'lı, tamamlayıcı) primi Özel'e göre daha düşük → indirim çarpanı. */
-  // TODO(doc): TSS / Özel ayrımının gerçek etkisi netleşecek.
-  tssDiscountFactor: 0.6, // TSS ~ Özel'in %60'ı (kaba)
+  /** TSS (tamamlayıcı, SGK'lı) primi ÖSS'ye göre daha düşük → indirim çarpanı. */
+  // TODO(doc): TSS / ÖSS ayrımının gerçek etkisi netleşecek.
+  tssDiscountFactor: 0.6, // TSS ~ ÖSS'nin %60'ı (kaba)
+
+  /**
+   * ÖSS (özel) yurt dışı teminatı seçilirse uygulanan prim çarpanı (yer tutucu).
+   * docs/03 §2: yurt dışı teminatı yalnız ÖSS'de seçilebilir; TSS'de YOK.
+   */
+  // TODO(doc): ÖSS yurt dışı teminatı gerçek prim etkisi netleşecek (yer tutucu 1.25).
+  ossAbroadFactor: 1.25, // yurt dışı teminatı ~ +%25 (kaba)
 
   /** Aile kapsamında ek kişi başına çarpan. */
   // TODO(doc): Aile/kişi sayısı gerçek fiyatlama mantığı netleşecek.
